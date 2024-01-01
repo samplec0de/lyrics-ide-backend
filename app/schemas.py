@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, UUID4
 
 
 class Text(BaseModel):
@@ -11,8 +11,16 @@ class Music(BaseModel):
     beats_per_minute: int = None
 
 
-class Project(BaseModel):
-    name: str
+class BaseProject(BaseModel):
+    name: str = None
     description: str = None
     texts: list[Text] = []
     music: Music = None
+
+
+class ProjectIn(BaseProject):
+    pass
+
+
+class ProjectOut(BaseProject):
+    id: UUID4

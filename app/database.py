@@ -1,3 +1,5 @@
-from app.schemas import Project
+from pydantic import UUID4
 
-projects: dict[int, Project] = {}
+from app.schemas import ProjectOut
+
+projects: dict[UUID4, ProjectOut] = {}
