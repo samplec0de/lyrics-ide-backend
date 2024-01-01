@@ -1,0 +1,5 @@
+fastapi[all]==0.108.0
+uvicorn[standard]
+python-multipart
+python-jose[cryptography]
+passlib[bcrypt]
