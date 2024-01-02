@@ -4,12 +4,23 @@ from fastapi import UploadFile
 from pydantic import BaseModel, UUID4, Field
 
 
-class TextVariantCompact(BaseModel):
-    id: Annotated[UUID4, Field(description="Идентификатор варианта текста")]
+class TextVariantBase(BaseModel):
     name: Annotated[str, Field(description="Название варианта текста")] = None
 
 
+class TextVariantIn(TextVariantBase):
+    project_id: Annotated[UUID4, Field(description="Идентификатор проекта")]
+
+
+class TextVariantCompact(TextVariantBase):
+    id: Annotated[UUID4, Field(description="Идентификатор варианта текста")]
+
+
 class TextVariant(TextVariantCompact):
+    text: Annotated[str, Field(description="Текст")]
+
+
+class TextVariantWithoutID(TextVariantBase):
     text: Annotated[str, Field(description="Текст")]
 
 
