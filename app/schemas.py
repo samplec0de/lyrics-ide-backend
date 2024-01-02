@@ -4,14 +4,13 @@ from fastapi import UploadFile
 from pydantic import BaseModel, UUID4, Field
 
 
-class TextVariant(BaseModel):
-    name: Annotated[str, Field(description="Название варианта текста")] = None
-    text: Annotated[str, Field(description="Текст")]
-
-
-class TextVariantCompact(TextVariant):
+class TextVariantCompact(BaseModel):
     id: Annotated[UUID4, Field(description="Идентификатор варианта текста")]
     name: Annotated[str, Field(description="Название варианта текста")] = None
+
+
+class TextVariant(TextVariantCompact):
+    text: Annotated[str, Field(description="Текст")]
 
 
 class MusicBase(BaseModel):
@@ -49,3 +48,7 @@ class ProjectOut(ProjectBase):
 class WordMeaning(BaseModel):
     meaning: Annotated[str, Field(description="Значение слова")]
     source: Annotated[str, Field(description="Источник значения слова")]
+
+
+if __name__ == '__main__':
+    print(TextVariant(id="fa576398-f5d2-436d-913c-23b33681f03b", name="Test", text="text"))

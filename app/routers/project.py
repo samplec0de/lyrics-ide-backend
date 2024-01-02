@@ -34,6 +34,11 @@ async def create_project(project: ProjectIn) -> ProjectOut:
     return projects[project_id]
 
 
+@router.delete("/{project_id}", summary="Удалить проект")
+async def delete_project(project: ProjectAnnotation):
+    projects.pop(project.id)
+
+
 @router.post(
     "/{project_id}/music", summary="Загрузить музыку в проект",
     responses=PROJECT_NOT_FOUND
