@@ -32,7 +32,7 @@ class MusicOut(MusicBase):
 class ProjectBase(BaseModel):
     name: Annotated[str, Field(description="Название проекта")] = None
     description: Annotated[str, Field(description="Описание проекта")] = None
-    texts: Annotated[list[TextVariant], Field(description="Варианты текста")] = []
+    texts: Annotated[list[TextVariantBase], Field(description="Варианты текста")] = []
     music: Annotated[MusicIn, Field(description="Музыкальный трек")] = None
 
 
