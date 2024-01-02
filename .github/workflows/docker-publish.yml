@@ -6,7 +6,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.actor }}/<image-name>:latest
+  IMAGE_NAME: ${{ github.actor }}/lyrics-ide-backend:latest
   DOCKER_HOST: ssh://${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.SSH_PORT }}
 
 jobs:
