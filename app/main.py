@@ -1,5 +1,7 @@
 from fastapi import FastAPI
-from app.routers import project, music, text, word
+from fastapi.security import OAuth2PasswordBearer
+
+from app.routers import auth, project, music, text, word
 
 app = FastAPI(
     title="Lyrics IDE Backend",
@@ -8,9 +10,14 @@ app = FastAPI(
 )
 
 app.include_router(
+    auth.router,
+    prefix="/auth",
+    tags=["auth"],
+)
+app.include_router(
     project.router,
     prefix="/project",
-    tags=["project"],
+    tags=["project"]
 )
 app.include_router(
     music.router,
