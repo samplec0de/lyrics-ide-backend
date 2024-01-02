@@ -1,7 +1,11 @@
 from fastapi import FastAPI
 from app.routers import project, music, text, word
 
-app = FastAPI()
+app = FastAPI(
+    title="Lyrics IDE Backend",
+    summary="Серверная часть веб-приложения для создания текстов песен",
+    version="0.0.1",
+)
 
 app.include_router(
     project.router,
