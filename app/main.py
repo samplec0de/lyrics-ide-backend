@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.staticfiles import StaticFiles
 
 from app.routers import auth, project, music, text, word
 
@@ -34,6 +34,8 @@ app.include_router(
     prefix="/words",
     tags=["word"],
 )
+
+app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
 
 if __name__ == '__main__':
