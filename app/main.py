@@ -5,17 +5,17 @@ app = FastAPI()
 
 app.include_router(
     project.router,
-    prefix="/api/projects",
+    prefix="/projects",
     tags=["projects"],
 )
 app.include_router(
     text.router,
-    prefix="/api/texts",
+    prefix="/texts",
     tags=["texts"],
 )
 app.include_router(
     word.router,
-    prefix="/api/words",
+    prefix="/words",
     tags=["words"],
 )
 
