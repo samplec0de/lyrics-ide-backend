@@ -27,7 +27,6 @@ jobs:
     - name: Build and Publish
       run: |
         docker build . --tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-        docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
   deploy:
     needs: publish
