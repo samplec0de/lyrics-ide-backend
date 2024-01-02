@@ -16,7 +16,7 @@ app.include_router(
 )
 app.include_router(
     project.router,
-    prefix="/project",
+    prefix="/projects",
     tags=["project"]
 )
 app.include_router(
@@ -26,12 +26,12 @@ app.include_router(
 )
 app.include_router(
     text.router,
-    prefix="/text",
+    prefix="/texts",
     tags=["text"],
 )
 app.include_router(
     word.router,
-    prefix="/word",
+    prefix="/words",
     tags=["word"],
 )
 
