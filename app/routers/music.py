@@ -2,7 +2,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, UploadFile, File, Query, HTTPException, status
 
-from app.annotations import ProjectAnnotation
+from app.annotations import ProjectAnnotation, UserAnnotation
 from app.schemas import MusicOut
 from app.status_codes import PROJECT_NOT_FOUND, MUSIC_NOT_FOUND
 
@@ -14,6 +14,7 @@ router = APIRouter()
     responses=PROJECT_NOT_FOUND
 )
 async def upload_music(
+        current_user: UserAnnotation,
         project: ProjectAnnotation,
         music: Annotated[UploadFile, File(description="Файл музыки")]
 ):
@@ -25,7 +26,7 @@ async def upload_music(
     summary="Получить музыку проекта",
     responses={**PROJECT_NOT_FOUND, **MUSIC_NOT_FOUND}
 )
-async def get_music(project: ProjectAnnotation) -> MusicOut:
+async def get_music(current_user: UserAnnotation, project: ProjectAnnotation) -> MusicOut:
     if project.music is None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Музыка не найдена")
 
@@ -38,6 +39,7 @@ async def get_music(project: ProjectAnnotation) -> MusicOut:
     responses={**PROJECT_NOT_FOUND, **MUSIC_NOT_FOUND}
 )
 async def set_music_bpm(
+        current_user: UserAnnotation,
         project: ProjectAnnotation,
         custom_bpm: Annotated[int, Query(description="Пользовательское значение BPM", gt=0)]
 ):

@@ -2,7 +2,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, status, Query
 
-from app.annotations import WordAnnotation
+from app.annotations import WordAnnotation, UserAnnotation
 from app.schemas import WordMeaning
 from app.status_codes import MEANING_NOT_FOUND
 
@@ -14,7 +14,7 @@ router = APIRouter()
     summary="Получить значение слова",
     responses=MEANING_NOT_FOUND
 )
-async def get_text(word: WordAnnotation) -> WordMeaning:
+async def get_text(current_user: UserAnnotation, word: WordAnnotation) -> WordMeaning:
     return WordMeaning(meaning="значение слова", source="GRAND_DICTIONARY")
 
 
@@ -22,7 +22,7 @@ async def get_text(word: WordAnnotation) -> WordMeaning:
     "/synonyms",
     summary="Получить синонимы к слову"
 )
-async def get_text(word: WordAnnotation) -> list[str]:
+async def get_text(current_user: UserAnnotation, word: WordAnnotation) -> list[str]:
     return ["синоним 1", "синоним 2", "синоним 3"]
 
 
@@ -30,5 +30,5 @@ async def get_text(word: WordAnnotation) -> list[str]:
     "/rhyming",
     summary="Получить рифмующиеся слова к слову"
 )
-async def get_text(word: WordAnnotation) -> list[str]:
+async def get_text(current_user: UserAnnotation, word: WordAnnotation) -> list[str]:
     return ["рифма 1", "рифма 2"]
