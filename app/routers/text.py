@@ -6,11 +6,11 @@ from fastapi import APIRouter, Depends, status, HTTPException
 from app.database import project_texts
 from app.routers.dependencies import get_text_by_id
 from app.schemas import TextVariant, TextVariantIn, TextVariantWithoutID
+from app.status_codes import TEXT_NOT_FOUND
 
 router = APIRouter()
 
 TextAnnotation = Annotated[TextVariant, Depends(get_text_by_id)]
-TEXT_NOT_FOUND = {status.HTTP_404_NOT_FOUND: {"description": "Текста с заданным id не существует"}}
 
 
 @router.get(

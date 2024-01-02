@@ -2,12 +2,11 @@ from typing import Annotated
 
 from fastapi import APIRouter, status, Query
 
+from app.annotations import WordAnnotation
 from app.schemas import WordMeaning
+from app.status_codes import MEANING_NOT_FOUND
 
 router = APIRouter()
-
-WordAnnotation = Annotated[str, Query(description="слово", min_length=3, max_length=33)]
-MEANING_NOT_FOUND = {status.HTTP_404_NOT_FOUND: {"description": "Не найдено значение слова"}}
 
 
 @router.get(
