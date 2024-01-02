@@ -31,4 +31,4 @@ async def get_text(word: WordAnnotation) -> list[str]:
     summary="Получить рифмующиеся слова к слову"
 )
 async def get_text(word: WordAnnotation) -> list[str]:
-    return ["рифма 1", "рифма 2", "мегарифма"]
+    return ["рифма 1", "рифма 2"]
