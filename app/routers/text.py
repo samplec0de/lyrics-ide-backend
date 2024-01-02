@@ -45,3 +45,8 @@ async def create_text(text: TextVariantIn) -> TextVariant:
     text = TextVariant(id=text_id, **text.model_dump(exclude_unset=True))
 
     return text
+
+
+@router.delete("/{text_id}", summary="Удалить вариант текста")
+async def delete_project(text: TextAnnotation):
+    project_texts.pop(text.id)
