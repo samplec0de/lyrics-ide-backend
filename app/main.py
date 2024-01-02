@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.routers import project, text
+from app.routers import project, text, word
 
 app = FastAPI()
 
@@ -12,6 +12,11 @@ app.include_router(
     text.router,
     prefix="/texts",
     tags=["texts"],
+)
+app.include_router(
+    word.router,
+    prefix="/words",
+    tags=["words"],
 )
 
 

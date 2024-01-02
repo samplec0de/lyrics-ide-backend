@@ -1,7 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
-from starlette import status
+from fastapi import APIRouter, Depends, status
 
 from app.routers.dependencies import get_text_by_id
 from app.schemas import TextVariant

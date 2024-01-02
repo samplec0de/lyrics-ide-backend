@@ -44,3 +44,8 @@ class ProjectOut(ProjectBase):
     id: Annotated[UUID4, Field(description="Идентификатор проекта")]
     texts: Annotated[list[TextVariantCompact], Field(description="Варианты текста")] = []
     music: Annotated[MusicOut, Field(description="Музыкальный трек")] = None
+
+
+class WordMeaning(BaseModel):
+    meaning: Annotated[str, Field(description="Значение слова")]
+    source: Annotated[str, Field(description="Источник значения слова")]
