@@ -2,7 +2,7 @@ from uuid import UUID
 
 from pydantic import UUID4
 
-from app.schemas import ProjectOut, TextVariant
+from app.schemas import ProjectOut, TextVariant, MusicOut
 
 projects: dict[UUID4, ProjectOut] = {
     UUID("82742b97-004e-4746-aed7-c2eaac815e6e"): ProjectOut(
@@ -21,6 +21,11 @@ projects: dict[UUID4, ProjectOut] = {
                 text="Текст 2",
             ),
         ],
+        music=MusicOut(
+            url="https://lyrics-ide.storage.yandexcloud.net/beat_stub.mp3",
+            duration_seconds=184,
+            bpm=90,
+        )
     ),
 }
 
