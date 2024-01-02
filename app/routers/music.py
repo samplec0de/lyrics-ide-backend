@@ -10,7 +10,7 @@ router = APIRouter()
 
 
 @router.post(
-    "/music/{project_id}", summary="Загрузить музыку в проект",
+    "/{project_id}", summary="Загрузить музыку в проект",
     responses=PROJECT_NOT_FOUND
 )
 async def upload_music(
@@ -21,7 +21,7 @@ async def upload_music(
 
 
 @router.get(
-    "/music/{project_id}",
+    "/{project_id}",
     summary="Получить музыку проекта",
     responses={**PROJECT_NOT_FOUND, **MUSIC_NOT_FOUND}
 )
@@ -33,7 +33,7 @@ async def get_music(project: ProjectAnnotation) -> MusicOut:
 
 
 @router.patch(
-    "/music/{project_id}",
+    "/{project_id}",
     summary="Изменить BPM у музыки",
     responses={**PROJECT_NOT_FOUND, **MUSIC_NOT_FOUND}
 )
@@ -48,7 +48,7 @@ async def set_music_bpm(
 
 
 @router.delete(
-    "/music/{project_id}",
+    "/{project_id}",
     summary="Удалить музыку из проекта",
     responses={**PROJECT_NOT_FOUND, **MUSIC_NOT_FOUND}
 )
