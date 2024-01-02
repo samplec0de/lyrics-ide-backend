@@ -20,7 +20,7 @@ async def get_projects() -> list[ProjectOut]:
 
 @router.get(
     "/{project_id}",
-    summary="Получить проект",
+    summary="Получить содержимое проекта",
     responses=PROJECT_NOT_FOUND
 )
 async def get_project(project: ProjectAnnotation) -> ProjectOut:
@@ -40,7 +40,7 @@ async def create_project(project: ProjectIn) -> ProjectOut:
 )
 async def set_music(
         project: ProjectAnnotation,
-        music: Annotated[UploadFile, File(title="Файл музыки", description="Файл музыки")]
+        music: Annotated[UploadFile, File(description="Файл музыки")]
 ):
     project.music.url = "https://lyrics-ide.storage.yandexcloud.net/beat_stub.mp3"
 

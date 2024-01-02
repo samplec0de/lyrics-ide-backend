@@ -1,10 +1,17 @@
+from typing import Annotated
+
 from fastapi import UploadFile
-from pydantic import BaseModel, UUID4
+from pydantic import BaseModel, UUID4, Field
 
 
-class Text(BaseModel):
-    name: str = None
-    text: str
+class TextVariantBase(BaseModel):
+    name: Annotated[str, Field(description="Название варианта текста")] = None
+    text: Annotated[str, Field(description="Текст")]
+
+
+class TextVariantCompact(TextVariantBase):
+    id: Annotated[UUID4, Field(description="Идентификатор варианта текста")]
+    name: Annotated[str, Field(description="Название варианта текста")] = None
 
 
 class MusicBase(BaseModel):
@@ -12,21 +19,21 @@ class MusicBase(BaseModel):
 
 
 class MusicIn(MusicBase):
-    file: UploadFile = None
+    file: Annotated[UploadFile, Field(description="Файл музыки")] = None
 
 
 class MusicOut(MusicBase):
-    url: str
-    duration_seconds: int
-    bpm: int
-    custom_bpm: int = None
+    url: Annotated[str, Field(description="Ссылка на музыку (s3 pre-signed URL)")] = None
+    duration_seconds: Annotated[int, Field(description="Длительность музыки в секундах")]
+    bpm: Annotated[int, Field(description="BPM музыки определенный автоматически")]
+    custom_bpm: Annotated[int, Field(description="BPM музыки установленный пользователем")] = None
 
 
 class ProjectBase(BaseModel):
-    name: str = None
-    description: str = None
-    texts: list[Text] = []
-    music: MusicIn = None
+    name: Annotated[str, Field(description="Название проекта")] = None
+    description: Annotated[str, Field(description="Описание проекта")] = None
+    texts: Annotated[list[TextVariant], Field(description="Варианты текста")] = []
+    music: Annotated[MusicIn, Field(description="Музыкальный трек")] = None
 
 
 class ProjectIn(ProjectBase):
@@ -34,5 +41,6 @@ class ProjectIn(ProjectBase):
 
 
 class ProjectOut(ProjectBase):
-    id: UUID4
-    music: MusicOut = None
+    id: Annotated[UUID4, Field(description="Идентификатор проекта")]
+    texts: Annotated[list[TextVariantCompact], Field(description="Варианты текста")] = []
+    music: Annotated[MusicOut, Field(description="Музыкальный трек")] = None
