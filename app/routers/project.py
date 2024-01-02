@@ -12,6 +12,13 @@ from app.status_codes import PROJECT_NOT_FOUND
 router = APIRouter()
 
 
+@router.post("/", summary="Создать проект")
+async def create_project(project: ProjectIn) -> ProjectOut:
+    project_id = uuid4()
+    projects[project_id] = ProjectOut(**project.model_dump(), id=project_id)
+    return projects[project_id]
+
+
 @router.get("/", summary="Получить список проектов")
 async def get_projects() -> list[ProjectOut]:
     return list(projects.values())
@@ -24,13 +31,6 @@ async def get_projects() -> list[ProjectOut]:
 )
 async def get_project(project: ProjectAnnotation) -> ProjectOut:
     return project
-
-
-@router.post("/", summary="Создать проект")
-async def create_project(project: ProjectIn) -> ProjectOut:
-    project_id = uuid4()
-    projects[project_id] = ProjectOut(**project.model_dump(), id=project_id)
-    return projects[project_id]
 
 
 @router.delete("/{project_id}", summary="Удалить проект")

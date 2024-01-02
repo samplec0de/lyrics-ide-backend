@@ -13,6 +13,18 @@ router = APIRouter()
 TextAnnotation = Annotated[TextVariant, Depends(get_text_by_id)]
 
 
+@router.post(
+    "/",
+    summary="Создать вариант текста",
+    responses=TEXT_NOT_FOUND
+)
+async def create_text(text: TextVariantIn) -> TextVariant:
+    text_id = uuid4()
+    text = TextVariant(id=text_id, **text.model_dump(exclude_unset=True))
+
+    return text
+
+
 @router.get(
     "/{text_id}",
     summary="Получить вариант текста",
@@ -33,18 +45,6 @@ async def set_text(old_text: TextAnnotation, new_text: TextVariantWithoutID) -> 
     project_texts[old_text.id].update_from_dict(new_values)
 
     return project_texts[old_text.id]
-
-
-@router.post(
-    "/",
-    summary="Создать вариант текста",
-    responses=TEXT_NOT_FOUND
-)
-async def create_text(text: TextVariantIn) -> TextVariant:
-    text_id = uuid4()
-    text = TextVariant(id=text_id, **text.model_dump(exclude_unset=True))
-
-    return text
 
 
 @router.delete("/{text_id}", summary="Удалить вариант текста")
