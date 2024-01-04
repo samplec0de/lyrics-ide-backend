@@ -22,7 +22,7 @@
         // Создаем форму для отправки данных
         var form = document.createElement("form");
         form.setAttribute("method", "post");
-        form.setAttribute("action", "http://127.0.0.1:8000/auth/yandex_token");
+        form.setAttribute("action", "https://api.lyrics.sslane.ru/auth/yandex_token");
 
         // Для каждого параметра создаем скрытый элемент формы
         Object.keys(params).forEach(function(key) {
