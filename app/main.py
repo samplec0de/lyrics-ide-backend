@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
+from starlette.middleware.cors import CORSMiddleware
 
 from app.routers import auth, project, music, text, word
 
@@ -7,6 +8,19 @@ app = FastAPI(
     title="Lyrics IDE Backend",
     summary="Серверная часть веб-приложения для создания текстов песен",
     version="0.0.1",
+)
+
+origins = [
+    "http://localhost:5173/",
+    "https://lyrics-ide.sslane.ru/",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 app.include_router(
