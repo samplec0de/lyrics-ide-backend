@@ -4,15 +4,20 @@ from fastapi import APIRouter, HTTPException, Depends, status, Path, Form
 from fastapi.security import OAuth2PasswordRequestForm
 
 from app.auth import User, create_access_token, Token, authenticate_user
+from app.mail import lyrics_send_email
 
 router = APIRouter()
 
 
 @router.post("/email")
 async def send_login_code(user: User):
-    if user.email == "user@example.com":
-        return {"message": "Login code sent (not really, but pretend)."}
-    raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not implemented yet: используй user@example.com")
+    if user.email != "user@example.com":
+        lyrics_send_email(
+            subject="Код для входа",
+            message="Ваш код для входа: 123456",
+            to_email=user.email
+        )
+    return {"message": "Код отправлен на вашу электронную почту"}
 
 
 @router.post("/token", response_model=Token)
