@@ -2,8 +2,8 @@ from typing import Annotated
 
 from fastapi import APIRouter, UploadFile, File, Query, HTTPException, status
 
-from app.annotations import ProjectAnnotation, UserAnnotation
-from app.schemas import MusicOut
+from app.api.annotations import ProjectAnnotation, UserAnnotation
+from app.api.schemas import MusicOut
 from app.status_codes import PROJECT_NOT_FOUND, MUSIC_NOT_FOUND
 
 router = APIRouter()

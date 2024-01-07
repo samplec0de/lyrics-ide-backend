@@ -1,8 +1,28 @@
+import logging
+import sys
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routers import auth, project, music, text, word
+from app.config import settings
+from app.database import sessionmanager
+from app.api.routers import auth, project, music, text, word
+
+
+logging.basicConfig(stream=sys.stdout, level=logging.DEBUG if settings.debug_logs else logging.INFO)
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """
+    Function that handles startup and shutdown events.
+    To understand more, read https://fastapi.tiangolo.com/advanced/events/
+    """
+    yield
+    if sessionmanager._engine is not None:
+        await sessionmanager.close()
+
 
 app = FastAPI(
     title="Lyrics IDE Backend",

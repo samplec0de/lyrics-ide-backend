@@ -3,10 +3,10 @@ from uuid import uuid4
 
 from fastapi import APIRouter, Depends, status, HTTPException
 
-from app.annotations import UserAnnotation
-from app.database import project_texts
-from app.routers.dependencies import get_text_by_id
-from app.schemas import TextVariant, TextVariantIn, TextVariantWithoutID
+from app.api.annotations import UserAnnotation
+from app.database_dumb import project_texts
+from app.api.routers.dependencies import get_text_by_id
+from app.api.schemas import TextVariant, TextVariantIn, TextVariantWithoutID
 from app.status_codes import TEXT_NOT_FOUND
 
 router = APIRouter()

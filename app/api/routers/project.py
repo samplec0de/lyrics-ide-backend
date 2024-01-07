@@ -3,10 +3,10 @@ from uuid import uuid4
 
 from fastapi import APIRouter, Depends
 
-from app.annotations import ProjectAnnotation, UserAnnotation
-from app.database import projects
-from app.routers.dependencies import get_project_by_id
-from app.schemas import ProjectOut, ProjectIn
+from app.api.annotations import ProjectAnnotation, UserAnnotation
+from app.database_dumb import projects
+from app.api.routers.dependencies import get_project_by_id
+from app.api.schemas import ProjectOut, ProjectIn
 from app.status_codes import PROJECT_NOT_FOUND
 
 router = APIRouter()

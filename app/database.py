@@ -1,43 +1,65 @@
-from uuid import UUID
+import contextlib
+from typing import Any, AsyncIterator
 
-from pydantic import UUID4
+from app.config import settings
+from sqlalchemy.ext.asyncio import (
+    AsyncConnection,
+    AsyncSession,
+    async_sessionmaker,
+    create_async_engine,
+)
+from sqlalchemy.orm import declarative_base
 
-from app.schemas import ProjectOut, TextVariant, MusicOut
+Base = declarative_base()
 
-projects: dict[UUID4, ProjectOut] = {
-    UUID("82742b97-004e-4746-aed7-c2eaac815e6e"): ProjectOut(
-        id="82742b97-004e-4746-aed7-c2eaac815e6e",
-        name="Проект 1",
-        description="Описание проекта 1",
-        texts=[
-            TextVariant(
-                id="fffb646c-d846-409f-8b2b-e248a611c7b2",
-                name="Вариант текста 1",
-                text="Текст 1",
-            ),
-            TextVariant(
-                id="ad45ff94-9c09-40b2-a50a-eba63848298d",
-                name="Вариант текста 2",
-                text="Текст 2",
-            ),
-        ],
-        music=MusicOut(
-            url="https://lyrics-ide.storage.yandexcloud.net/beat_stub.mp3",
-            duration_seconds=184,
-            bpm=90,
-        )
-    ),
-}
+# Heavily inspired by https://praciano.com.br/fastapi-and-async-sqlalchemy-20-with-pytest-done-right.html
 
-project_texts: dict[UUID4, TextVariant] = {
-    UUID("fffb646c-d846-409f-8b2b-e248a611c7b2"): TextVariant(
-        id="fffb646c-d846-409f-8b2b-e248a611c7b2",
-        name="Вариант текста 1",
-        text="Текст 1",
-    ),
-    UUID("ad45ff94-9c09-40b2-a50a-eba63848298d"): TextVariant(
-        id="ad45ff94-9c09-40b2-a50a-eba63848298d",
-        name="Вариант текста 2",
-        text="Текст 2",
-    ),
-}
+
+class DatabaseSessionManager:
+    def __init__(self, host: str, engine_kwargs: dict[str, Any] = None):
+        if engine_kwargs is None:
+            engine_kwargs = {}
+        self._engine = create_async_engine(host, **engine_kwargs)
+        self._sessionmaker = async_sessionmaker(autocommit=False, bind=self._engine)
+
+    async def close(self):
+        if self._engine is None:
+            raise Exception("DatabaseSessionManager is not initialized")
+        await self._engine.dispose()
+
+        self._engine = None
+        self._sessionmaker = None
+
+    @contextlib.asynccontextmanager
+    async def connect(self) -> AsyncIterator[AsyncConnection]:
+        if self._engine is None:
+            raise Exception("DatabaseSessionManager is not initialized")
+
+        async with self._engine.begin() as connection:
+            try:
+                yield connection
+            except Exception:
+                await connection.rollback()
+                raise
+
+    @contextlib.asynccontextmanager
+    async def session(self) -> AsyncIterator[AsyncSession]:
+        if self._sessionmaker is None:
+            raise Exception("DatabaseSessionManager is not initialized")
+
+        session = self._sessionmaker()
+        try:
+            yield session
+        except Exception:
+            await session.rollback()
+            raise
+        finally:
+            await session.close()
+
+
+sessionmanager = DatabaseSessionManager(settings.database_url, {"echo": settings.echo_sql})
+
+
+async def get_db_session():
+    async with sessionmanager.session() as session:
+        yield session

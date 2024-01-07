@@ -1,9 +1,7 @@
-from typing import Annotated
+from fastapi import APIRouter
 
-from fastapi import APIRouter, status, Query
-
-from app.annotations import WordAnnotation, UserAnnotation
-from app.schemas import WordMeaning
+from app.api.annotations import WordAnnotation, UserAnnotation
+from app.api.schemas import WordMeaning
 from app.status_codes import MEANING_NOT_FOUND
 
 router = APIRouter()

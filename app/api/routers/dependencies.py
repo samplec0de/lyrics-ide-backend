@@ -3,8 +3,8 @@ from typing import Annotated
 from fastapi import status, HTTPException, Path
 from pydantic import UUID4
 
-from app.database import projects, project_texts
-from app.schemas import ProjectOut, TextVariant
+from app.database_dumb import projects, project_texts
+from app.api.schemas import ProjectOut, TextVariant
 
 
 async def get_project_by_id(
