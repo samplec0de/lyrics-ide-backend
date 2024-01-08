@@ -13,7 +13,6 @@ config = context.config
 fileConfig(config.config_file_name)  # type: ignore
 
 target_metadata = Base.metadata
-print(target_metadata)
 
 
 def get_url():

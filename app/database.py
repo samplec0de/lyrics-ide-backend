@@ -16,7 +16,7 @@ Base = declarative_base()
 
 
 class DatabaseSessionManager:
-    def __init__(self, host: str, engine_kwargs: dict[str, Any] = None):
+    def __init__(self, host: str, engine_kwargs: dict[str, Any] | None = None):
         if engine_kwargs is None:
             engine_kwargs = {}
         self._engine = create_async_engine(host, **engine_kwargs)

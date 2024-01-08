@@ -13,7 +13,7 @@ class Token(BaseModel):
 
 
 class TokenData(BaseModel):
-    username: str | None = None
+    username: str
 
 
 class User(BaseModel):
@@ -25,7 +25,7 @@ ALGORITHM = "HS256"
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
 
 
-def create_access_token(data: dict, expires_delta: datetime.timedelta = None):
+def create_access_token(data: dict, expires_delta: datetime.timedelta | None = None):
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.datetime.now(datetime.UTC) + expires_delta
@@ -39,7 +39,7 @@ def create_access_token(data: dict, expires_delta: datetime.timedelta = None):
 def verify_token(token: str, credentials_exception):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        email: str = payload.get("sub")
+        email: str | None = payload.get("sub")
         if email is None:
             raise credentials_exception
         return email
@@ -63,8 +63,8 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
     )
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        username: str = payload.get("sub")
-        if username is None:
+        username = payload.get("sub")
+        if username is None or not isinstance(username, str):
             raise credentials_exception
         token_data = TokenData(username=username)
     except JWTError:

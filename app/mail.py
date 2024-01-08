@@ -11,7 +11,7 @@ def send_email(
         from_email: str,
         to_email: str,
         smtp_server: str,
-        smtp_port: str | int,
+        smtp_port: int,
         smtp_user: str,
         smtp_password: str
 ):
@@ -37,10 +37,10 @@ def lyrics_send_email(subject: str, message: str, to_email: str):
         subject=subject,
         message=message,
         to_email=to_email,
-        from_name=os.environ.get('SMTP_NAME'),
-        from_email=os.environ.get('SMTP_EMAIL'),
-        smtp_server=os.environ.get('SMTP_SERVER'),
-        smtp_port=os.environ.get('SMTP_PORT'),
-        smtp_user=os.environ.get('SMTP_USER'),
-        smtp_password=os.environ.get('SMTP_PASSWORD')
+        from_name=os.environ['SMTP_NAME'],
+        from_email=os.environ['SMTP_EMAIL'],
+        smtp_server=os.environ['SMTP_SERVER'],
+        smtp_port=int(os.environ['SMTP_PORT']),
+        smtp_user=os.environ['SMTP_USER'],
+        smtp_password=os.environ['SMTP_PASSWORD']
     )

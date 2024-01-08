@@ -6,17 +6,17 @@ from app.api.schemas import ProjectOut, TextVariant, MusicOut
 
 projects: dict[UUID4, ProjectOut] = {
     UUID("82742b97-004e-4746-aed7-c2eaac815e6e"): ProjectOut(
-        id="82742b97-004e-4746-aed7-c2eaac815e6e",
+        id=UUID("82742b97-004e-4746-aed7-c2eaac815e6e"),
         name="Проект 1",
         description="Описание проекта 1",
         texts=[
             TextVariant(
-                id="fffb646c-d846-409f-8b2b-e248a611c7b2",
+                id=UUID("fffb646c-d846-409f-8b2b-e248a611c7b2"),
                 name="Вариант текста 1",
                 text="Текст 1",
             ),
             TextVariant(
-                id="ad45ff94-9c09-40b2-a50a-eba63848298d",
+                id=UUID("ad45ff94-9c09-40b2-a50a-eba63848298d"),
                 name="Вариант текста 2",
                 text="Текст 2",
             ),
@@ -31,12 +31,12 @@ projects: dict[UUID4, ProjectOut] = {
 
 project_texts: dict[UUID4, TextVariant] = {
     UUID("fffb646c-d846-409f-8b2b-e248a611c7b2"): TextVariant(
-        id="fffb646c-d846-409f-8b2b-e248a611c7b2",
+        id=UUID("fffb646c-d846-409f-8b2b-e248a611c7b2"),
         name="Вариант текста 1",
         text="Текст 1",
     ),
     UUID("ad45ff94-9c09-40b2-a50a-eba63848298d"): TextVariant(
-        id="ad45ff94-9c09-40b2-a50a-eba63848298d",
+        id=UUID("ad45ff94-9c09-40b2-a50a-eba63848298d"),
         name="Вариант текста 2",
         text="Текст 2",
     ),

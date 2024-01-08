@@ -1,12 +1,15 @@
-from sqlalchemy import Column, String
-from sqlalchemy.orm import declarative_base
-from sqlalchemy.dialects.postgresql import UUID
+"""ORM модель пользователя"""
 import uuid
+
+from sqlalchemy import Column, String
+from sqlalchemy.dialects.postgresql import UUID
 
 from app.models import Base
 
 
-class User(Base):
+class User(Base):  # type: ignore
+    """ORM модель пользователя"""
+
     __tablename__ = "user"
 
     # Directly use Column from SQLAlchemy for defining the id field

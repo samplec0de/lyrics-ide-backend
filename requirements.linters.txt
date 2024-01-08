@@ -1,0 +1,11 @@
+mypy==1.8.0
+types-requests==2.31.0.20240106
+types-sqlalchemy==1.4.53.38
+types-python-jose==3.3.4.20240106
+pylint==3.0.3
+pycodestyle==2.11.1
+black==23.12.1
+autoflake==2.2.1
+isort==5.13.2
+no_implicit_optional==1.4
+pre-commit==3.6.0

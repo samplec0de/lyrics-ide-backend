@@ -1,9 +1,10 @@
+"""Эндпоинты аутентификации"""
 from typing import Annotated
 
-from fastapi import APIRouter, HTTPException, Depends, status, Path, Form
+from fastapi import APIRouter, Depends, Form, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 
-from app.auth import User, create_access_token, Token, authenticate_user
+from app.auth import Token, User, authenticate_user, create_access_token
 from app.mail import lyrics_send_email
 
 router = APIRouter()
@@ -11,19 +12,15 @@ router = APIRouter()
 
 @router.post("/email")
 async def send_login_code(user: User):
+    """Отправка письма с кодом для входа"""
     if user.email != "user@example.com":
-        lyrics_send_email(
-            subject="Код для входа",
-            message="Ваш код для входа: 123456",
-            to_email=user.email
-        )
+        lyrics_send_email(subject="Код для входа", message="Ваш код для входа: 123456", to_email=user.email)
     return {"message": "Код отправлен на вашу электронную почту"}
 
 
 @router.post("/token", response_model=Token)
-async def login_for_access_token(
-    form_data: Annotated[OAuth2PasswordRequestForm, Depends()]
-):
+async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
+    """Получение токена для входа через одноразовый код-пароль с почты"""
     user = authenticate_user(form_data.username, form_data.password)
     if not user:
         raise HTTPException(
@@ -36,15 +33,15 @@ async def login_for_access_token(
 
 
 def validate_yandex_token(yandex_token: str):
+    """Проверка токена Яндекса"""
     return {"email": "example@yandex.ru"}
 
 
 @router.post("/yandex_token", response_model=Token)
-async def login_via_yandex(access_token: Annotated[str, Form()], token_type: Annotated[str, Form()], expires_in: Annotated[str, Form()]):
-    # Здесь должна быть логика проверки токена Яндекса. Это может включать в себя:
-    # 1. Отправку запроса на сервер Яндекса для проверки подлинности токена.
-    # 2. Валидацию полученной информации.
-    # Поскольку каждый сервис имеет свои особенности, обратитесь к документации Яндекса для точных деталей.
+async def login_via_yandex(
+    access_token: Annotated[str, Form()], token_type: Annotated[str, Form()], expires_in: Annotated[str, Form()]
+):
+    """Получение токена для входа через Яндекс"""
 
     user_info = validate_yandex_token(access_token)
     if not user_info:

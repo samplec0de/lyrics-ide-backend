@@ -1,0 +1,73 @@
+repos:
+  - repo: local
+    hooks:
+      - id: no_implicit_optional
+        name: no_implicit_optional
+        entry: bash -c 'no_implicit_optional --use-union-or "$@"' --
+        language: system
+        types: [python]
+      - id: isort
+        name: isort
+        entry: isort
+        language: system
+        types: [ python ]
+        files: ^(app/api|app/models)
+        args: [
+            '--line-length=120',
+            '--multi-line=3',
+            '--force-grid-wrap=0',
+            '--trailing-comma',
+            '--use-parentheses',
+            '--ensure-newline-before-comments',
+        ]
+      - id: autoflake
+        name: autoflake
+        entry: autoflake
+        language: python
+        types: [ python ]
+        require_serial: true
+        files: ^(app/api|app/models)
+        args:
+          - "--in-place"
+          - "--expand-star-imports"
+          - "--remove-duplicate-keys"
+          - "--remove-unused-variables"
+          - "--remove-all-unused-imports"
+          - "--ignore-pass-after-docstring"
+      - id: black
+        name: black
+        entry: black
+        language: system
+        types: [ python ]
+        files: ^(app/api|app/models)
+        args:
+          [
+            "-l", "120",
+            "-t", "py312"
+          ]
+      - id: pylint
+        name: pylint
+        entry: bash -c 'PYTHONPATH=. pylint "$@"' --
+        language: system
+        types: [python]
+        args:
+          [
+            "-rn", # Only display messages
+            "-sn", # Don't display the score
+            "--rcfile=.pylintrc",
+            "--ignore-imports=true"
+          ]
+        files: ^(app/api|app/models)
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.8.0
+    hooks:
+      - id: mypy
+        args: [--config-file=mypy.ini]
+        files: ^(app/api|app/models)
+        language_version: "3.12"
+        additional_dependencies:
+          - types-requests==2.31.0.20240106
+          - types-python-jose==3.3.4.20240106
+          - SQLAlchemy==2.0.25
+          - fastapi[all]==0.108.0
+          - pydantic==2.5.3
