@@ -1,11 +1,15 @@
 import random
-from typing import Annotated
+from typing import Annotated, cast
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from pydantic import BaseModel, EmailStr
 import datetime
 from jose import JWTError, jwt
+from sqlalchemy import select, ColumnElement
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.models import UserModel
 
 
 class Token(BaseModel):
@@ -52,8 +56,15 @@ def get_user(username: str):
     return User(email="user@example.com") if username == "user@example.com" else None
 
 
-def authenticate_user(username: str, password: str):
-    return get_user(username) if username == "user@example.com" else None
+async def create_user_if_not_exists(email: str, db_session: AsyncSession):
+    """Добавляет пользователя в базу данных если его там нет"""
+    user_query = select(UserModel).where(
+        cast(ColumnElement[bool], UserModel.email == email)
+    )
+    last_code_result = await db_session.execute(user_query)
+    if last_code_result.one_or_none() is None:
+        user = UserModel(email=email)
+        db_session.add(user)
 
 
 async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
