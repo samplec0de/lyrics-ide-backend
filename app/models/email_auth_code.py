@@ -3,8 +3,8 @@
 import uuid
 from datetime import datetime, timedelta
 
-from sqlalchemy import TIMESTAMP, Column, String
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models import Base
 
@@ -14,8 +14,10 @@ class EmailAuthCodeModel(Base):  # type: ignore
 
     __tablename__ = "email_auth_code"
 
-    auth_code_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
-    email = Column(String, index=True, unique=False)
-    auth_code = Column(String)
-    valid_to = Column(TIMESTAMP, nullable=False, default=lambda: datetime.now() + timedelta(minutes=15))
-    activated_at = Column(TIMESTAMP, nullable=True)
+    auth_code_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True
+    )
+    email: Mapped[str] = mapped_column(index=True)
+    auth_code: Mapped[str]
+    valid_to: Mapped[datetime] = mapped_column(default=lambda: datetime.now() + timedelta(minutes=15))
+    activated_at: Mapped[datetime | None]

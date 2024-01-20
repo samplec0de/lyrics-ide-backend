@@ -2,8 +2,8 @@
 """ORM модель пользователя"""
 import uuid
 
-from sqlalchemy import Column, String
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models import Base
 
@@ -13,5 +13,5 @@ class UserModel(Base):  # type: ignore
 
     __tablename__ = "user"
 
-    user_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
-    email = Column(String, index=True, unique=True)
+    user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
+    email: Mapped[str] = mapped_column(index=True, unique=True)

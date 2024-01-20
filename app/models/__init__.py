@@ -1,7 +1,10 @@
 """ORM модели"""
-from sqlalchemy.orm import declarative_base
+from sqlalchemy.orm import DeclarativeBase
 
-Base = declarative_base()
+
+class Base(DeclarativeBase):
+    """Базовый класс для всех ORM моделей"""
+
 
 from .user import UserModel  # isort:skip
 from .email_auth_code import EmailAuthCodeModel  # isort:skip
