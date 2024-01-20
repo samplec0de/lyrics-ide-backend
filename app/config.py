@@ -7,5 +7,8 @@ class Settings(BaseSettings):
     project_name: str = "Lyrics IDE API"
     debug_logs: bool = False
 
+    # Секретный ключ для аутентификации по email
+    secret_key: str
+
 
 settings = Settings()  # type: ignore
