@@ -4,16 +4,22 @@ from typing import Annotated
 from fastapi import HTTPException, Path, status
 from pydantic import UUID4
 
-from app.api.schemas import ProjectOut, TextVariant
-from app.database_dumb import project_texts, projects
+from app.api.dependencies.core import DBSessionDep
+from app.api.schemas import TextVariant
+from app.database_dumb import project_texts
+from app.models import ProjectModel
 
 
-async def get_project_by_id(project_id: Annotated[UUID4, Path(description="Идентификатор проекта")]) -> ProjectOut:
+async def get_project_by_id(
+    project_id: Annotated[UUID4, Path(description="Идентификатор проекта")], db_session: DBSessionDep
+) -> ProjectModel:
     """Получить проект по его идентификатору"""
-    if project_id not in projects:
+    project = await db_session.get(ProjectModel, project_id)
+
+    if project is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Проект не найден")
 
-    return projects[project_id]
+    return project
 
 
 async def get_text_by_id(text_id: Annotated[UUID4, Path(description="Идентификатор варианта текста")]) -> TextVariant:

@@ -6,7 +6,7 @@ from app.api.schemas import ProjectOut, TextVariant, MusicOut
 
 projects: dict[UUID4, ProjectOut] = {
     UUID("82742b97-004e-4746-aed7-c2eaac815e6e"): ProjectOut(
-        id=UUID("82742b97-004e-4746-aed7-c2eaac815e6e"),
+        project_id=UUID("82742b97-004e-4746-aed7-c2eaac815e6e"),
         name="Проект 1",
         description="Описание проекта 1",
         texts=[

@@ -30,12 +30,9 @@ ALGORITHM = "HS256"
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
 
 
-def create_access_token(data: dict, expires_delta: datetime.timedelta | None = None):
+def create_access_token(data: dict):
     to_encode = data.copy()
-    if expires_delta:
-        expire = datetime.datetime.now(datetime.UTC) + expires_delta
-    else:
-        expire = datetime.datetime.now(datetime.UTC) + datetime.timedelta(minutes=15)
+    expire = datetime.datetime.now(datetime.UTC) + datetime.timedelta(days=settings.token_expire_days)
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, settings.secret_key, algorithm=ALGORITHM)
     return encoded_jwt

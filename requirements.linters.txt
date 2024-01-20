@@ -9,3 +9,4 @@ autoflake==2.2.1
 isort==5.13.2
 no_implicit_optional==1.4
 pre-commit==3.6.0
+sqlalchemy2-stubs==0.0.2a38

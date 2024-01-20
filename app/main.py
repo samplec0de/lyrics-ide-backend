@@ -2,10 +2,11 @@ import logging
 import sys
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.auth import get_current_user
 from app.config import settings
 from app.database import sessionmanager
 from app.api.routers import auth, project, music, text, word
@@ -33,27 +34,28 @@ app = FastAPI(
 app.include_router(
     auth.router,
     prefix="/auth",
-    tags=["auth"],
+    tags=["Аутентификация"],
 )
 app.include_router(
     project.router,
     prefix="/projects",
-    tags=["project"]
+    tags=["Проекты"],
+    dependencies=[Depends(get_current_user)],
 )
 app.include_router(
     music.router,
     prefix="/music",
-    tags=["music"],
+    tags=["Музыка"],
 )
 app.include_router(
     text.router,
     prefix="/texts",
-    tags=["text"],
+    tags=["Тексты"],
 )
 app.include_router(
     word.router,
     prefix="/words",
-    tags=["word"],
+    tags=["Слова"],
 )
 
 app.mount("/static", StaticFiles(directory="app/static"), name="static")

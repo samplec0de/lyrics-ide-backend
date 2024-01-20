@@ -65,14 +65,14 @@ class ProjectBase(BaseModel):
 class ProjectIn(ProjectBase):
     """Схема для проекта при создании"""
 
-    texts: Annotated[list[TextVariant], Field(description="Варианты текста")] = []
+    texts: Annotated[list[TextVariant] | None, Field(description="Варианты текста")] = []
     music: Annotated[MusicIn | None, Field(description="Музыкальный трек")] = None
 
 
 class ProjectOut(ProjectBase):
     """Полная схема для проекта для отображения"""
 
-    id: Annotated[UUID4, Field(description="Идентификатор проекта")]
+    project_id: Annotated[UUID4, Field(description="Идентификатор проекта")]
     texts: Annotated[list[TextVariantCompact], Field(description="Варианты текста")] = []
     music: Annotated[MusicOut | None, Field(description="Музыкальный трек")] = None
 
