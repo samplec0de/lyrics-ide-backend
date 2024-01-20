@@ -1,3 +1,4 @@
+import random
 from typing import Annotated
 
 from fastapi import Depends, HTTPException, status
@@ -73,3 +74,8 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
     if user is None:
         raise credentials_exception
     return user
+
+
+async def get_new_email_auth_code() -> str:
+    """Генерирует рандомный код авторизации вида 123456"""
+    return str(random.randint(100000, 999999))

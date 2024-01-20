@@ -60,6 +60,6 @@ class DatabaseSessionManager:
 sessionmanager = DatabaseSessionManager(settings.database_url, {"echo": settings.echo_sql})
 
 
-async def get_db_session():
+async def get_db_session() -> AsyncIterator[AsyncSession]:
     async with sessionmanager.session() as session:
         yield session

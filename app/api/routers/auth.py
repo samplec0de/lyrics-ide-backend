@@ -4,17 +4,23 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Form, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 
-from app.auth import Token, User, authenticate_user, create_access_token
+from app.api.dependencies.core import DBSessionDep
+from app.auth import Token, User, authenticate_user, create_access_token, get_new_email_auth_code
 from app.mail import lyrics_send_email
+from app.models.email_auth_code import EmailAuthCode
 
 router = APIRouter()
 
 
 @router.post("/email")
-async def send_login_code(user: User):
+async def send_login_code(user: User, db_session: DBSessionDep):
     """Отправка письма с кодом для входа"""
     if user.email != "user@example.com":
-        lyrics_send_email(subject="Код для входа", message="Ваш код для входа: 123456", to_email=user.email)
+        new_code = await get_new_email_auth_code()
+        new_code_model = EmailAuthCode(email=user.email, auth_code=new_code)
+        db_session.add(new_code_model)
+        lyrics_send_email(subject="Код для входа", message=f"Ваш код для входа: {new_code}", to_email=user.email)
+        await db_session.commit()
     return {"message": "Код отправлен на вашу электронную почту"}
 
 
