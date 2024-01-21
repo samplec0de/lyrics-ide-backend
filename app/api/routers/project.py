@@ -5,7 +5,7 @@ from sqlalchemy.orm import selectinload
 
 from app.api.annotations import ProjectAnnotation
 from app.api.dependencies.core import DBSessionDep
-from app.api.schemas import MusicOut, ProjectIn, ProjectOut
+from app.api.schemas import MusicOut, ProjectBase, ProjectOut
 from app.models import ProjectModel
 from app.status_codes import PROJECT_NOT_FOUND
 
@@ -14,15 +14,11 @@ router = APIRouter()
 
 # pylint: disable=fixme
 @router.post("/", summary="Создать проект")
-async def create_project(project: ProjectIn, db_session: DBSessionDep) -> ProjectOut:
+async def create_project(project: ProjectBase, db_session: DBSessionDep) -> ProjectOut:
     """Создать проект"""
     new_project = ProjectModel(name=project.name, description=project.description)
-    db_session.add(new_project)
-    if project.music:
-        pass  # TODO: upload music
-    if project.texts:
-        pass  # TODO: add texts
 
+    db_session.add(new_project)
     await db_session.commit()
     await db_session.refresh(new_project)
 
