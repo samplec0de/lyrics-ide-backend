@@ -5,7 +5,7 @@ import uuid
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.models import Base, MusicModel
+from app.models import Base
 
 
 class ProjectModel(Base):  # type: ignore
@@ -17,4 +17,4 @@ class ProjectModel(Base):  # type: ignore
     name: Mapped[str | None]
     description: Mapped[str | None]
 
-    music: Mapped["MusicModel"] = relationship("MusicModel", back_populates="project", uselist=False)
+    music: Mapped["MusicModel"] = relationship("MusicModel", back_populates="project", uselist=False)  # type: ignore
