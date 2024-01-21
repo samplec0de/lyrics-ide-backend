@@ -52,7 +52,9 @@ async def get_projects(db_session: DBSessionDep) -> list[ProjectOut]:
                 duration_seconds=project.music.duration_seconds,
                 bpm=project.music.bpm,
                 custom_bpm=project.music.custom_bpm,
-            ),
+            )
+            if project.music
+            else None,
         )
         for project in projects
     ]
@@ -73,7 +75,9 @@ async def get_project(project: ProjectAnnotation) -> ProjectOut:
             duration_seconds=music.duration_seconds,
             bpm=music.bpm,
             custom_bpm=music.custom_bpm,
-        ),
+        )
+        if music
+        else None,
     )
 
 
