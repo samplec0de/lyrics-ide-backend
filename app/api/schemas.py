@@ -32,7 +32,7 @@ class TextVariant(TextVariantCompact):
 class TextVariantWithoutID(TextVariantBase):
     """Схема для варианта текста для изменения"""
 
-    text: Annotated[str, Field(description="Текст")]
+    text: Annotated[str | None, Field(description="Текст")]
 
 
 class MusicBase(BaseModel):
