@@ -1,10 +1,11 @@
 """CRUD проектов"""
 from fastapi import APIRouter
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 
 from app.api.annotations import ProjectAnnotation
 from app.api.dependencies.core import DBSessionDep
-from app.api.schemas import ProjectIn, ProjectOut
+from app.api.schemas import MusicOut, ProjectIn, ProjectOut
 from app.models import ProjectModel
 from app.status_codes import PROJECT_NOT_FOUND
 
@@ -37,7 +38,7 @@ async def create_project(project: ProjectIn, db_session: DBSessionDep) -> Projec
 @router.get("/", summary="Получить список проектов")
 async def get_projects(db_session: DBSessionDep) -> list[ProjectOut]:
     """Получить список проектов"""
-    result = await db_session.execute(select(ProjectModel))
+    result = await db_session.execute(select(ProjectModel).options(selectinload(ProjectModel.music)))
     projects = result.scalars().all()
 
     return [
@@ -46,7 +47,12 @@ async def get_projects(db_session: DBSessionDep) -> list[ProjectOut]:
             description=project.description,
             project_id=project.project_id,
             texts=[],
-            music=None,
+            music=MusicOut(
+                url=project.music.url,
+                duration_seconds=project.music.duration_seconds,
+                bpm=project.music.bpm,
+                custom_bpm=project.music.custom_bpm,
+            ),
         )
         for project in projects
     ]
@@ -55,12 +61,19 @@ async def get_projects(db_session: DBSessionDep) -> list[ProjectOut]:
 @router.get("/{project_id}", summary="Получить содержимое проекта", responses=PROJECT_NOT_FOUND)
 async def get_project(project: ProjectAnnotation) -> ProjectOut:
     """Получить содержимое проекта"""
+    music = project.music
+
     return ProjectOut(
         name=project.name,
         description=project.description,
         project_id=project.project_id,
         texts=[],
-        music=None,
+        music=MusicOut(
+            url=music.url,
+            duration_seconds=music.duration_seconds,
+            bpm=music.bpm,
+            custom_bpm=music.custom_bpm,
+        ),
     )
 
 

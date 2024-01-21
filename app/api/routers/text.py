@@ -1,18 +1,13 @@
 """CRUD текстов"""
-from typing import Annotated
 from uuid import uuid4
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, HTTPException, status
 
-from app.api.annotations import UserAnnotation
-from app.api.dependencies.dependencies import get_text_by_id
+from app.api.annotations import TextAnnotation, UserAnnotation
 from app.api.schemas import TextVariant, TextVariantIn, TextVariantWithoutID
-from app.database_dumb import project_texts
 from app.status_codes import TEXT_NOT_FOUND
 
 router = APIRouter()
-
-TextAnnotation = Annotated[TextVariant, Depends(get_text_by_id)]
 
 
 @router.post("/", summary="Создать вариант текста", responses=TEXT_NOT_FOUND)
@@ -35,13 +30,11 @@ async def set_text(
     current_user: UserAnnotation, old_text: TextAnnotation, new_text: TextVariantWithoutID
 ) -> TextVariant:
     """Изменение варианта текста"""
-    new_values = new_text.model_dump(exclude_unset=True)
-    project_texts[old_text.id] = old_text.model_copy(update=new_values)
-
-    return project_texts[old_text.id]
+    # new_values = new_text.model_dump(exclude_unset=True)
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Текст не найден")
 
 
 @router.delete("/{text_id}", summary="Удалить вариант текста")
 async def delete_project(current_user: UserAnnotation, text: TextAnnotation):
     """Удаление варианта текста"""
-    project_texts.pop(text.id)
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Текст не найден")

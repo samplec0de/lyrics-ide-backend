@@ -3,9 +3,9 @@
 import uuid
 
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.models import Base
+from app.models import Base, MusicModel
 
 
 class ProjectModel(Base):  # type: ignore
@@ -16,3 +16,5 @@ class ProjectModel(Base):  # type: ignore
     project_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
     name: Mapped[str | None]
     description: Mapped[str | None]
+
+    music: Mapped["MusicModel"] = relationship("MusicModel", back_populates="project", uselist=False)

@@ -39,12 +39,13 @@ app.include_router(
 app.include_router(
     project.router,
     prefix="/projects",
-    tags=["Проекты"],
     dependencies=[Depends(get_current_user)],
+    tags=["Проекты"],
 )
 app.include_router(
     music.router,
     prefix="/music",
+    dependencies=[Depends(get_current_user)],
     tags=["Музыка"],
 )
 app.include_router(
