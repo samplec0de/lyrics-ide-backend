@@ -1,14 +1,13 @@
 """Зависимости для валидации данных в пути запроса"""
-from typing import Annotated
+from typing import Annotated, cast
 
 from fastapi import HTTPException, Path, status
 from pydantic import UUID4
-from sqlalchemy import select
+from sqlalchemy import ColumnElement, select
 from sqlalchemy.orm import selectinload
 
 from app.api.dependencies.core import DBSessionDep
-from app.api.schemas import TextVariant
-from app.models import ProjectModel
+from app.models import ProjectModel, TextModel
 
 
 async def get_project_by_id(
@@ -26,6 +25,13 @@ async def get_project_by_id(
     return project
 
 
-async def get_text_by_id(text_id: Annotated[UUID4, Path(description="Идентификатор варианта текста")]) -> TextVariant:
+async def get_text_by_id(
+    text_id: Annotated[UUID4, Path(description="Идентификатор варианта текста")], db_session: DBSessionDep
+) -> TextModel:
     """Получить вариант текста по его идентификатору"""
-    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Текст не найден")
+    result = await db_session.execute(select(TextModel).where(cast(ColumnElement[bool], TextModel.text_id == text_id)))
+    text = result.scalars().first()
+    if text is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Текст не найден")
+
+    return text

@@ -18,3 +18,4 @@ class ProjectModel(Base):  # type: ignore
     description: Mapped[str | None]
 
     music: Mapped["MusicModel"] = relationship("MusicModel", back_populates="project", uselist=False)  # type: ignore
+    texts: Mapped[list["MusicModel"]] = relationship("TextModel", back_populates="project", uselist=True)  # type: ignore

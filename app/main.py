@@ -51,11 +51,13 @@ app.include_router(
 app.include_router(
     text.router,
     prefix="/texts",
+    dependencies=[Depends(get_current_user)],
     tags=["Тексты"],
 )
 app.include_router(
     word.router,
     prefix="/words",
+    dependencies=[Depends(get_current_user)],
     tags=["Слова"],
 )
 
