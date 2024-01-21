@@ -15,7 +15,9 @@ async def get_project_by_id(
 ) -> ProjectModel:
     """Получить проект по его идентификатору"""
     result = await db_session.execute(
-        select(ProjectModel).options(selectinload(ProjectModel.music)).where(ProjectModel.project_id == project_id)
+        select(ProjectModel)
+        .options(selectinload(ProjectModel.music), selectinload(ProjectModel.texts))
+        .where(ProjectModel.project_id == project_id)
     )
     project = result.scalars().first()
 

@@ -5,7 +5,7 @@ from sqlalchemy.orm import selectinload
 
 from app.api.annotations import ProjectAnnotation
 from app.api.dependencies.core import DBSessionDep
-from app.api.schemas import MusicOut, ProjectBase, ProjectOut
+from app.api.schemas import MusicOut, ProjectBase, ProjectOut, TextVariantCompact
 from app.models import ProjectModel
 from app.status_codes import PROJECT_NOT_FOUND
 
@@ -34,7 +34,9 @@ async def create_project(project: ProjectBase, db_session: DBSessionDep) -> Proj
 @router.get("/", summary="Получить список проектов")
 async def get_projects(db_session: DBSessionDep) -> list[ProjectOut]:
     """Получить список проектов"""
-    result = await db_session.execute(select(ProjectModel).options(selectinload(ProjectModel.music)))
+    result = await db_session.execute(
+        select(ProjectModel).options(selectinload(ProjectModel.music), selectinload(ProjectModel.texts))
+    )
     projects = result.scalars().all()
 
     return [
@@ -42,7 +44,13 @@ async def get_projects(db_session: DBSessionDep) -> list[ProjectOut]:
             name=project.name,
             description=project.description,
             project_id=project.project_id,
-            texts=[],
+            texts=[
+                TextVariantCompact(
+                    text_id=text.text_id,
+                    name=text.name,
+                )
+                for text in project.texts
+            ],
             music=MusicOut(
                 url=project.music.url,
                 duration_seconds=project.music.duration_seconds,
@@ -65,7 +73,13 @@ async def get_project(project: ProjectAnnotation) -> ProjectOut:
         name=project.name,
         description=project.description,
         project_id=project.project_id,
-        texts=[],
+        texts=[
+            TextVariantCompact(
+                text_id=text.text_id,
+                name=text.name,
+            )
+            for text in project.texts
+        ],
         music=MusicOut(
             url=music.url,
             duration_seconds=music.duration_seconds,
