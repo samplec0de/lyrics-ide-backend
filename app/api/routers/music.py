@@ -7,6 +7,7 @@ from app.api.annotations import ProjectAnnotation
 from app.api.dependencies.core import DBSessionDep
 from app.api.schemas import MusicOut, ProjectOut
 from app.models import MusicModel
+from app.s3 import generate_presigned_url, upload
 from app.status_codes import MUSIC_NOT_FOUND, PROJECT_NOT_FOUND
 
 router = APIRouter()
@@ -19,19 +20,29 @@ async def upload_music(
     db_session: DBSessionDep,
 ) -> MusicOut:
     """Загрузка музыки в проект"""
-    url = "https://lyrics-ide.storage.yandexcloud.net/beat_stub.mp3"
     duration_seconds = 184
     bpm = 90
+
+    project_id = project.project_id
 
     if project.music is not None:
         await db_session.delete(project.music)
 
+    music_binary = await music.read()
+    key = f"{project_id}/music/{music.filename}"
+    await upload(
+        key=key,
+        bytes_data=music_binary,
+    )
+
     project.music = MusicModel(
-        url=url,
+        url=key,
         duration_seconds=duration_seconds,
         bpm=bpm,
     )
     await db_session.commit()
+
+    url = await generate_presigned_url(key)
 
     return MusicOut(
         url=url,

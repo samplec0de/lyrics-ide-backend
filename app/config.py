@@ -13,5 +13,9 @@ class Settings(BaseSettings):
     # Количество дней, на которое выдается токен
     token_expire_days: int = 30
 
+    s3_access_key: str
+    s3_secret_key: str
+    s3_bucket: str
+
 
 settings = Settings()  # type: ignore

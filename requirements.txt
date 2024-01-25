@@ -7,3 +7,4 @@ passlib[bcrypt]
 asyncpg==0.29.0
 SQLAlchemy==2.0.25
 alembic==1.13.1
+aioboto3==12.2.0
