@@ -43,3 +43,17 @@ async def generate_presigned_url(
                                                           Params={'Bucket': bucket, 'Key': key},
                                                           ExpiresIn=expiration)
         return response
+
+
+async def delete(
+    key: str,
+    bucket: str = settings.s3_bucket,
+):
+    """Удаление файла из s3"""
+    session = aioboto3.Session(
+        aws_access_key_id=settings.s3_access_key,
+        aws_secret_access_key=settings.s3_secret_key,
+        region_name="ru-central1",
+    )
+    async with session.client("s3", endpoint_url="https://storage.yandexcloud.net") as s3_client:
+        await s3_client.delete_object(Bucket=bucket, Key=key)

@@ -7,7 +7,7 @@ from app.api.annotations import ProjectAnnotation
 from app.api.dependencies.core import DBSessionDep
 from app.api.schemas import MusicOut, ProjectOut
 from app.models import MusicModel
-from app.s3 import generate_presigned_url, upload
+from app.s3 import delete, generate_presigned_url, upload
 from app.status_codes import MUSIC_NOT_FOUND, PROJECT_NOT_FOUND
 
 router = APIRouter()
@@ -57,8 +57,10 @@ async def get_music(project: ProjectAnnotation, db_session: DBSessionDep) -> Mus
     if project.music is None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Музыка не найдена")
 
+    url = await generate_presigned_url(project.music.url)
+
     return MusicOut(
-        url=project.music.url,
+        url=url,
         duration_seconds=project.music.duration_seconds,
         bpm=project.music.bpm,
         custom_bpm=project.music.custom_bpm,
@@ -97,6 +99,8 @@ async def delete_music(project: ProjectAnnotation, db_session: DBSessionDep) -> 
     """Удаление музыки из проекта"""
     if project.music is None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Музыка не найдена")
+
+    await delete(project.music.url)
 
     await db_session.delete(project.music)
 

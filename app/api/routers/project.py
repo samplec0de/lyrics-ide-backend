@@ -7,6 +7,7 @@ from app.api.annotations import ProjectAnnotation
 from app.api.dependencies.core import DBSessionDep
 from app.api.schemas import MusicOut, ProjectBase, ProjectOut, TextVariantCompact
 from app.models import ProjectModel
+from app.s3 import generate_presigned_url
 from app.status_codes import PROJECT_NOT_FOUND
 
 router = APIRouter()
@@ -52,7 +53,7 @@ async def get_projects(db_session: DBSessionDep) -> list[ProjectOut]:
                 for text in project.texts
             ],
             music=MusicOut(
-                url=project.music.url,
+                url=await generate_presigned_url(project.music.url),
                 duration_seconds=project.music.duration_seconds,
                 bpm=project.music.bpm,
                 custom_bpm=project.music.custom_bpm,
@@ -81,7 +82,7 @@ async def get_project(project: ProjectAnnotation) -> ProjectOut:
             for text in project.texts
         ],
         music=MusicOut(
-            url=music.url,
+            url=await generate_presigned_url(project.music.url),
             duration_seconds=music.duration_seconds,
             bpm=music.bpm,
             custom_bpm=music.custom_bpm,
