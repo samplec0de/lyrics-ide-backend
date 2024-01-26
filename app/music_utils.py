@@ -1,40 +1,9 @@
-from aubio import source, tempo
-from numpy import median, diff
+import librosa
 
 
-def get_file_bpm(path, params=None):
+def get_file_bpm(file_path):
     """Определение BPM для музыкального файла"""
-    if params is None:
-        params = {}
-    win_s = params.get('win_s', 512)               # fft size
-    hop_s = params.get('hop_s', win_s // 2)        # hop size
-    samplerate = params.get('samplerate', 44100)
-
-    s = source(path, samplerate, hop_s)
-    samplerate = s.samplerate
-    o = tempo("specdiff", win_s, hop_s, samplerate)
-
-    # List of beats, in samples
-    beats = []
-    # Total number of frames read
-    total_frames = 0
-
-    while True:
-        samples, read = s()
-        is_beat = o(samples)
-        if is_beat:
-            this_beat = o.get_last_s()
-            beats.append(this_beat)
-            # if first beat or beat found on first frame
-            if total_frames == 0 or is_beat[0] == 1:
-                print("%f" % this_beat)
-        total_frames += read
-        if read < hop_s:
-            break
-
-    # Convert to periods and to bpm
-    if len(beats) > 1:
-        bpms = 60. / diff(beats)
-        return median(bpms)
-    else:
-        return 0
+    y, sr = librosa.load(file_path, sr=None)
+    onset_env = librosa.onset.onset_strength(y=y, sr=sr)
+    tempo, _ = librosa.beat.beat_track(onset_envelope=onset_env, sr=sr)
+    return tempo
