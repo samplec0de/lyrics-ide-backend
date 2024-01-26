@@ -26,7 +26,7 @@ async def upload_music(
     duration_seconds = 184  # You might also want to calculate this dynamically
 
     # Save uploaded file temporarily for BPM calculation
-    with NamedTemporaryFile(delete=False) as temp_file:
+    with NamedTemporaryFile(delete=False, suffix=f"{music.filename}") as temp_file:
         temp_file_path = temp_file.name
         music_content = await music.read()
         temp_file.write(music_content)
