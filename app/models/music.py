@@ -23,7 +23,7 @@ class MusicModel(Base):  # type: ignore
     )
     url: Mapped[str]
     duration_seconds: Mapped[int]
-    bpm: Mapped[int]
+    bpm: Mapped[int | None]
     custom_bpm: Mapped[int | None]
 
     project: Mapped["ProjectModel"] = relationship("ProjectModel", back_populates="music")

@@ -1,4 +1,6 @@
 """CRUD музыки"""
+import os
+from tempfile import NamedTemporaryFile
 from typing import Annotated
 
 from fastapi import APIRouter, File, HTTPException, Query, UploadFile, status
@@ -7,6 +9,7 @@ from app.api.annotations import ProjectAnnotation
 from app.api.dependencies.core import DBSessionDep
 from app.api.schemas import MusicOut, ProjectOut
 from app.models import MusicModel
+from app.music_utils import get_file_bpm
 from app.s3 import delete, generate_presigned_url, upload
 from app.status_codes import MUSIC_NOT_FOUND, PROJECT_NOT_FOUND
 
@@ -20,19 +23,29 @@ async def upload_music(
     db_session: DBSessionDep,
 ) -> MusicOut:
     """Загрузка музыки в проект"""
-    duration_seconds = 184
-    bpm = 90
+    duration_seconds = 184  # You might also want to calculate this dynamically
+
+    # Save uploaded file temporarily for BPM calculation
+    with NamedTemporaryFile(delete=False) as temp_file:
+        temp_file_path = temp_file.name
+        music_content = await music.read()
+        temp_file.write(music_content)
+        temp_file.flush()
+
+    bpm = int(get_file_bpm(temp_file_path))
+
+    # Remove temporary file
+    os.remove(temp_file_path)
 
     project_id = project.project_id
 
     if project.music is not None:
         await db_session.delete(project.music)
 
-    music_binary = await music.read()
     key = f"{project_id}/music/{music.filename}"
     await upload(
         key=key,
-        bytes_data=music_binary,
+        bytes_data=music_content,
     )
 
     project.music = MusicModel(

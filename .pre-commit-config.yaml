@@ -71,3 +71,4 @@ repos:
           - SQLAlchemy==2.0.25
           - fastapi[all]==0.108.0
           - pydantic==2.5.3
+          - numpy==1.26.3
