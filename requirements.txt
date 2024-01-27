@@ -9,4 +9,4 @@ SQLAlchemy==2.0.25
 alembic==1.13.1
 aioboto3==12.2.0
 numpy==1.26.3
-librosa==0.10.1
+aubio==0.4.9
