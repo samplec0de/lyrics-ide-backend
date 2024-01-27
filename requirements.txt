@@ -10,3 +10,4 @@ alembic==1.13.1
 aioboto3==12.2.0
 numpy==1.26.3
 aubio==0.4.9
+python-ffmpeg==2.0.10

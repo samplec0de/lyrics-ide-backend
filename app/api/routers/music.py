@@ -1,5 +1,4 @@
 """CRUD музыки"""
-import os
 from tempfile import NamedTemporaryFile
 from typing import Annotated
 
@@ -25,17 +24,16 @@ async def upload_music(
     """Загрузка музыки в проект"""
     duration_seconds = 184  # You might also want to calculate this dynamically
 
-    # Save uploaded file temporarily for BPM calculation
-    with NamedTemporaryFile(delete=False, suffix=f"{music.filename}") as temp_file:
+    if music.filename is None:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Файл не найден")
+
+    with NamedTemporaryFile(suffix=f"{music.filename[music.filename.rindex('.'):]}") as temp_file:
         temp_file_path = temp_file.name
         music_content = await music.read()
         temp_file.write(music_content)
         temp_file.flush()
 
-    bpm = int(get_file_bpm(temp_file_path))
-
-    # Remove temporary file
-    os.remove(temp_file_path)
+        bpm = int(await get_file_bpm(temp_file_path))
 
     project_id = project.project_id
 
