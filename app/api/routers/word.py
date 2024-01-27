@@ -2,16 +2,21 @@
 from fastapi import APIRouter
 
 from app.api.annotations import UserAnnotation, WordAnnotation
+from app.api.dependencies.core import DBSessionDep
 from app.api.schemas import WordMeaning
 from app.status_codes import MEANING_NOT_FOUND
+from app.word_utils import WordMeaningSource, get_word_meanings
 
 router = APIRouter()
 
 
 @router.get("/meaning", summary="Получить значение слова", responses=MEANING_NOT_FOUND)
-async def get_meaning(current_user: UserAnnotation, word: WordAnnotation) -> WordMeaning:
+async def get_meaning(
+    current_user: UserAnnotation, word: WordAnnotation, db_session: DBSessionDep
+) -> list[WordMeaning]:
     """Получить значение слова"""
-    return WordMeaning(meaning="значение слова", source="GRAND_DICTIONARY")
+    meanings = await get_word_meanings(word=word, db_session=db_session)
+    return [WordMeaning(meaning=meaning, source=WordMeaningSource.OJEGOV) for meaning in meanings]
 
 
 @router.get("/synonyms", summary="Получить синонимы к слову")
