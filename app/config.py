@@ -17,5 +17,7 @@ class Settings(BaseSettings):
     s3_secret_key: str
     s3_bucket: str
 
+    yandex_dict_key: str
+
 
 settings = Settings()  # type: ignore
