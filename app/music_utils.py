@@ -23,7 +23,7 @@ async def get_file_bpm(path, params=None):
         )
         await ffmpeg.execute()
 
-        s = source(path, samplerate, hop_s)
+        s = source(temp_file_path, samplerate, hop_s)
         samplerate = s.samplerate
         o = tempo("specdiff", win_s, hop_s, samplerate)
 
