@@ -49,7 +49,7 @@ class MusicOut(MusicBase):
     """Полная схема музыки для отображения"""
 
     url: Annotated[str, Field(description="Ссылка на музыку (s3 pre-signed URL)")]
-    duration_seconds: Annotated[int, Field(description="Длительность музыки в секундах")]
+    duration_seconds: Annotated[float, Field(description="Длительность музыки в секундах")]
     bpm: Annotated[int | None, Field(description="BPM музыки определенный автоматически")]
     custom_bpm: Annotated[int | None, Field(description="BPM музыки установленный пользователем")] = None
 

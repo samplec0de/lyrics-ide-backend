@@ -1,3 +1,6 @@
+import asyncio
+import json
+from asyncio import subprocess
 from tempfile import NamedTemporaryFile
 
 from aubio import source, tempo
@@ -51,3 +54,34 @@ async def get_file_bpm(path, params=None):
             return median(bpms)
         else:
             return 0
+
+
+async def get_song_duration(file_path) -> float:
+    """Определение длительности музыкального файла"""
+    # Command to use ffprobe to get media info in JSON format
+    cmd = [
+        'ffprobe',
+        '-v', 'error',
+        '-show_entries', 'format=duration',
+        '-of', 'json',
+        file_path
+    ]
+
+    # Running the command asynchronously
+    process = await asyncio.create_subprocess_exec(
+        *cmd,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE
+    )
+
+    # Waiting for the command to complete
+    stdout, stderr = await process.communicate()
+
+    if process.returncode != 0:
+        # Handle errors if ffprobe failed
+        raise Exception(f"ffprobe error: {stderr.decode()}")
+
+    # Parsing the output to JSON and extracting duration
+    result = json.loads(stdout.decode())
+    duration = float(result['format']['duration'])
+    return duration

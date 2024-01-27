@@ -8,7 +8,7 @@ from app.api.annotations import ProjectAnnotation
 from app.api.dependencies.core import DBSessionDep
 from app.api.schemas import MusicOut, ProjectOut
 from app.models import MusicModel
-from app.music_utils import get_file_bpm
+from app.music_utils import get_file_bpm, get_song_duration
 from app.s3 import delete, generate_presigned_url, upload
 from app.status_codes import MUSIC_NOT_FOUND, PROJECT_NOT_FOUND
 
@@ -22,7 +22,6 @@ async def upload_music(
     db_session: DBSessionDep,
 ) -> MusicOut:
     """Загрузка музыки в проект"""
-    duration_seconds = 184  # You might also want to calculate this dynamically
 
     if music.filename is None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Файл не найден")
@@ -33,6 +32,7 @@ async def upload_music(
         temp_file.write(music_content)
         temp_file.flush()
 
+        duration_seconds = await get_song_duration(temp_file_path)
         bpm = int(await get_file_bpm(temp_file_path))
 
     project_id = project.project_id

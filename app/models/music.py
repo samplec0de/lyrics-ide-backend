@@ -22,7 +22,7 @@ class MusicModel(Base):  # type: ignore
         index=True,
     )
     url: Mapped[str]
-    duration_seconds: Mapped[int]
+    duration_seconds: Mapped[float]
     bpm: Mapped[int | None]
     custom_bpm: Mapped[int | None]
 
