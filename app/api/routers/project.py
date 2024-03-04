@@ -14,7 +14,7 @@ router = APIRouter()
 
 
 # pylint: disable=fixme
-@router.post("/", summary="Создать проект")
+@router.post("/", summary="Создать проект", operation_id="create_project")
 async def create_project(project: ProjectBase, db_session: DBSessionDep) -> ProjectOut:
     """Создать проект"""
     new_project = ProjectModel(name=project.name, description=project.description)
@@ -32,7 +32,7 @@ async def create_project(project: ProjectBase, db_session: DBSessionDep) -> Proj
     )
 
 
-@router.get("/", summary="Получить список проектов")
+@router.get("/", summary="Получить список проектов", operation_id="get_projects")
 async def get_projects(db_session: DBSessionDep) -> list[ProjectOut]:
     """Получить список проектов"""
     result = await db_session.execute(
@@ -65,7 +65,12 @@ async def get_projects(db_session: DBSessionDep) -> list[ProjectOut]:
     ]
 
 
-@router.get("/{project_id}", summary="Получить содержимое проекта", responses=PROJECT_NOT_FOUND)
+@router.get(
+    "/{project_id}",
+    summary="Получить содержимое проекта",
+    responses=PROJECT_NOT_FOUND,
+    operation_id="get_project",
+)
 async def get_project(project: ProjectAnnotation) -> ProjectOut:
     """Получить содержимое проекта"""
     music = project.music
@@ -92,7 +97,12 @@ async def get_project(project: ProjectAnnotation) -> ProjectOut:
     )
 
 
-@router.delete("/{project_id}", summary="Удалить проект", operation_id="delete_project")
+@router.delete(
+    "/{project_id}",
+    summary="Удалить проект",
+    responses=PROJECT_NOT_FOUND,
+    operation_id="delete_project",
+)
 async def delete_project(project: ProjectAnnotation, db_session: DBSessionDep):
     """Удалить проект"""
     await db_session.delete(project)

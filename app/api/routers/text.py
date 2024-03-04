@@ -10,7 +10,12 @@ from app.status_codes import PROJECT_NOT_FOUND, TEXT_NOT_FOUND
 router = APIRouter()
 
 
-@router.post("/", summary="Создать вариант текста", responses=PROJECT_NOT_FOUND)
+@router.post(
+    "/",
+    summary="Создать вариант текста",
+    responses=PROJECT_NOT_FOUND,
+    operation_id="create_text",
+)
 async def create_text(text_in: TextVariantIn, db_session: DBSessionDep) -> TextVariant:
     """Создание варианта текста"""
     text_model = TextModel(
@@ -28,7 +33,12 @@ async def create_text(text_in: TextVariantIn, db_session: DBSessionDep) -> TextV
     return text_schema
 
 
-@router.get("/{text_id}", summary="Получить вариант текста", responses=TEXT_NOT_FOUND)
+@router.get(
+    "/{text_id}",
+    summary="Получить вариант текста",
+    responses=TEXT_NOT_FOUND,
+    operation_id="get_text",
+)
 async def get_text(text: TextAnnotation) -> TextVariant:
     """Получение варианта текста"""
     return TextVariant(
@@ -38,8 +48,15 @@ async def get_text(text: TextAnnotation) -> TextVariant:
     )
 
 
-@router.patch("/{text_id}", summary="Изменить вариант текста", responses=TEXT_NOT_FOUND)
-async def set_text(old_text: TextAnnotation, new_text: TextVariantWithoutID, db_session: DBSessionDep) -> TextVariant:
+@router.patch(
+    "/{text_id}",
+    summary="Изменить вариант текста",
+    responses=TEXT_NOT_FOUND,
+    operation_id="update_text",
+)
+async def update_text(
+    old_text: TextAnnotation, new_text: TextVariantWithoutID, db_session: DBSessionDep
+) -> TextVariant:
     """Изменение варианта текста"""
     new_values = new_text.model_dump(exclude_unset=True)
     if "text" in new_values:
@@ -60,7 +77,7 @@ async def set_text(old_text: TextAnnotation, new_text: TextVariantWithoutID, db_
     return new_text_schema
 
 
-@router.delete("/{text_id}", summary="Удалить вариант текста")
+@router.delete("/{text_id}", summary="Удалить вариант текста", operation_id="delete_text")
 async def delete_text(text: TextAnnotation, db_session: DBSessionDep) -> None:
     """Удаление варианта текста"""
     await db_session.delete(text)

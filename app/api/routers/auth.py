@@ -14,8 +14,8 @@ from app.models.email_auth_code import EmailAuthCodeModel
 router = APIRouter()
 
 
-@router.post("/email")
-async def send_login_code(user: User, db_session: DBSessionDep):
+@router.post("/email", operation_id="send_email_auth_code")
+async def send_email_auth_code(user: User, db_session: DBSessionDep):
     """Отправка письма с кодом для входа"""
     if user.email != "user@example.com":
         new_code = await get_new_email_auth_code()
@@ -34,6 +34,7 @@ async def send_login_code(user: User, db_session: DBSessionDep):
             "description": "Неуспешная аутентификация. Текст ошибки содержит причину в значении `detail`. Возможные причины: `Неверный код`, `Код не был отправлен`, `Срок действия кода истёк`, `Код уже был использован`"
         }
     },
+    operation_id="auth_with_email_code",
 )
 async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db_session: DBSessionDep):
     """
@@ -86,7 +87,7 @@ def validate_yandex_token(yandex_token: str):
     return {"email": "example@yandex.ru"}
 
 
-@router.post("/yandex_token", response_model=Token)
+@router.post("/yandex_token", response_model=Token, operation_id="auth_with_yandex_token")
 async def login_via_yandex(
     access_token: Annotated[str, Form()], token_type: Annotated[str, Form()], expires_in: Annotated[str, Form()]
 ):

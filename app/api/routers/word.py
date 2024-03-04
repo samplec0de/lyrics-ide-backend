@@ -12,7 +12,12 @@ from app.word_utils import get_word_meanings as get_word_meanings_utils
 router = APIRouter()
 
 
-@router.get("/meaning", summary="Получить значение слова", responses=MEANING_NOT_FOUND)
+@router.get(
+    "/meaning",
+    summary="Получить значение слова",
+    responses=MEANING_NOT_FOUND,
+    operation_id="get_word_meanings",
+)
 async def get_meanings(
     current_user: UserAnnotation, word: WordAnnotation, db_session: DBSessionDep
 ) -> list[WordMeaning]:
@@ -21,13 +26,21 @@ async def get_meanings(
     return [WordMeaning(meaning=meaning, source=WordMeaningSource.OJEGOV) for meaning in meanings]
 
 
-@router.get("/synonyms", summary="Получить синонимы к слову")
+@router.get(
+    "/synonyms",
+    summary="Получить синонимы к слову",
+    operation_id="get_word_synonyms",
+)
 async def get_synonyms(current_user: UserAnnotation, word: WordAnnotation) -> list[str]:
     """Получить синонимы к слову"""
     return await get_synonyms_utils(word=word)
 
 
-@router.get("/rhyming", summary="Получить рифмующиеся слова к слову")
+@router.get(
+    "/rhyming",
+    summary="Получить рифмующиеся слова к слову",
+    operation_id="get_word_rhyming",
+)
 async def get_rhyming(current_user: UserAnnotation, word: WordAnnotation) -> list[str]:
     """Получить рифмующиеся слова к слову"""
     return ["рифма 1", "рифма 2"]

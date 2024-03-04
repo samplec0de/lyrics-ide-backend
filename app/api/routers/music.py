@@ -15,7 +15,12 @@ from app.status_codes import MUSIC_NOT_FOUND, PROJECT_NOT_FOUND
 router = APIRouter()
 
 
-@router.post("/{project_id}", summary="Загрузить музыку в проект", responses=PROJECT_NOT_FOUND)
+@router.post(
+    "/{project_id}",
+    summary="Загрузить музыку в проект",
+    responses=PROJECT_NOT_FOUND,
+    operation_id="upload_music",
+)
 async def upload_music(
     project: ProjectAnnotation,
     music: Annotated[UploadFile, File(description="Файл музыки")],
@@ -62,7 +67,12 @@ async def upload_music(
     )
 
 
-@router.get("/{project_id}", summary="Получить музыку проекта", responses={**PROJECT_NOT_FOUND, **MUSIC_NOT_FOUND})
+@router.get(
+    "/{project_id}",
+    summary="Получить музыку проекта",
+    responses={**PROJECT_NOT_FOUND, **MUSIC_NOT_FOUND},
+    operation_id="get_music",
+)
 async def get_music(project: ProjectAnnotation, db_session: DBSessionDep) -> MusicOut:
     """Получение музыки проекта"""
     if project.music is None:
@@ -78,7 +88,12 @@ async def get_music(project: ProjectAnnotation, db_session: DBSessionDep) -> Mus
     )
 
 
-@router.patch("/{project_id}", summary="Изменить BPM у музыки", responses={**PROJECT_NOT_FOUND, **MUSIC_NOT_FOUND})
+@router.patch(
+    "/{project_id}",
+    summary="Изменить BPM у музыки",
+    responses={**PROJECT_NOT_FOUND, **MUSIC_NOT_FOUND},
+    operation_id="set_music_bpm",
+)
 async def set_music_bpm(
     project: ProjectAnnotation,
     custom_bpm: Annotated[int, Query(description="Пользовательское значение BPM", gt=0)],
@@ -105,7 +120,12 @@ async def set_music_bpm(
     return new_music
 
 
-@router.delete("/{project_id}", summary="Удалить музыку из проекта", responses={**PROJECT_NOT_FOUND, **MUSIC_NOT_FOUND})
+@router.delete(
+    "/{project_id}",
+    summary="Удалить музыку из проекта",
+    responses={**PROJECT_NOT_FOUND, **MUSIC_NOT_FOUND},
+    operation_id="delete_music",
+)
 async def delete_music(project: ProjectAnnotation, db_session: DBSessionDep) -> ProjectOut:
     """Удаление музыки из проекта"""
     if project.music is None:
