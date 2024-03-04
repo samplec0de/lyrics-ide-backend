@@ -92,7 +92,7 @@ async def get_project(project: ProjectAnnotation) -> ProjectOut:
     )
 
 
-@router.delete("/{project_id}", summary="Удалить проект")
+@router.delete("/{project_id}", summary="Удалить проект", operation_id="delete_project")
 async def delete_project(project: ProjectAnnotation, db_session: DBSessionDep):
     """Удалить проект"""
     await db_session.delete(project)
