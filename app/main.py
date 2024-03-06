@@ -10,9 +10,10 @@ from app.auth import get_current_user
 from app.config import settings
 from app.database import sessionmanager
 from app.api.routers import auth, project, music, text, word
-
+from app.mongodb import mongodb_client
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG if settings.debug_logs else logging.INFO)
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -23,12 +24,13 @@ async def lifespan(app: FastAPI):
     yield
     if sessionmanager._engine is not None:
         await sessionmanager.close()
+    mongodb_client.close()
 
 
 app = FastAPI(
     title="Lyrics IDE Backend",
     summary="Серверная часть веб-приложения для создания текстов песен",
-    version="0.5.0",
+    version="1.0.0",
 )
 
 app.include_router(

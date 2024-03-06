@@ -26,13 +26,13 @@ class TextVariantCompact(TextVariantBase):
 class TextVariant(TextVariantCompact):
     """Полная схема для варианта текста для получения проекта"""
 
-    text: Annotated[str, Field(description="Текст")]
+    payload: Annotated[dict, Field(description="JSON с текстом")]
 
 
 class TextVariantWithoutID(TextVariantBase):
     """Схема для варианта текста для изменения"""
 
-    text: Annotated[str | None, Field(description="Текст")] = None
+    payload: Annotated[dict | None, Field(description="JSON с текстом")] = None
 
 
 class MusicBase(BaseModel):

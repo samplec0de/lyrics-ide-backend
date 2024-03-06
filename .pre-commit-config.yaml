@@ -73,3 +73,4 @@ repos:
           - pydantic==2.5.3
           - numpy==1.26.3
           - aiohttp==3.9.1
+          - motor==3.3.2

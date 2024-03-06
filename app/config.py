@@ -19,5 +19,7 @@ class Settings(BaseSettings):
 
     yandex_dict_key: str
 
+    mongo_url: str
+
 
 settings = Settings()  # type: ignore

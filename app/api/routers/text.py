@@ -2,7 +2,7 @@
 from fastapi import APIRouter
 
 from app.api.annotations import TextAnnotation
-from app.api.dependencies.core import DBSessionDep
+from app.api.dependencies.core import DBSessionDep, MongoDBTextCollectionDep
 from app.api.schemas import TextVariant, TextVariantIn, TextVariantWithoutID
 from app.models import TextModel
 from app.status_codes import PROJECT_NOT_FOUND, TEXT_NOT_FOUND
@@ -16,19 +16,22 @@ router = APIRouter()
     responses=PROJECT_NOT_FOUND,
     operation_id="create_text",
 )
-async def create_text(text_in: TextVariantIn, db_session: DBSessionDep) -> TextVariant:
+async def create_text(
+    text_in: TextVariantIn, db_session: DBSessionDep, text_collection: MongoDBTextCollectionDep
+) -> TextVariant:
     """Создание варианта текста"""
     text_model = TextModel(
         project_id=text_in.project_id,
         name=text_in.name,
-        url="https://lyrics-ide.storage.yandexcloud.net/text_stub.json",
     )
     db_session.add(text_model)
     await db_session.commit()
 
     await db_session.refresh(text_model)
 
-    text_schema = TextVariant(text_id=text_model.text_id, name=text_model.name, text="")
+    result = await text_collection.insert_one({"_id": str(text_model.text_id), "payload": {}})
+
+    text_schema = TextVariant(text_id=result.inserted_id, name=text_model.name, payload={})
 
     return text_schema
 
@@ -39,12 +42,13 @@ async def create_text(text_in: TextVariantIn, db_session: DBSessionDep) -> TextV
     responses=TEXT_NOT_FOUND,
     operation_id="get_text",
 )
-async def get_text(text: TextAnnotation) -> TextVariant:
+async def get_text(text: TextAnnotation, text_collection: MongoDBTextCollectionDep) -> TextVariant:
     """Получение варианта текста"""
+    text_data = await text_collection.find_one({"_id": str(text.text_id)}) or {}
     return TextVariant(
         text_id=text.text_id,
         name=text.name,
-        text="Тут должен быть текст, но пока затычка",
+        payload=text_data.get("payload", {}),
     )
 
 
@@ -55,20 +59,28 @@ async def get_text(text: TextAnnotation) -> TextVariant:
     operation_id="update_text",
 )
 async def update_text(
-    old_text: TextAnnotation, new_text: TextVariantWithoutID, db_session: DBSessionDep
+    old_text: TextAnnotation,
+    new_text: TextVariantWithoutID,
+    db_session: DBSessionDep,
+    text_collection: MongoDBTextCollectionDep,
 ) -> TextVariant:
     """Изменение варианта текста"""
     new_values = new_text.model_dump(exclude_unset=True)
-    if "text" in new_values:
-        old_text.url = "https://lyrics-ide.storage.yandexcloud.net/text_stub_new.json"
+    actual_payload = None
+    if "payload" in new_values:
+        await text_collection.update_one({"_id": str(old_text.text_id)}, {"$set": {"payload": new_values["payload"]}})
+        actual_payload = new_values["payload"]
 
     if "name" in new_values:
         old_text.name = new_text.name
 
+    if actual_payload is None:
+        actual_payload = (await text_collection.find_one({"_id": str(old_text.text_id)}) or {}).get("payload", {})
+
     new_text_schema = TextVariant(
         text_id=old_text.text_id,
         name=old_text.name,
-        text="Тут должен быть текст, но пока затычка",
+        payload=actual_payload,
     )
 
     db_session.add(old_text)
@@ -78,7 +90,10 @@ async def update_text(
 
 
 @router.delete("/{text_id}", summary="Удалить вариант текста", operation_id="delete_text")
-async def delete_text(text: TextAnnotation, db_session: DBSessionDep) -> None:
+async def delete_text(
+    text: TextAnnotation, db_session: DBSessionDep, text_collection: MongoDBTextCollectionDep
+) -> None:
     """Удаление варианта текста"""
+    await text_collection.delete_one({"_id": str(text.text_id)})
     await db_session.delete(text)
     await db_session.commit()

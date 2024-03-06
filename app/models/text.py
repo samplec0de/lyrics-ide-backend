@@ -22,6 +22,5 @@ class TextModel(Base):  # type: ignore
         index=True,
     )
     name: Mapped[str | None]
-    url: Mapped[str]
 
     project: Mapped["ProjectModel"] = relationship("ProjectModel", back_populates="texts")  # type: ignore
