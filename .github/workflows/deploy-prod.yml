@@ -24,13 +24,15 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-#      - name: Build and push Docker image
-#        uses: docker/build-push-action@v2
-#        with:
-#          context: .
-#          file: ./Dockerfile
-#          push: true
-#          tags: samplec0de/lyrics-ide-backend:latest
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: samplec0de/lyrics-ide-backend:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: Set up Kubectl
         uses: azure/k8s-set-context@v1
