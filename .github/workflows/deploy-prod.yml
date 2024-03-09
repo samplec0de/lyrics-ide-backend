@@ -36,4 +36,4 @@ jobs:
 
       - name: Deploy to Kubernetes
         run: |
-          kubectl apply -f manifests/
+          kubectl apply -f k8s/manifests/
