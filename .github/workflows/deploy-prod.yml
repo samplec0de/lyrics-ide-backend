@@ -32,15 +32,10 @@ jobs:
 #          push: true
 #          tags: samplec0de/lyrics-ide-backend:latest
 
-#      - name: Set up Kubeconfig
-#        uses: azure/setup-kubectl@v1
-#        with:
-#          kubeconfig: ${{ secrets.KUBE_CONFIG_DATA }}
-
-      - name: Set up Kubeconfig
-        run: |
-          echo "${{ secrets.KUBE_CONFIG_DATA }}" > ./kubeconfig
-          export KUBECONFIG=$PWD/kubeconfig
+      - name: Set up Kubectl
+        uses: azure/k8s-set-context@v1
+        with:
+          kubeconfig: ${{ secrets.KUBE_CONFIG_DATA }}
 
       - name: Deploy to Kubernetes
         run: |
