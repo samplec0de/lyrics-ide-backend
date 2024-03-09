@@ -12,6 +12,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Print working directory
+        run: pwd
+
+      - name: List directory contents
+        run: ls -la
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
 
@@ -36,4 +42,4 @@ jobs:
 
       - name: Deploy to Kubernetes
         run: |
-          kubectl apply -f k8s/manifests/
+          kubectl apply -f ./k8s/manifests/
