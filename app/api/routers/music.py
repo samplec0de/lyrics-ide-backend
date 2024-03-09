@@ -109,9 +109,11 @@ async def set_music_bpm(
     # Add the updated music object to the session and commit the changes
     db_session.add(project.music)
 
+    url = await generate_presigned_url(project.music.url)
+
     # Return the updated music object
     new_music = MusicOut(
-        url=project.music.url,
+        url=url,
         duration_seconds=project.music.duration_seconds,
         bpm=project.music.bpm,
         custom_bpm=project.music.custom_bpm,
