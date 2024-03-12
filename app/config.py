@@ -22,6 +22,7 @@ class Settings(BaseSettings):
     mongo_url: str
 
     tiptap_app_id: str
+    tiptap_secret_key: str
 
 
 settings = Settings()  # type: ignore

@@ -20,6 +20,7 @@ async def get_tiptap_access_token():
             "iss": "https://lyrics-backend.k8s-1.sslane.ru",
             "nbf": datetime.utcnow(),
             "aud": settings.tiptap_app_id,
-        }
+        },
+        secret_key=settings.tiptap_secret_key,
     )
     return {"access_token": access_token, "token_type": "bearer"}
