@@ -13,7 +13,6 @@ from app.status_codes import PROJECT_NOT_FOUND
 router = APIRouter()
 
 
-# pylint: disable=fixme
 @router.post("/", summary="Создать проект", operation_id="create_project")
 async def create_project(project: ProjectBase, db_session: DBSessionDep) -> ProjectOut:
     """Создать проект"""
@@ -29,6 +28,45 @@ async def create_project(project: ProjectBase, db_session: DBSessionDep) -> Proj
         project_id=new_project.project_id,
         texts=[],
         music=None,
+    )
+
+
+@router.patch(
+    "/{project_id}",
+    summary="Изменить проект",
+    responses=PROJECT_NOT_FOUND,
+    operation_id="update_project",
+)
+async def update_project(project: ProjectAnnotation, project_data: ProjectBase, db_session: DBSessionDep) -> ProjectOut:
+    """Изменить проект"""
+    new_values = project_data.model_dump(exclude_unset=True)
+    if "name" in new_values:
+        project.name = new_values["name"]
+    if "description" in new_values:
+        project.description = new_values["description"]
+
+    await db_session.commit()
+    await db_session.refresh(project)
+
+    return ProjectOut(
+        name=project.name,
+        description=project.description,
+        project_id=project.project_id,
+        texts=[
+            TextVariantCompact(
+                text_id=text.text_id,
+                name=text.name,
+            )
+            for text in project.texts
+        ],
+        music=MusicOut(
+            url=await generate_presigned_url(project.music.url),
+            duration_seconds=project.music.duration_seconds,
+            bpm=project.music.bpm,
+            custom_bpm=project.music.custom_bpm,
+        )
+        if project.music
+        else None,
     )
 
 
