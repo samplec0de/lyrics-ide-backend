@@ -74,7 +74,7 @@ app.mount("/static", StaticFiles(directory="app/static"), name="static")
 origins = [
     "http://localhost:5173",
     "https://lyrics-ide.sslane.ru",
-    "https://lyrics-mu.vercel.app",
+    "https://lyrics-editor.vercel.app/",
 ]
 
 app.add_middleware(
