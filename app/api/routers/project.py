@@ -4,9 +4,9 @@ from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
 from app.api.annotations import ProjectAnnotation
-from app.api.dependencies.core import DBSessionDep
+from app.api.dependencies.core import DBSessionDep, MongoDBTextCollectionDep
 from app.api.schemas import MusicOut, ProjectBase, ProjectOut, TextVariantCompact
-from app.models import ProjectModel
+from app.models import ProjectModel, TextModel
 from app.s3 import generate_presigned_url
 from app.status_codes import PROJECT_NOT_FOUND
 
@@ -14,7 +14,9 @@ router = APIRouter()
 
 
 @router.post("/", summary="Создать проект", operation_id="create_project")
-async def create_project(project: ProjectBase, db_session: DBSessionDep) -> ProjectOut:
+async def create_project(
+    project: ProjectBase, db_session: DBSessionDep, text_collection: MongoDBTextCollectionDep
+) -> ProjectOut:
     """Создать проект"""
     new_project = ProjectModel(name=project.name, description=project.description)
 
@@ -22,11 +24,25 @@ async def create_project(project: ProjectBase, db_session: DBSessionDep) -> Proj
     await db_session.commit()
     await db_session.refresh(new_project)
 
+    text_model = TextModel(
+        project_id=new_project.project_id,
+        name=None,
+    )
+    db_session.add(text_model)
+    await db_session.commit()
+
+    await db_session.refresh(text_model)
+    await db_session.refresh(new_project)
+
+    result = await text_collection.insert_one({"_id": str(text_model.text_id), "payload": {}})
+
+    first_text = TextVariantCompact(text_id=result.inserted_id, name=text_model.name)
+
     return ProjectOut(
         name=new_project.name,
         description=new_project.description,
         project_id=new_project.project_id,
-        texts=[],
+        texts=[first_text],
         music=None,
     )
 
