@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: backend
-        image: samplec0de/lyrics-ide-backend:latest
+        image: samplec0de/lyrics-ide-backend:1.0.3
         imagePullPolicy: "Always"
         ports:
         - containerPort: 80

@@ -30,7 +30,7 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: samplec0de/lyrics-ide-backend:latest
+          tags: samplec0de/lyrics-ide-backend:1.0.3
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
