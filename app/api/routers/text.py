@@ -1,11 +1,12 @@
 """CRUD текстов"""
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException, status
+from sqlalchemy import func, select
 
 from app.api.annotations import TextAnnotation
 from app.api.dependencies.core import DBSessionDep, MongoDBTextCollectionDep
 from app.api.schemas import TextVariant, TextVariantIn, TextVariantWithoutID
 from app.models import TextModel
-from app.status_codes import PROJECT_NOT_FOUND, TEXT_NOT_FOUND
+from app.status_codes import CANNOT_REMOVE_SINGLE_TEXT, PROJECT_NOT_FOUND, TEXT_NOT_FOUND
 
 router = APIRouter()
 
@@ -89,11 +90,25 @@ async def update_text(
     return new_text_schema
 
 
-@router.delete("/{text_id}", summary="Удалить вариант текста", operation_id="delete_text")
+@router.delete(
+    "/{text_id}",
+    summary="Удалить вариант текста",
+    responses={**TEXT_NOT_FOUND, **CANNOT_REMOVE_SINGLE_TEXT},
+    operation_id="delete_text",
+)
 async def delete_text(
     text: TextAnnotation, db_session: DBSessionDep, text_collection: MongoDBTextCollectionDep
 ) -> None:
     """Удаление варианта текста"""
+    # pylint: disable=not-callable
+    count_query = await db_session.execute(select(func.count()).where(TextModel.project_id == text.project_id))
+    # pylint: enable=not-callable
+    count = count_query.scalar_one()
+    if count == 1:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Нельзя удалить единственный текст из проекта"
+        )
+
     await text_collection.delete_one({"_id": str(text.text_id)})
     await db_session.delete(text)
     await db_session.commit()
