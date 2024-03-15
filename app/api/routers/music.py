@@ -6,7 +6,7 @@ from fastapi import APIRouter, File, HTTPException, Query, UploadFile, status
 
 from app.api.annotations import ProjectAnnotation
 from app.api.dependencies.core import DBSessionDep
-from app.api.schemas import MusicOut, ProjectOut
+from app.api.schemas import MusicOut, ProjectOut, TextVariantCompact
 from app.models import MusicModel
 from app.music_utils import get_file_bpm, get_song_duration
 from app.s3 import delete, generate_presigned_url, upload
@@ -141,7 +141,13 @@ async def delete_music(project: ProjectAnnotation, db_session: DBSessionDep) -> 
         name=project.name,
         description=project.description,
         project_id=project.project_id,
-        texts=[],
+        texts=[
+            TextVariantCompact(
+                text_id=text.text_id,
+                name=text.name,
+            )
+            for text in project.texts
+        ],
         music=None,
     )
 
