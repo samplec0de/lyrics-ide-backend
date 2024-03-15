@@ -81,3 +81,15 @@ class WordMeaning(BaseModel):
 
     meaning: Annotated[str, Field(description="Значение слова")]
     source: Annotated[str, Field(description="Источник значения слова")]
+
+
+class CompletionIn(BaseModel):
+    """Схема куска текста для автодополнения"""
+
+    text: str
+
+
+class CompletionOut(BaseModel):
+    """Схема для варианта результата автодополнения текста"""
+
+    completion: Annotated[str, Field(description="Продолжение текста")]

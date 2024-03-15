@@ -74,3 +74,4 @@ repos:
           - numpy==1.26.3
           - aiohttp==3.9.1
           - motor==3.3.2
+          - openai==1.14.0

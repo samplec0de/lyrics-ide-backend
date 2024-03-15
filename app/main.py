@@ -9,7 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.auth import get_current_user
 from app.config import settings
 from app.database import sessionmanager
-from app.api.routers import auth, project, music, text, word, tiptap
+from app.api.routers import auth, project, music, text, word, tiptap, completions
 from app.mongodb import mongodb_client
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG if settings.debug_logs else logging.INFO)
@@ -30,7 +30,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="Lyrics IDE Backend",
     summary="Серверная часть веб-приложения для создания текстов песен",
-    version="1.0.5",
+    version="1.1.0",
 )
 
 app.include_router(
@@ -67,6 +67,12 @@ app.include_router(
     prefix="/tiptap",
     dependencies=[Depends(get_current_user)],
     tags=["TipTap"],
+)
+app.include_router(
+    completions.router,
+    prefix="/completions",
+    dependencies=[Depends(get_current_user)],
+    tags=["Автодополнение"],
 )
 
 app.mount("/static", StaticFiles(directory="app/static"), name="static")

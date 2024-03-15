@@ -24,5 +24,12 @@ class Settings(BaseSettings):
     tiptap_app_id: str
     tiptap_secret_key: str
 
+    openai_prompt: str = ("Продолжи текст песни. "
+                          "В ответ пришли текст, который нужно добавить. учитывай регистр, старайся рифмовать")
+    openai_model: str = "gpt-3.5-turbo-0125"
+    openai_temperature: float = 0.7
+    openai_api_key: str
+    openai_max_tokens: int = 150
+
 
 settings = Settings()  # type: ignore
