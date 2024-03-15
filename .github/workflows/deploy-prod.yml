@@ -30,9 +30,13 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: samplec0de/lyrics-ide-backend:1.0.3
+          tags: samplec0de/lyrics-ide-backend:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Update Kubernetes manifest
+        run: |
+          sed -i 's|samplec0de/lyrics-ide-backend:latest|samplec0de/lyrics-ide-backend:${{ github.sha }}|' ./k8s/manifests/backend.yaml
 
       - name: Set up Kubectl
         uses: azure/k8s-set-context@v1
