@@ -1,7 +1,7 @@
-fastapi[all]==0.108.0
+fastapi[all]==0.110.0
 uvicorn[standard]
 pydantic
-python-multipart
+python-multipart==0.0.9
 python-jose[cryptography]
 passlib[bcrypt]
 asyncpg==0.29.0
