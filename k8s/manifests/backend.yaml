@@ -4,10 +4,15 @@ metadata:
   name: backend
   namespace: lyrics-ide
 spec:
-  replicas: 2
+  replicas: 3
   selector:
     matchLabels:
       app: backend
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
   template:
     metadata:
       labels:
@@ -22,5 +27,22 @@ spec:
         envFrom:
         - secretRef:
             name: backend-secret
+        livenessProbe:
+          httpGet:
+            path: /health/liveness
+            port: 80
+          initialDelaySeconds: 15
+          timeoutSeconds: 2
+          periodSeconds: 10
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health/readiness
+            port: 80
+          initialDelaySeconds: 20
+          timeoutSeconds: 2
+          periodSeconds: 10
+          successThreshold: 1
+          failureThreshold: 3
       imagePullSecrets:
       - name: regcred
