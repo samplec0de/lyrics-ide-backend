@@ -54,7 +54,7 @@ jobs:
       - name: Run database migrations
         working-directory: ./app
         run: |
-          alembic upgrade head
+          DATABASE_URL=${{ secrets.DATABASE_URL }} alembic upgrade head
 
 
 #  deploy:
