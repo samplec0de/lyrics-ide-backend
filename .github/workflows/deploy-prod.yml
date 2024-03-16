@@ -6,47 +6,71 @@ on:
       - main
 
 jobs:
-  build:
+#  build:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Checkout code
+#        uses: actions/checkout@v4
+#
+#      - name: Set up Docker Buildx
+#        uses: docker/setup-buildx-action@v3
+#
+#      - name: Login to DockerHub
+#        uses: docker/login-action@v3
+#        with:
+#          username: ${{ secrets.DOCKER_USERNAME }}
+#          password: ${{ secrets.DOCKER_PASSWORD }}
+#
+#      - name: Build and push Docker image
+#        uses: docker/build-push-action@v5
+#        with:
+#          context: .
+#          file: ./Dockerfile
+#          push: true
+#          tags: samplec0de/lyrics-ide-backend:${{ github.sha }}
+#          cache-from: type=gha
+#          cache-to: type=gha,mode=max
+
+  migrate-database:
     runs-on: ubuntu-latest
+#    needs: [build]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Login to DockerHub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: ./Dockerfile
-          push: true
-          tags: samplec0de/lyrics-ide-backend:${{ github.sha }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-  deploy:
-    runs-on: ubuntu-latest
-    needs: [build]
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Render Kubernetes manifest
-        run: |
-          sed -i 's|samplec0de/lyrics-ide-backend:latest|samplec0de/lyrics-ide-backend:${{ github.sha }}|' ./k8s/manifests/backend.yaml
 
       - name: Set up Kubectl
         uses: azure/k8s-set-context@v4
         with:
           kubeconfig: ${{ secrets.KUBE_CONFIG_DATA }}
 
-      - name: Deploy to Kubernetes
+      - name: Port-forward to database
         run: |
-          kubectl apply -f /home/runner/work/lyrics-ide-backend/lyrics-ide-backend/k8s/manifests/
+          kubectl port-forward -n lyrics-ide service/lyrics-postgresql 15432:5432 &
+
+      - name: Change directory to app
+        run: |
+          cd /home/runner/work/lyrics-ide-backend/lyrics-ide-backend/k8s/app
+
+      - name: Check python
+        run: |
+          python3 --version
+
+#  deploy:
+#    runs-on: ubuntu-latest
+#    needs: [build]
+#    steps:
+#      - name: Checkout code
+#        uses: actions/checkout@v4
+#
+#      - name: Render Kubernetes manifest
+#        run: |
+#          sed -i 's|samplec0de/lyrics-ide-backend:latest|samplec0de/lyrics-ide-backend:${{ github.sha }}|' ./k8s/manifests/backend.yaml
+#
+#      - name: Set up Kubectl
+#        uses: azure/k8s-set-context@v4
+#        with:
+#          kubeconfig: ${{ secrets.KUBE_CONFIG_DATA }}
+#
+#      - name: Deploy to Kubernetes
+#        run: |
+#          kubectl apply -f /home/runner/work/lyrics-ide-backend/lyrics-ide-backend/k8s/manifests/
