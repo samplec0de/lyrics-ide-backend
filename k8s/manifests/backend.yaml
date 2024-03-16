@@ -31,16 +31,16 @@ spec:
           httpGet:
             path: /health/liveness
             port: 80
-          initialDelaySeconds: 15
-          timeoutSeconds: 2
+          initialDelaySeconds: 20
+          timeoutSeconds: 10
           periodSeconds: 10
           failureThreshold: 3
         readinessProbe:
           httpGet:
             path: /health/readiness
             port: 80
-          initialDelaySeconds: 20
-          timeoutSeconds: 2
+          initialDelaySeconds: 25
+          timeoutSeconds: 10
           periodSeconds: 10
           successThreshold: 1
           failureThreshold: 3
