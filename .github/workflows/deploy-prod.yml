@@ -47,17 +47,14 @@ jobs:
         run: |
           kubectl port-forward -n lyrics-ide service/lyrics-postgresql 5432:5432 &
 
-      - name: Change directory to app
-        run: |
-          cd /home/runner/work/lyrics-ide-backend/lyrics-ide-backend/app
-
       - name: Install dependencies
         run: |
           python3 -m pip install asyncpg==0.29.0 SQLAlchemy==2.0.25 alembic==1.13.1
 
       - name: Run database migrations
+        working-directory: ./app
         run: |
-          pwd && alembic upgrade head
+          alembic upgrade head
 
 
 #  deploy:
