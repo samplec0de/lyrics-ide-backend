@@ -31,18 +31,18 @@ spec:
           httpGet:
             path: /health/liveness
             port: 80
-          initialDelaySeconds: 20
-          timeoutSeconds: 10
+          initialDelaySeconds: 60
+          timeoutSeconds: 20
           periodSeconds: 10
-          failureThreshold: 3
+          failureThreshold: 5
         readinessProbe:
           httpGet:
             path: /health/readiness
             port: 80
-          initialDelaySeconds: 25
-          timeoutSeconds: 10
+          initialDelaySeconds: 75
+          timeoutSeconds: 20
           periodSeconds: 10
           successThreshold: 1
-          failureThreshold: 3
+          failureThreshold: 5
       imagePullSecrets:
       - name: regcred
