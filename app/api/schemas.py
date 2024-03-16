@@ -74,6 +74,7 @@ class ProjectOut(ProjectBase):
 
     project_id: Annotated[UUID4, Field(description="Идентификатор проекта")]
     created_at: Annotated[datetime.datetime, Field(description="Дата создания проекта")]
+    updated_at: Annotated[datetime.datetime, Field(description="Дата последнего обновления проекта")]
     texts: Annotated[list[TextVariantCompact], Field(description="Варианты текста")] = []
     music: Annotated[MusicOut | None, Field(description="Музыкальный трек")] = None
 

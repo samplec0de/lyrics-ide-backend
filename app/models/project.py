@@ -20,6 +20,12 @@ class ProjectModel(Base):  # type: ignore
     description: Mapped[str | None]
     # pylint: disable=not-callable
     created_at: Mapped[datetime.datetime] = mapped_column(server_default=func.now(), index=False, nullable=False)
+    updated_at: Mapped[datetime.datetime] = mapped_column(
+        server_default=func.now(),
+        onupdate=func.now(),
+        index=False,
+        nullable=False,
+    )
     # pylint: enable=not-callable
 
     music: Mapped["MusicModel"] = relationship("MusicModel", back_populates="project", uselist=False)  # type: ignore
