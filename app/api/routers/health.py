@@ -7,13 +7,13 @@ from app.api.dependencies.core import DBSessionDep
 router = APIRouter()
 
 
-@router.get("/liveness")
+@router.get("/liveness", operation_id="get_liveness")
 async def liveness():
     """Проверка живости сервиса"""
     return {"status": "alive"}
 
 
-@router.get("/readiness")
+@router.get("/readiness", operation_id="get_readiness")
 async def readiness(db_session: DBSessionDep):
     """Проверка готовности сервиса принимать запросы"""
     try:
