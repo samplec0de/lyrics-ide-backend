@@ -57,7 +57,7 @@ jobs:
 
       - name: Run database migrations
         run: |
-          alembic upgrade head
+          pwd && alembic upgrade head
 
 
 #  deploy:
