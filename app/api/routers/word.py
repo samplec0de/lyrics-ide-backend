@@ -4,6 +4,7 @@ from fastapi import APIRouter
 from app.api.annotations import UserAnnotation, WordAnnotation
 from app.api.dependencies.core import DBSessionDep
 from app.api.schemas import WordMeaning
+from app.llm import get_llm_rhymes
 from app.status_codes import MEANING_NOT_FOUND
 from app.word_utils import WordMeaningSource
 from app.word_utils import get_synonyms as get_synonyms_utils
@@ -43,4 +44,4 @@ async def get_synonyms(current_user: UserAnnotation, word: WordAnnotation) -> li
 )
 async def get_rhyming(current_user: UserAnnotation, word: WordAnnotation) -> list[str]:
     """Получить рифмующиеся слова к слову"""
-    return ["рифма 1", "рифма 2"]
+    return get_llm_rhymes(word=word)
