@@ -3,10 +3,11 @@ from fastapi import APIRouter
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
-from app.api.annotations import ProjectAnnotation
+from app.api.annotations import ProjectAnnotation, UserAnnotation
 from app.api.dependencies.core import DBSessionDep, MongoDBTextCollectionDep
 from app.api.schemas import MusicOut, ProjectBase, ProjectOut, TextVariantCompact
 from app.models import ProjectModel, TextModel
+from app.models.grant import ProjectGrantModel
 from app.s3 import generate_presigned_url
 from app.status_codes import PROJECT_NOT_FOUND
 
@@ -15,7 +16,10 @@ router = APIRouter()
 
 @router.post("/", summary="Создать проект", operation_id="create_project")
 async def create_project(
-    project: ProjectBase, db_session: DBSessionDep, text_collection: MongoDBTextCollectionDep
+    project: ProjectBase,
+    current_user: UserAnnotation,
+    db_session: DBSessionDep,
+    text_collection: MongoDBTextCollectionDep,
 ) -> ProjectOut:
     """Создать проект"""
     new_project = ProjectModel(name=project.name, description=project.description)
@@ -36,9 +40,14 @@ async def create_project(
 
     result = await text_collection.insert_one({"_id": str(text_model.text_id), "payload": {}})
 
-    first_text = TextVariantCompact(text_id=result.inserted_id, name=text_model.name)
+    first_text = TextVariantCompact(
+        text_id=result.inserted_id,
+        name=text_model.name,
+        created_at=text_model.created_at,
+        updated_at=text_model.updated_at,
+    )
 
-    return ProjectOut(
+    project_out = ProjectOut(
         name=new_project.name,
         description=new_project.description,
         created_at=new_project.created_at,
@@ -47,6 +56,17 @@ async def create_project(
         texts=[first_text],
         music=None,
     )
+
+    await db_session.refresh(current_user)
+
+    new_project_grant = ProjectGrantModel(
+        project_id=new_project.project_id,
+        user_id=current_user.user_id,
+    )
+    db_session.add(new_project_grant)
+    await db_session.commit()
+
+    return project_out
 
 
 @router.patch(
@@ -76,6 +96,8 @@ async def update_project(project: ProjectAnnotation, project_data: ProjectBase, 
             TextVariantCompact(
                 text_id=text.text_id,
                 name=text.name,
+                created_at=text.created_at,
+                updated_at=text.updated_at,
             )
             for text in project.texts
         ],
@@ -91,10 +113,13 @@ async def update_project(project: ProjectAnnotation, project_data: ProjectBase, 
 
 
 @router.get("/", summary="Получить список проектов", operation_id="get_projects")
-async def get_projects(db_session: DBSessionDep) -> list[ProjectOut]:
-    """Получить список проектов"""
+async def get_projects(db_session: DBSessionDep, current_user: UserAnnotation) -> list[ProjectOut]:
+    """Получить список проектов, на которые у пользователя есть доступ"""
     result = await db_session.execute(
-        select(ProjectModel).options(selectinload(ProjectModel.music), selectinload(ProjectModel.texts))
+        select(ProjectModel)
+        .options(selectinload(ProjectModel.music), selectinload(ProjectModel.texts))
+        .join(ProjectGrantModel)
+        .where(ProjectGrantModel.user_id == current_user.user_id)
     )
     projects = result.scalars().all()
 
@@ -109,6 +134,8 @@ async def get_projects(db_session: DBSessionDep) -> list[ProjectOut]:
                 TextVariantCompact(
                     text_id=text.text_id,
                     name=text.name,
+                    created_at=text.created_at,
+                    updated_at=text.updated_at,
                 )
                 for text in project.texts
             ],
@@ -145,6 +172,8 @@ async def get_project(project: ProjectAnnotation) -> ProjectOut:
             TextVariantCompact(
                 text_id=text.text_id,
                 name=text.name,
+                created_at=text.created_at,
+                updated_at=text.updated_at,
             )
             for text in project.texts
         ],

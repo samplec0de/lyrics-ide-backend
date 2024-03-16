@@ -8,7 +8,9 @@ import datetime
 from jose import JWTError, jwt
 from sqlalchemy import select, ColumnElement
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
+from app.api.dependencies.core import DBSessionDep
 from app.config import settings
 from app.models import UserModel
 
@@ -64,7 +66,7 @@ async def create_user_if_not_exists(email: str, db_session: AsyncSession):
         db_session.add(user)
 
 
-async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
+async def check_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Ошибка проверки ключа доступа",
@@ -81,6 +83,31 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
     user = get_user(email=token_data.username)
     if user is None:
         raise credentials_exception
+    return user
+
+
+async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db_session: DBSessionDep) -> UserModel | None:
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Ошибка проверки ключа доступа",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        payload = jwt.decode(token, settings.secret_key, algorithms=[ALGORITHM])
+        username = payload.get("sub")
+        if username is None or not isinstance(username, str):
+            raise credentials_exception
+        token_data = TokenData(username=username)
+    except JWTError:
+        raise credentials_exception
+
+    result = await db_session.execute(
+        select(UserModel)
+        .options(selectinload(UserModel.grants))
+        .where(UserModel.email == token_data.username)
+    )
+    user = result.scalars().first()
+
     return user
 
 

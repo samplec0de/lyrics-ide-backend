@@ -6,7 +6,7 @@ from fastapi import FastAPI, Depends
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.auth import get_current_user
+from app.auth import check_current_user
 from app.config import settings
 from app.database import sessionmanager
 from app.api.routers import auth, project, music, text, word, tiptap, completions, health
@@ -41,37 +41,37 @@ app.include_router(
 app.include_router(
     project.router,
     prefix="/projects",
-    dependencies=[Depends(get_current_user)],
+    dependencies=[Depends(check_current_user)],
     tags=["Проекты"],
 )
 app.include_router(
     music.router,
     prefix="/music",
-    dependencies=[Depends(get_current_user)],
+    dependencies=[Depends(check_current_user)],
     tags=["Музыка"],
 )
 app.include_router(
     text.router,
     prefix="/texts",
-    dependencies=[Depends(get_current_user)],
+    dependencies=[Depends(check_current_user)],
     tags=["Тексты"],
 )
 app.include_router(
     word.router,
     prefix="/words",
-    dependencies=[Depends(get_current_user)],
+    dependencies=[Depends(check_current_user)],
     tags=["Слова"],
 )
 app.include_router(
     tiptap.router,
     prefix="/tiptap",
-    dependencies=[Depends(get_current_user)],
+    dependencies=[Depends(check_current_user)],
     tags=["TipTap"],
 )
 app.include_router(
     completions.router,
     prefix="/completions",
-    dependencies=[Depends(get_current_user)],
+    dependencies=[Depends(check_current_user)],
     tags=["Автодополнение"],
 )
 app.include_router(

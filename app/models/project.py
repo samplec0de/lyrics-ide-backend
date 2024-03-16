@@ -29,4 +29,5 @@ class ProjectModel(Base):  # type: ignore
     # pylint: enable=not-callable
 
     music: Mapped["MusicModel"] = relationship("MusicModel", back_populates="project", uselist=False)  # type: ignore
-    texts: Mapped[list["MusicModel"]] = relationship("TextModel", back_populates="project", uselist=True)  # type: ignore
+    texts: Mapped[list["TextModel"]] = relationship("TextModel", back_populates="project", uselist=True)  # type: ignore
+    grants: Mapped[list["ProjectGrantModel"]] = relationship("ProjectGrantModel", back_populates="project", uselist=True)  # type: ignore
