@@ -32,7 +32,13 @@ async def create_text(
 
     result = await text_collection.insert_one({"_id": str(text_model.text_id), "payload": {}})
 
-    text_schema = TextVariant(text_id=result.inserted_id, name=text_model.name, payload={})
+    text_schema = TextVariant(
+        text_id=result.inserted_id,
+        name=text_model.name,
+        created_at=text_model.created_at,
+        updated_at=text_model.updated_at,
+        payload={},
+    )
 
     return text_schema
 
@@ -49,6 +55,8 @@ async def get_text(text: TextAnnotation, text_collection: MongoDBTextCollectionD
     return TextVariant(
         text_id=text.text_id,
         name=text.name,
+        created_at=text.created_at,
+        updated_at=text.updated_at,
         payload=text_data.get("payload", {}),
     )
 
@@ -81,6 +89,8 @@ async def update_text(
     new_text_schema = TextVariant(
         text_id=old_text.text_id,
         name=old_text.name,
+        created_at=old_text.created_at,
+        updated_at=old_text.updated_at,
         payload=actual_payload,
     )
 

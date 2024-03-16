@@ -22,6 +22,8 @@ class TextVariantCompact(TextVariantBase):
     """Схема для варианта текста при отображении в списке проектов"""
 
     text_id: Annotated[UUID4, Field(description="Идентификатор варианта текста")]
+    created_at: Annotated[datetime.datetime, Field(description="Дата создания проекта")]
+    updated_at: Annotated[datetime.datetime, Field(description="Дата последнего обновления проекта")]
 
 
 class TextVariant(TextVariantCompact):

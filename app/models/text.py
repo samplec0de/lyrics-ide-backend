@@ -1,8 +1,9 @@
 # pylint: disable=cyclic-import
 """ORM модель варианта текста"""
+import datetime
 import uuid
 
-from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKey, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -22,5 +23,14 @@ class TextModel(Base):  # type: ignore
         index=True,
     )
     name: Mapped[str | None]
+    # pylint: disable=not-callable
+    created_at: Mapped[datetime.datetime] = mapped_column(server_default=func.now(), index=False, nullable=False)
+    updated_at: Mapped[datetime.datetime] = mapped_column(
+        server_default=func.now(),
+        onupdate=func.now(),
+        index=False,
+        nullable=False,
+    )
+    # pylint: enable=not-callable
 
     project: Mapped["ProjectModel"] = relationship("ProjectModel", back_populates="texts")  # type: ignore
