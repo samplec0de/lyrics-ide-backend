@@ -1,4 +1,5 @@
 """Pydantic схемы для валидации данных в API"""
+import datetime
 from typing import Annotated
 
 from fastapi import UploadFile
@@ -72,6 +73,7 @@ class ProjectOut(ProjectBase):
     """Полная схема для проекта для отображения"""
 
     project_id: Annotated[UUID4, Field(description="Идентификатор проекта")]
+    created_at: Annotated[datetime.datetime, Field(description="Дата создания проекта")]
     texts: Annotated[list[TextVariantCompact], Field(description="Варианты текста")] = []
     music: Annotated[MusicOut | None, Field(description="Музыкальный трек")] = None
 

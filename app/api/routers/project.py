@@ -41,6 +41,7 @@ async def create_project(
     return ProjectOut(
         name=new_project.name,
         description=new_project.description,
+        created_at=new_project.created_at,
         project_id=new_project.project_id,
         texts=[first_text],
         music=None,
@@ -67,6 +68,7 @@ async def update_project(project: ProjectAnnotation, project_data: ProjectBase, 
     return ProjectOut(
         name=project.name,
         description=project.description,
+        created_at=project.created_at,
         project_id=project.project_id,
         texts=[
             TextVariantCompact(
@@ -98,6 +100,7 @@ async def get_projects(db_session: DBSessionDep) -> list[ProjectOut]:
         ProjectOut(
             name=project.name,
             description=project.description,
+            created_at=project.created_at,
             project_id=project.project_id,
             texts=[
                 TextVariantCompact(
@@ -132,6 +135,7 @@ async def get_project(project: ProjectAnnotation) -> ProjectOut:
     return ProjectOut(
         name=project.name,
         description=project.description,
+        created_at=project.created_at,
         project_id=project.project_id,
         texts=[
             TextVariantCompact(
