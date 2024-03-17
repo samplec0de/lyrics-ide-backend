@@ -7,7 +7,7 @@ from app.api.annotations import ProjectAnnotation, UserAnnotation
 from app.api.dependencies.core import DBSessionDep, MongoDBTextCollectionDep
 from app.api.schemas import MusicOut, ProjectBase, ProjectOut, TextVariantCompact
 from app.models import ProjectModel, TextModel
-from app.models.grant import ProjectGrantModel
+from app.models.grant import GrantLevel, ProjectGrantModel
 from app.s3 import generate_presigned_url
 from app.status_codes import PROJECT_NOT_FOUND
 
@@ -62,6 +62,7 @@ async def create_project(
     new_project_grant = ProjectGrantModel(
         project_id=new_project.project_id,
         user_id=current_user.user_id,
+        grant_level=GrantLevel.OWNER,
     )
     db_session.add(new_project_grant)
     await db_session.commit()

@@ -5,6 +5,8 @@ from typing import Annotated
 from fastapi import UploadFile
 from pydantic import UUID4, BaseModel, Field
 
+from app.models.grant import GrantLevel
+
 
 class TextVariantBase(BaseModel):
     """Базовая схема для варианта текста"""
@@ -98,3 +100,26 @@ class CompletionOut(BaseModel):
     """Схема для варианта результата автодополнения текста"""
 
     completion: Annotated[str, Field(description="Продолжение текста")]
+
+
+class ProjectGrantCode(BaseModel):
+    """Схема для кода доступа к проекту"""
+
+    grant_code_id: Annotated[UUID4, Field(description="Код доступа к проекту")]
+    project_id: Annotated[UUID4, Field(description="Идентификатор проекта")]
+    issuer_user_id: Annotated[UUID4, Field(description="Идентификатор пользователя, создавшего код доступа")]
+    level: Annotated[GrantLevel, Field(description="Уровень доступа к проекту")]
+    max_activations: Annotated[int, Field(description="Максимальное количество активаций кода")]
+    current_activations: Annotated[int, Field(description="Количество активаций кода")]
+    is_active: Annotated[bool, Field(description="Активен ли код доступа к проекту")]
+    created_at: Annotated[datetime.datetime, Field(description="Дата создания кода")]
+    updated_at: Annotated[datetime.datetime, Field(description="Дата последнего обновления кода")]
+
+
+class ProjectGrant(BaseModel):
+    """Схема для гранта доступа к проекту"""
+
+    project_id: Annotated[UUID4, Field(description="Идентификатор проекта")]
+    user_id: Annotated[UUID4, Field(description="Идентификатор пользователя")]
+    level: Annotated[GrantLevel, Field(description="Уровень доступа к проекту")]
+    created_at: Annotated[datetime.datetime, Field(description="Дата создания гранта")]

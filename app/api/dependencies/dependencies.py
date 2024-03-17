@@ -7,7 +7,7 @@ from sqlalchemy import ColumnElement, select
 from sqlalchemy.orm import selectinload
 
 from app.api.dependencies.core import DBSessionDep
-from app.models import ProjectModel, TextModel
+from app.models import ProjectGrantCodeModel, ProjectModel, TextModel
 
 
 async def get_project_by_id(
@@ -37,3 +37,19 @@ async def get_text_by_id(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Текст не найден")
 
     return text
+
+
+async def get_grant_code_by_id(
+    grant_code_id: Annotated[UUID4, Path(description="Идентификатор кода доступа")], db_session: DBSessionDep
+) -> ProjectGrantCodeModel:
+    """Получить код доступа по его идентификатору"""
+    result = await db_session.execute(
+        select(ProjectGrantCodeModel).where(ProjectGrantCodeModel.grant_code_id == grant_code_id)
+    )
+    grant_code = result.scalars().first()
+    if grant_code is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Код доступа к проекту не найден или деактивирован"
+        )
+
+    return grant_code

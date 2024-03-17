@@ -9,7 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.auth import check_current_user
 from app.config import settings
 from app.database import sessionmanager
-from app.api.routers import auth, project, music, text, word, tiptap, completions, health
+from app.api.routers import auth, project, music, text, word, tiptap, completions, health, grant
 from app.mongodb import mongodb_client
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG if settings.debug_logs else logging.INFO)
@@ -73,6 +73,12 @@ app.include_router(
     prefix="/completions",
     dependencies=[Depends(check_current_user)],
     tags=["Автодополнение"],
+)
+app.include_router(
+    grant.router,
+    prefix="/grant",
+    dependencies=[Depends(check_current_user)],
+    tags=["Права"],
 )
 app.include_router(
     health.router,

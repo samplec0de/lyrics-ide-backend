@@ -31,3 +31,4 @@ class ProjectModel(Base):  # type: ignore
     music: Mapped["MusicModel"] = relationship("MusicModel", back_populates="project", uselist=False)  # type: ignore
     texts: Mapped[list["TextModel"]] = relationship("TextModel", back_populates="project", uselist=True)  # type: ignore
     grants: Mapped[list["ProjectGrantModel"]] = relationship("ProjectGrantModel", back_populates="project", uselist=True)  # type: ignore
+    grant_codes: Mapped[list["ProjectGrantCodeModel"]] = relationship("ProjectGrantCodeModel", back_populates="project", uselist=True)  # type: ignore
