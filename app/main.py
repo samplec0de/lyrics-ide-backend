@@ -78,7 +78,7 @@ app.include_router(
     grant.router,
     prefix="/grant",
     dependencies=[Depends(check_current_user)],
-    tags=["Права"],
+    tags=["Доступ"],
 )
 app.include_router(
     health.router,
