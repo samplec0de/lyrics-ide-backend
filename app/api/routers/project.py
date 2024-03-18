@@ -62,7 +62,7 @@ async def create_project(
     new_project_grant = ProjectGrantModel(
         project_id=new_project.project_id,
         user_id=current_user.user_id,
-        grant_level=GrantLevel.OWNER,
+        level=GrantLevel.OWNER,
     )
     db_session.add(new_project_grant)
     await db_session.commit()
