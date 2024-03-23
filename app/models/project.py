@@ -3,7 +3,7 @@
 import datetime
 import uuid
 
-from sqlalchemy import func
+from sqlalchemy import ForeignKey, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -16,6 +16,9 @@ class ProjectModel(Base):  # type: ignore
     __tablename__ = "project"
 
     project_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
+    owner_user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("user.user_id"), nullable=True, index=False
+    )
     name: Mapped[str | None]
     description: Mapped[str | None]
     # pylint: disable=not-callable

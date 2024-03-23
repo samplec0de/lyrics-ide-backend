@@ -40,6 +40,14 @@ class ProjectGrantModel(Base):  # type: ignore
         index=True,
     )
 
+    grant_code_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("project_grant_code.grant_code_id"),
+        primary_key=False,
+        nullable=True,
+        index=True,
+    )
+
     level: Mapped[GrantLevel] = mapped_column(
         Enum(GrantLevel),
         nullable=True,
@@ -60,13 +68,13 @@ class ProjectGrantCodeModel(Base):  # type: ignore
     __tablename__ = "project_grant_code"
 
     grant_code_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True, unique=True
     )
 
     project_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
         ForeignKey("project.project_id"),
-        primary_key=True,
+        primary_key=False,
         nullable=False,
         index=True,
     )
@@ -74,7 +82,7 @@ class ProjectGrantCodeModel(Base):  # type: ignore
     issuer_user_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
         ForeignKey("user.user_id"),
-        primary_key=True,
+        primary_key=False,
         nullable=False,
         index=True,
     )

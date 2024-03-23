@@ -79,6 +79,7 @@ async def activate_project_share_code(
         project_id=grant_code.project_id,
         user_id=current_user.user_id,
         level=grant_code.level,
+        grant_code_id=grant_code.grant_code_id,
     )
 
     db_session.add(grant)
@@ -126,3 +127,11 @@ async def get_project_users(
         )
         for project_grant in project_grant_models
     ]
+
+
+# @router.delete(
+#     "/{project_id}/users/{user_id}",
+#     summary="Отозвать доступ к проекту",
+#     responses=PROJECT_NOT_FOUND,
+#     operation_id="revoke_project_access",
+# )

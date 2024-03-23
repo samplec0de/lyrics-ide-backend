@@ -22,7 +22,7 @@ async def create_project(
     text_collection: MongoDBTextCollectionDep,
 ) -> ProjectOut:
     """Создать проект"""
-    new_project = ProjectModel(name=project.name, description=project.description)
+    new_project = ProjectModel(owner_user_id=current_user.user_id, name=project.name, description=project.description)
 
     db_session.add(new_project)
     await db_session.commit()
