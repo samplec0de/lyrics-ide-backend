@@ -121,5 +121,6 @@ class ProjectGrant(BaseModel):
 
     project_id: Annotated[UUID4, Field(description="Идентификатор проекта")]
     user_id: Annotated[UUID4, Field(description="Идентификатор пользователя")]
+    user_email: Annotated[str, Field(description="Email пользователя")]
     level: Annotated[GrantLevel, Field(description="Уровень доступа к проекту")]
     created_at: Annotated[datetime.datetime, Field(description="Дата создания гранта")]

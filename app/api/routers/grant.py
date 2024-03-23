@@ -2,6 +2,8 @@
 from typing import Annotated
 
 from fastapi import APIRouter, HTTPException, Query, status
+from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 
 from app.api.annotations import ProjectAnnotation, ProjectGrantCodeAnnotation, UserAnnotation
 from app.api.dependencies.core import DBSessionDep
@@ -87,6 +89,35 @@ async def activate_project_share_code(
     return ProjectGrant(
         project_id=grant.project_id,
         user_id=grant.user_id,
+        user_email=current_user.email,
         level=grant.level,
         created_at=grant.created_at,
     )
+
+
+@router.get(
+    "/{project_id}/users",
+)
+async def get_project_users(
+    project: ProjectAnnotation,
+    db_session: DBSessionDep,
+) -> list[ProjectGrant]:
+    """Получить список пользователей, имеющих доступ к проекту"""
+    # select with additional user field
+    result = await db_session.execute(
+        select(ProjectGrantModel)
+        .options(selectinload(ProjectGrantModel.user))
+        .where(ProjectGrantModel.project_id == project.project_id)
+        .order_by(ProjectGrantModel.created_at)
+    )
+    project_grant_models = result.scalars().all()
+    return [
+        ProjectGrant(
+            project_id=project_grant.project_id,
+            user_id=project_grant.user_id,
+            user_email=project_grant.user.email,
+            level=project_grant.level,
+            created_at=project_grant.created_at,
+        )
+        for project_grant in project_grant_models
+    ]
