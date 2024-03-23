@@ -1,4 +1,6 @@
 """CRUD проектов"""
+import itertools
+
 from fastapi import APIRouter
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
@@ -116,13 +118,20 @@ async def update_project(project: ProjectAnnotation, project_data: ProjectBase, 
 @router.get("/", summary="Получить список проектов", operation_id="get_projects")
 async def get_projects(db_session: DBSessionDep, current_user: UserAnnotation) -> list[ProjectOut]:
     """Получить список проектов, на которые у пользователя есть доступ"""
-    result = await db_session.execute(
+    query_grants = await db_session.execute(
         select(ProjectModel)
         .options(selectinload(ProjectModel.music), selectinload(ProjectModel.texts))
         .join(ProjectGrantModel)
         .where(ProjectGrantModel.user_id == current_user.user_id)
     )
-    projects = result.scalars().all()
+    projects_grants = query_grants.scalars().all()
+
+    query_ownership = await db_session.execute(
+        select(ProjectModel)
+        .options(selectinload(ProjectModel.music), selectinload(ProjectModel.texts))
+        .where(ProjectModel.owner_user_id == current_user.user_id)
+    )
+    projects_ownership = query_ownership.scalars().all()
 
     return [
         ProjectOut(
@@ -149,7 +158,7 @@ async def get_projects(db_session: DBSessionDep, current_user: UserAnnotation) -
             if project.music
             else None,
         )
-        for project in projects
+        for project in itertools.chain(projects_grants, projects_ownership)
     ]
 
 
