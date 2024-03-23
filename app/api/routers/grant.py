@@ -99,6 +99,9 @@ async def activate_project_share_code(
 
 @router.get(
     "/{project_id}/users",
+    summary="Получить список пользователей, имеющих доступ к проекту",
+    responses=PROJECT_NOT_FOUND,
+    operation_id="get_project_users",
 )
 async def get_project_users(
     project: ProjectAnnotation,
