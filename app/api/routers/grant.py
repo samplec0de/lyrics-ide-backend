@@ -86,10 +86,12 @@ async def activate_project_share_code(
     await db_session.commit()
     await db_session.refresh(grant)
 
+    user_email = current_user.email
+
     return ProjectGrant(
         project_id=grant.project_id,
         user_id=grant.user_id,
-        user_email=current_user.email,
+        user_email=user_email,
         level=grant.level,
         created_at=grant.created_at,
     )

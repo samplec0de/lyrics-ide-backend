@@ -8,7 +8,7 @@ import datetime
 from jose import JWTError, jwt
 from sqlalchemy import select, ColumnElement
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
+from sqlalchemy.orm import selectinload, joinedload
 
 from app.api.dependencies.core import DBSessionDep
 from app.config import settings
