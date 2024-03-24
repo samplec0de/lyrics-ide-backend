@@ -42,7 +42,7 @@ class ProjectGrantModel(Base):  # type: ignore
     grant_code_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
         ForeignKey("project_grant_code.grant_code_id"),
-        primary_key=False,
+        primary_key=True,
         nullable=False,
         index=True,
     )

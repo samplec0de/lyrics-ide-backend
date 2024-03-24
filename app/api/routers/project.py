@@ -5,13 +5,18 @@ from fastapi import APIRouter
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
-from app.api.annotations import CurrentUserAnnotation, ProjectAnnotation
+from app.api.annotations import (
+    CurrentUserAnnotation,
+    OwnOrGrantProjectAnnotation,
+    OwnProjectAnnotation,
+    ProjectAnnotation,
+)
 from app.api.dependencies.core import DBSessionDep, MongoDBTextCollectionDep
 from app.api.schemas import MusicOut, ProjectBase, ProjectOut, TextVariantCompact
 from app.models import ProjectModel, TextModel
 from app.models.grant import ProjectGrantModel
 from app.s3 import generate_presigned_url
-from app.status_codes import PROJECT_NOT_FOUND
+from app.status_codes import PROJECT_NO_PERMISSIONS, PROJECT_NOT_FOUND, PROJECT_NOT_OWNER
 
 router = APIRouter()
 
@@ -67,10 +72,15 @@ async def create_project(
 @router.patch(
     "/{project_id}",
     summary="Изменить проект",
-    responses=PROJECT_NOT_FOUND,
+    responses={
+        **PROJECT_NOT_FOUND,
+        **PROJECT_NOT_OWNER,
+    },
     operation_id="update_project",
 )
-async def update_project(project: ProjectAnnotation, project_data: ProjectBase, db_session: DBSessionDep) -> ProjectOut:
+async def update_project(
+    project: OwnProjectAnnotation, project_data: ProjectBase, db_session: DBSessionDep
+) -> ProjectOut:
     """Изменить проект"""
     new_values = project_data.model_dump(exclude_unset=True)
     if "name" in new_values:
@@ -157,10 +167,13 @@ async def get_projects(db_session: DBSessionDep, current_user: CurrentUserAnnota
 @router.get(
     "/{project_id}",
     summary="Получить содержимое проекта",
-    responses=PROJECT_NOT_FOUND,
+    responses={
+        **PROJECT_NOT_FOUND,
+        **PROJECT_NO_PERMISSIONS,
+    },
     operation_id="get_project",
 )
-async def get_project(project: ProjectAnnotation) -> ProjectOut:
+async def get_project(project: OwnOrGrantProjectAnnotation) -> ProjectOut:
     """Получить содержимое проекта"""
     music = project.music
 
