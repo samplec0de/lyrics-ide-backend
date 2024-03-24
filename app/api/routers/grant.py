@@ -170,7 +170,6 @@ async def get_project_users(
     ]
 
 
-# sets is_active=False for project grant
 @router.delete(
     "/{project_id}/users/{user_id}",
     summary="Отозвать доступ к проекту",
@@ -234,7 +233,6 @@ async def get_project_codes(
     ]
 
 
-# deactivate grant code (set is_active=False)
 @router.delete(
     "/codes/{grant_code_id}",
     summary="Деактивировать код доступа к проекту",
@@ -256,3 +254,41 @@ async def deactivate_project_grant_code(
     grant_code.is_active = False
     await db_session.commit()
     return None
+
+
+@router.patch(
+    "/{project_id}/users/{user_id}",
+    summary="Изменить уровень доступа",
+    responses={
+        **PROJECT_NOT_FOUND,
+        **PROJECT_NOT_OWNER,
+        status.HTTP_404_NOT_FOUND: {"description": "Пользователь не имеет доступа к проекту"},
+    },
+    operation_id="update_project_access",
+)
+async def update_project_access(
+    project: OwnProjectAnnotation,
+    user_id: Annotated[str, Path(description="ID пользователя")],
+    new_level: Annotated[GrantLevel, Query(description="новый уровень доступа")],
+    db_session: DBSessionDep,
+) -> ProjectGrant:
+    """Изменить уровень доступа к проекту"""
+    result = await db_session.execute(
+        select(ProjectGrantModel)
+        .options(selectinload(ProjectGrantModel.user))
+        .where(ProjectGrantModel.project_id == project.project_id)
+        .where(ProjectGrantModel.user_id == user_id)
+        .where(ProjectGrantModel.is_active.is_(True))
+    )
+    project_grant = result.scalars().first()
+    if project_grant is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Пользователь не имеет доступа к проекту")
+    project_grant.level = new_level
+    await db_session.commit()
+    return ProjectGrant(
+        project_id=project_grant.project_id,
+        user_id=project_grant.user_id,
+        user_email=project_grant.user.email,
+        level=project_grant.level,
+        created_at=project_grant.created_at,
+    )
