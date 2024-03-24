@@ -129,9 +129,30 @@ async def get_project_users(
     ]
 
 
-# @router.delete(
-#     "/{project_id}/users/{user_id}",
-#     summary="Отозвать доступ к проекту",
-#     responses=PROJECT_NOT_FOUND,
-#     operation_id="revoke_project_access",
-# )
+# sets is_active=False for project grant
+@router.delete(
+    "/{project_id}/users/{user_id}",
+    summary="Отозвать доступ к проекту",
+    responses={
+        **PROJECT_NOT_FOUND,
+        status.HTTP_404_NOT_FOUND: {"description": "Пользователь не имеет доступа к проекту"},
+    },
+    operation_id="revoke_project_access",
+)
+async def revoke_project_access(
+    project: ProjectAnnotation,
+    user: UserAnnotation,
+    db_session: DBSessionDep,
+) -> None:
+    """Отозвать доступ к проекту"""
+    result = await db_session.execute(
+        select(ProjectGrantModel)
+        .where(ProjectGrantModel.project_id == project.project_id)
+        .where(ProjectGrantModel.user_id == user.user_id)
+    )
+    project_grant = result.scalars().first()
+    if project_grant is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Пользователь не имеет доступа к проекту")
+    project_grant.is_active = False
+    await db_session.commit()
+    return None

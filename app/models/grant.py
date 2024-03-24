@@ -14,7 +14,6 @@ from app.models import Base
 class GrantLevel(enum.Enum):
     """Уровень доступа к проекту"""
 
-    OWNER = "OWNER"
     READ_WRITE = "READ_WRITE"
     READ_ONLY = "READ_ONLY"
 
@@ -52,6 +51,12 @@ class ProjectGrantModel(Base):  # type: ignore
         Enum(GrantLevel),
         nullable=False,
         index=False,
+    )
+
+    is_active: Mapped[bool] = mapped_column(
+        default=True,
+        nullable=False,
+        index=True,
     )
 
     # pylint: disable=not-callable
