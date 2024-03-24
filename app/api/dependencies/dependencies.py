@@ -87,7 +87,9 @@ async def get_grant_code_by_id(
 ) -> ProjectGrantCodeModel:
     """Получить код доступа по его идентификатору"""
     result = await db_session.execute(
-        select(ProjectGrantCodeModel).where(ProjectGrantCodeModel.grant_code_id == grant_code_id)
+        select(ProjectGrantCodeModel)
+        .options(selectinload(ProjectGrantCodeModel.project))
+        .where(ProjectGrantCodeModel.grant_code_id == grant_code_id)
     )
     grant_code = result.scalars().first()
     if grant_code is None:

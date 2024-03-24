@@ -62,8 +62,9 @@ async def get_project_share_code(
     responses={
         **GRANT_CODE_NOT_FOUND,
         status.HTTP_403_FORBIDDEN: {
-            "description": "Повторная активация кода одним пользователем или превышено "
-            "максимальное количество активаций кода доступа к проекту"
+            "description": "Повторная активация кода одним пользователем / "
+            "превышено максимальное количество активаций кода доступа к проекту / "
+            "владелец проекта не может активировать код доступа к проекту (в ошибке будет указана точная причина)"
         },
     },
     operation_id="activate_project_share_code",
@@ -83,6 +84,12 @@ async def activate_project_share_code(
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Превышено максимальное количество активаций кода доступа к проекту",
+        )
+
+    if grant_code.project.owner_user_id == current_user.user_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Владелец проекта не может активировать код доступа к проекту",
         )
 
     grant = ProjectGrantModel(
