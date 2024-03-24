@@ -5,7 +5,7 @@ from fastapi import APIRouter, HTTPException, Path, Query, status
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
-from app.api.annotations import CurrentUserAnnotation, ProjectAnnotation, ProjectGrantCodeAnnotation
+from app.api.annotations import CurrentUserAnnotation, OwnProjectAnnotation, ProjectGrantCodeAnnotation
 from app.api.dependencies.core import DBSessionDep
 from app.api.schemas import ProjectGrant, ProjectGrantCode
 from app.models.grant import GrantLevel, ProjectGrantCodeModel, ProjectGrantModel
@@ -21,7 +21,7 @@ router = APIRouter()
     operation_id="generate_project_share_code",
 )
 async def get_project_share_code(
-    project: ProjectAnnotation,
+    project: OwnProjectAnnotation,
     grant_level: Annotated[GrantLevel, Query(description="уровень доступа")],
     max_activations: Annotated[int, Query(description="максимальное количество активаций", gt=0)],
     db_session: DBSessionDep,
@@ -105,7 +105,7 @@ async def activate_project_share_code(
     operation_id="get_project_users",
 )
 async def get_project_users(
-    project: ProjectAnnotation,
+    project: OwnProjectAnnotation,
     db_session: DBSessionDep,
 ) -> list[ProjectGrant]:
     """Получить список пользователей, имеющих доступ к проекту"""
@@ -140,7 +140,7 @@ async def get_project_users(
     operation_id="revoke_project_access",
 )
 async def revoke_project_access(
-    project: ProjectAnnotation,
+    project: OwnProjectAnnotation,
     user_id: Annotated[str, Path(description="ID пользователя")],
     db_session: DBSessionDep,
 ) -> None:

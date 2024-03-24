@@ -1,13 +1,14 @@
 """Зависимости для валидации данных в пути запроса"""
 from typing import Annotated, cast
 
-from fastapi import HTTPException, Path, status
+from fastapi import Depends, HTTPException, Path, status
 from pydantic import UUID4
 from sqlalchemy import ColumnElement, select
 from sqlalchemy.orm import selectinload
 
 from app.api.dependencies.core import DBSessionDep
-from app.models import ProjectGrantCodeModel, ProjectModel, TextModel
+from app.auth import get_current_user
+from app.models import ProjectGrantCodeModel, ProjectModel, TextModel, UserModel
 
 
 async def get_project_by_id(
@@ -23,6 +24,19 @@ async def get_project_by_id(
 
     if project is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Проект не найден")
+
+    return project
+
+
+async def get_project_by_id_and_owner(
+    project_id: Annotated[UUID4, Path(description="Идентификатор проекта")],
+    current_user: Annotated[UserModel, Depends(get_current_user)],
+    db_session: DBSessionDep,
+) -> ProjectModel:
+    """Получить проект по его идентификатору и проверить, что пользователь является владельцем"""
+    project = await get_project_by_id(project_id, db_session)
+    if project.owner_user_id != current_user.user_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Вы не владелец проекта")
 
     return project
 
