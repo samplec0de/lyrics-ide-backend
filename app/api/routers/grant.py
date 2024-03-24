@@ -184,3 +184,38 @@ async def revoke_project_access(
     project_grant.is_active = False
     await db_session.commit()
     return None
+
+
+# get all project grant codes, only owner can use
+@router.get(
+    "/{project_id}/codes",
+    summary="Получить список кодов доступа к проекту",
+    responses={
+        **PROJECT_NOT_FOUND,
+        **PROJECT_NOT_OWNER,
+    },
+    operation_id="get_project_codes",
+)
+async def get_project_codes(
+    project: OwnProjectAnnotation,
+    db_session: DBSessionDep,
+) -> list[ProjectGrantCode]:
+    """Получить список кодов доступа к проекту"""
+    result = await db_session.execute(
+        select(ProjectGrantCodeModel).where(ProjectGrantCodeModel.project_id == project.project_id)
+    )
+    project_grant_codes = result.scalars().all()
+    return [
+        ProjectGrantCode(
+            grant_code_id=project_grant_code.grant_code_id,
+            project_id=project_grant_code.project_id,
+            issuer_user_id=project_grant_code.issuer_user_id,
+            level=project_grant_code.level,
+            max_activations=project_grant_code.max_activations,
+            current_activations=project_grant_code.current_activations,
+            is_active=project_grant_code.is_active,
+            created_at=project_grant_code.created_at,
+            updated_at=project_grant_code.updated_at,
+        )
+        for project_grant_code in project_grant_codes
+    ]
