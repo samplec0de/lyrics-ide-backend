@@ -141,6 +141,7 @@ async def delete_music(project: ProjectAnnotation, db_session: DBSessionDep) -> 
         name=project.name,
         description=project.description,
         project_id=project.project_id,
+        owner_user_id=project.owner_user_id,
         texts=[
             TextVariantCompact(
                 text_id=text.text_id,

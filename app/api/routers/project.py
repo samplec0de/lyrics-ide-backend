@@ -57,6 +57,7 @@ async def create_project(
     project_out = ProjectOut(
         name=new_project.name,
         description=new_project.description,
+        owner_user_id=new_project.owner_user_id,
         created_at=new_project.created_at,
         updated_at=new_project.updated_at,
         project_id=new_project.project_id,
@@ -94,6 +95,7 @@ async def update_project(
     return ProjectOut(
         name=project.name,
         description=project.description,
+        owner_user_id=project.owner_user_id,
         created_at=project.created_at,
         updated_at=project.updated_at,
         project_id=project.project_id,
@@ -140,6 +142,7 @@ async def get_projects(db_session: DBSessionDep, current_user: CurrentUserAnnota
         ProjectOut(
             name=project.name,
             description=project.description,
+            owner_user_id=project.owner_user_id,
             created_at=project.created_at,
             updated_at=project.updated_at,
             project_id=project.project_id,
@@ -181,6 +184,7 @@ async def get_project(project: OwnOrGrantProjectAnnotation) -> ProjectOut:
     return ProjectOut(
         name=project.name,
         description=project.description,
+        owner_user_id=project.owner_user_id,
         created_at=project.created_at,
         updated_at=project.updated_at,
         project_id=project.project_id,

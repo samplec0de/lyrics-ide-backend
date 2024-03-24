@@ -77,6 +77,7 @@ class ProjectOut(ProjectBase):
     """Полная схема для проекта для отображения"""
 
     project_id: Annotated[UUID4, Field(description="Идентификатор проекта")]
+    owner_user_id: Annotated[UUID4, Field(description="Идентификатор пользователя-владельца проекта")]
     created_at: Annotated[datetime.datetime, Field(description="Дата создания проекта")]
     updated_at: Annotated[datetime.datetime, Field(description="Дата последнего обновления проекта")]
     texts: Annotated[list[TextVariantCompact], Field(description="Варианты текста")] = []

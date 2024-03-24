@@ -10,6 +10,9 @@ class Settings(BaseSettings):
     # Секретный ключ для аутентификации по email
     secret_key: str
 
+    # Секретный ключ для аутентификации по Yandex ID
+    yandex_id_secret_key: str
+
     # Количество дней, на которое выдается токен
     token_expire_days: int = 30
 
