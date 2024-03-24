@@ -2,6 +2,7 @@
 from datetime import datetime
 from typing import Annotated, cast
 
+import requests
 from fastapi import APIRouter, Depends, Form, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from jose import ExpiredSignatureError, JWTError, jwt
@@ -84,10 +85,16 @@ async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm,
     return {"access_token": access_token, "token_type": "bearer"}
 
 
-def validate_yandex_token(yandex_jwt: str):
+def validate_yandex_token(yandex_oauth: str):
     """Проверка токена Яндекса"""
     yandex_id_secret_key = settings.yandex_id_secret_key
     try:
+        headers = {"Authorization": f"OAuth {yandex_oauth}"}
+        yandex_jwt = requests.get(
+            "https://login.yandex.ru/info?format=jwt",
+            headers=headers,
+            timeout=5,
+        ).text
         payload = jwt.decode(yandex_jwt, yandex_id_secret_key, algorithms=["HS256"])
         return payload
     except ExpiredSignatureError:
