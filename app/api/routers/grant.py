@@ -9,7 +9,12 @@ from app.api.annotations import CurrentUserAnnotation, OwnProjectAnnotation, Pro
 from app.api.dependencies.core import DBSessionDep
 from app.api.schemas import ProjectGrant, ProjectGrantCode
 from app.models.grant import GrantLevel, ProjectGrantCodeModel, ProjectGrantModel
-from app.status_codes import GRANT_CODE_MAX_ACTIVATIONS_EXCEEDED, GRANT_CODE_NOT_FOUND, PROJECT_NOT_FOUND
+from app.status_codes import (
+    GRANT_CODE_MAX_ACTIVATIONS_EXCEEDED,
+    GRANT_CODE_NOT_FOUND,
+    PROJECT_NOT_FOUND,
+    PROJECT_NOT_OWNER,
+)
 
 router = APIRouter()
 
@@ -17,7 +22,10 @@ router = APIRouter()
 @router.get(
     "/{project_id}",
     summary="Получить код на получение доступа к проекту",
-    responses=PROJECT_NOT_FOUND,
+    responses={
+        **PROJECT_NOT_FOUND,
+        **PROJECT_NOT_OWNER,
+    },
     operation_id="generate_project_share_code",
 )
 async def get_project_share_code(
@@ -101,7 +109,10 @@ async def activate_project_share_code(
 @router.get(
     "/{project_id}/users",
     summary="Получить список пользователей, имеющих доступ к проекту",
-    responses=PROJECT_NOT_FOUND,
+    responses={
+        **PROJECT_NOT_FOUND,
+        **PROJECT_NOT_OWNER,
+    },
     operation_id="get_project_users",
 )
 async def get_project_users(
@@ -135,6 +146,7 @@ async def get_project_users(
     summary="Отозвать доступ к проекту",
     responses={
         **PROJECT_NOT_FOUND,
+        **PROJECT_NOT_OWNER,
         status.HTTP_404_NOT_FOUND: {"description": "Пользователь не имеет доступа к проекту"},
     },
     operation_id="revoke_project_access",
