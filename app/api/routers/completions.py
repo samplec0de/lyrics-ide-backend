@@ -14,5 +14,7 @@ router = APIRouter()
 )
 async def create_completion(completion_input: CompletionIn) -> list[CompletionOut]:
     """Продолжить текст"""
+    if not completion_input.text:
+        return []
     completions = get_llm_lyrics_completions(completion_input.text)
     return [CompletionOut(completion=completion) for completion in completions]
