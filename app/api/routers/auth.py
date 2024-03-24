@@ -105,7 +105,10 @@ def validate_yandex_token(yandex_oauth: str):
 
 @router.post("/yandex_token", response_model=Token, operation_id="auth_with_yandex_token")
 async def login_via_yandex(
-    access_token: Annotated[str, Form()], token_type: Annotated[str, Form()], expires_in: Annotated[str, Form()]
+    access_token: Annotated[str, Form()],
+    token_type: Annotated[str, Form()],
+    expires_in: Annotated[str, Form()],
+    db_session: DBSessionDep,
 ):
     """Получение токена для входа через Яндекс"""
 
@@ -117,6 +120,7 @@ async def login_via_yandex(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    # После успешной проверки токена Яндекса, вы создаете свой собственный токен.
+    await create_user_if_not_exists(email=user_info["email"], db_session=db_session)
+
     new_access_token = create_access_token(data={"sub": user_info["email"]})
     return {"access_token": new_access_token, "token_type": "bearer"}
