@@ -4,10 +4,12 @@ from typing import Annotated, cast
 
 from fastapi import APIRouter, Depends, Form, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
+from jose import ExpiredSignatureError, JWTError, jwt
 from sqlalchemy import ColumnElement, select
 
 from app.api.dependencies.core import DBSessionDep
 from app.auth import Token, User, create_access_token, create_user_if_not_exists, get_new_email_auth_code
+from app.config import settings
 from app.mail import lyrics_send_email
 from app.models.email_auth_code import EmailAuthCodeModel
 
@@ -82,9 +84,16 @@ async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm,
     return {"access_token": access_token, "token_type": "bearer"}
 
 
-def validate_yandex_token(yandex_token: str):
+def validate_yandex_token(yandex_jwt: str):
     """Проверка токена Яндекса"""
-    return {"email": "example@yandex.ru"}
+    yandex_id_secret_key = settings.yandex_id_secret_key
+    try:
+        payload = jwt.decode(yandex_jwt, yandex_id_secret_key, algorithms=["HS256"])
+        return payload
+    except ExpiredSignatureError:
+        return None
+    except JWTError:
+        return None
 
 
 @router.post("/yandex_token", response_model=Token, operation_id="auth_with_yandex_token")
