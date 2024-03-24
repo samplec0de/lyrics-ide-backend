@@ -14,7 +14,7 @@ from app.api.annotations import (
 from app.api.dependencies.core import DBSessionDep, MongoDBTextCollectionDep
 from app.api.schemas import MusicOut, ProjectBase, ProjectOut, TextVariantCompact
 from app.models import ProjectModel, TextModel
-from app.models.grant import ProjectGrantModel
+from app.models.grant import ProjectGrantCodeModel, ProjectGrantModel
 from app.s3 import generate_presigned_url
 from app.status_codes import PROJECT_NO_PERMISSIONS, PROJECT_NOT_FOUND, PROJECT_NOT_OWNER
 
@@ -211,6 +211,30 @@ async def get_project(project: OwnOrGrantProjectAnnotation) -> ProjectOut:
     operation_id="delete_project",
 )
 async def delete_project(project: ProjectAnnotation, db_session: DBSessionDep):
-    """Удалить проект"""
+    """Удалить проект. Приводит к удалению всех текстов проекта, музыки, кодов доступа и прав."""
+    texts_query = await db_session.execute(select(TextModel).where(TextModel.project_id == project.project_id))
+    texts = texts_query.scalars().all()
+    for text in texts:
+        await db_session.delete(text)
+        # туду: удаление в MongoDB
+
+    if project.music:
+        await db_session.delete(project.music)
+        # туду: удаление в S3
+
+    project_grants_query = await db_session.execute(
+        select(ProjectGrantModel).where(ProjectGrantModel.project_id == project.project_id)
+    )
+    project_grants = project_grants_query.scalars().all()
+    for grant in project_grants:
+        await db_session.delete(grant)
+
+    project_grant_codes_query = await db_session.execute(
+        select(ProjectGrantCodeModel).where(ProjectGrantCodeModel.project_id == project.project_id)
+    )
+    project_grant_codes = project_grant_codes_query.scalars().all()
+    for grant_code in project_grant_codes:
+        await db_session.delete(grant_code)
+
     await db_session.delete(project)
     await db_session.commit()

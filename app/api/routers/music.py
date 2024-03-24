@@ -73,7 +73,7 @@ async def upload_music(
     responses={**PROJECT_NOT_FOUND, **MUSIC_NOT_FOUND},
     operation_id="get_music",
 )
-async def get_music(project: ProjectAnnotation, db_session: DBSessionDep) -> MusicOut:
+async def get_music(project: ProjectAnnotation) -> MusicOut:
     """Получение музыки проекта"""
     if project.music is None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Музыка не найдена")
@@ -145,10 +145,14 @@ async def delete_music(project: ProjectAnnotation, db_session: DBSessionDep) -> 
             TextVariantCompact(
                 text_id=text.text_id,
                 name=text.name,
+                created_at=text.created_at,
+                updated_at=text.updated_at,
             )
             for text in project.texts
         ],
         music=None,
+        created_at=project.created_at,
+        updated_at=project.updated_at,
     )
 
     await db_session.commit()
