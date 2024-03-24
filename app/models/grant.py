@@ -44,13 +44,13 @@ class ProjectGrantModel(Base):  # type: ignore
         UUID(as_uuid=True),
         ForeignKey("project_grant_code.grant_code_id"),
         primary_key=False,
-        nullable=True,
+        nullable=False,
         index=True,
     )
 
     level: Mapped[GrantLevel] = mapped_column(
         Enum(GrantLevel),
-        nullable=True,
+        nullable=False,
         index=False,
     )
 
@@ -89,7 +89,7 @@ class ProjectGrantCodeModel(Base):  # type: ignore
 
     level: Mapped[GrantLevel] = mapped_column(
         Enum(GrantLevel),
-        nullable=True,
+        nullable=False,
         index=False,
     )
 
