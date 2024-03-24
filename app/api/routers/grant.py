@@ -92,6 +92,18 @@ async def activate_project_share_code(
             detail="Владелец проекта не может активировать код доступа к проекту",
         )
 
+    # delete old grants from table
+    old_grants_query = await db_session.execute(
+        select(ProjectGrantModel)
+        .where(ProjectGrantModel.project_id == grant_code.project_id)
+        .where(ProjectGrantModel.user_id == current_user.user_id)
+    )
+    old_grants = old_grants_query.scalars().all()
+    for old_grant in old_grants:
+        await db_session.delete(old_grant)
+
+    await db_session.commit()
+
     grant = ProjectGrantModel(
         project_id=grant_code.project_id,
         user_id=current_user.user_id,
