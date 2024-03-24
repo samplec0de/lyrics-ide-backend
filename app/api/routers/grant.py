@@ -1,7 +1,7 @@
 """CRUD прав доступа"""
 from typing import Annotated
 
-from fastapi import APIRouter, HTTPException, Query, status
+from fastapi import APIRouter, HTTPException, Path, Query, status
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
@@ -141,7 +141,7 @@ async def get_project_users(
 )
 async def revoke_project_access(
     project: ProjectAnnotation,
-    user_id: Annotated[str, Query(description="ID пользователя")],
+    user_id: Annotated[str, Path(description="ID пользователя")],
     db_session: DBSessionDep,
 ) -> None:
     """Отозвать доступ к проекту"""
