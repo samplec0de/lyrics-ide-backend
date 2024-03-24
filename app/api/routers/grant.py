@@ -16,7 +16,7 @@ router = APIRouter()
 
 
 @router.get(
-    "/{project_id}",
+    "/project/{project_id}",
     summary="Получить код на получение доступа к проекту",
     responses={
         **PROJECT_NOT_FOUND,
@@ -57,7 +57,7 @@ async def get_project_share_code(
 
 
 @router.get(
-    "/activate/{grant_code_id}",
+    "/codes/activate/{grant_code_id}",
     summary="Активировать код доступа к проекту",
     responses={
         **GRANT_CODE_NOT_FOUND,
@@ -123,7 +123,7 @@ async def activate_project_share_code(
 
 
 @router.get(
-    "/{project_id}/users",
+    "/project/{project_id}/users",
     summary="Получить список пользователей, имеющих доступ к проекту",
     responses={
         **PROJECT_NOT_FOUND,
@@ -186,9 +186,8 @@ async def revoke_project_access(
     return None
 
 
-# get all project grant codes, only owner can use
 @router.get(
-    "/{project_id}/codes",
+    "/projects/{project_id}/codes",
     summary="Получить список кодов доступа к проекту",
     responses={
         **PROJECT_NOT_FOUND,
@@ -219,3 +218,26 @@ async def get_project_codes(
         )
         for project_grant_code in project_grant_codes
     ]
+
+
+# deactivate grant code (set is_active=False)
+@router.delete(
+    "/codes/{grant_code_id}",
+    summary="Деактивировать код доступа к проекту",
+    responses={
+        **PROJECT_NOT_OWNER,
+        **GRANT_CODE_NOT_FOUND,
+    },
+    operation_id="deactivate_project_grant_code",
+)
+async def deactivate_project_grant_code(
+    grant_code: ProjectGrantCodeAnnotation,
+    db_session: DBSessionDep,
+) -> None:
+    """Деактивировать код доступа к проекту"""
+    project = grant_code.project
+    if project.owner_user_id != grant_code.issuer_user_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Вы не владелец проекта")
+    grant_code.is_active = False
+    await db_session.commit()
+    return None
