@@ -234,7 +234,8 @@ async def deactivate_project_grant_code(
     grant_code: ProjectGrantCodeAnnotation,
     db_session: DBSessionDep,
 ) -> None:
-    """Деактивировать код доступа к проекту"""
+    """Деактивировать код доступа к проекту
+    (пользователи не блокируются, только запрещается подключение новых по этой ссылке)"""
     project = grant_code.project
     if project.owner_user_id != grant_code.issuer_user_id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Вы не владелец проекта")
