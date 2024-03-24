@@ -9,6 +9,7 @@ from sqlalchemy.orm import selectinload
 from app.api.dependencies.core import DBSessionDep
 from app.auth import get_current_user
 from app.models import ProjectGrantCodeModel, ProjectGrantModel, ProjectModel, TextModel, UserModel
+from app.models.grant import GrantLevel
 
 
 async def get_project_by_id(
@@ -75,12 +76,42 @@ async def get_text_by_id(
     text_id: Annotated[UUID4, Path(description="Идентификатор варианта текста")], db_session: DBSessionDep
 ) -> TextModel:
     """Получить вариант текста по его идентификатору"""
-    result = await db_session.execute(select(TextModel).where(cast(ColumnElement[bool], TextModel.text_id == text_id)))
+    result = await db_session.execute(
+        select(TextModel)
+        .options(selectinload(TextModel.project))
+        .where(cast(ColumnElement[bool], TextModel.text_id == text_id))
+    )
     text = result.scalars().first()
     if text is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Текст не найден")
 
     return text
+
+
+async def get_text_access_level(
+    text: Annotated[TextModel, Depends(get_text_by_id)],
+    current_user: Annotated[UserModel, Depends(get_current_user)],
+    db_session: DBSessionDep,
+) -> GrantLevel | None:
+    """Получить значение уровеня доступа к тексту
+
+    :return: уровень доступа к тексту, GrantLevel.READ_ONLY или GrantLevel.READ_WRITE
+    если пользователь владелец, то возвращается GrantLevel.READ_WRITE
+    """
+    if text.project.owner_user_id == current_user.user_id:
+        return GrantLevel.READ_WRITE
+
+    result = await db_session.execute(
+        select(ProjectGrantModel)
+        .where(ProjectGrantModel.project_id == text.project_id)
+        .where(ProjectGrantModel.user_id == current_user.user_id)
+        .where(ProjectGrantModel.is_active.is_(True))
+    )
+    grant = result.scalars().first()
+    if grant is None:
+        return None
+
+    return grant.level
 
 
 async def get_grant_code_by_id(
