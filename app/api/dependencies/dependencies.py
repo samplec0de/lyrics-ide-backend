@@ -62,6 +62,7 @@ async def get_project_by_id_and_grant(
             select(ProjectGrantModel)
             .where(ProjectGrantModel.project_id == project_id)
             .where(ProjectGrantModel.user_id == current_user.user_id)
+            .where(ProjectGrantModel.is_active.is_(True))
         )
         grant_code = result.scalars().first()
         if grant_code is None:

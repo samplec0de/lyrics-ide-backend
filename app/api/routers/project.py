@@ -71,7 +71,7 @@ async def create_project(
 
 @router.patch(
     "/{project_id}",
-    summary="Изменить проект",
+    summary="Изменить проект. Уровень доступа: владелец проекта",
     responses={
         **PROJECT_NOT_FOUND,
         **PROJECT_NOT_OWNER,
@@ -125,6 +125,7 @@ async def get_projects(db_session: DBSessionDep, current_user: CurrentUserAnnota
         .options(selectinload(ProjectModel.music), selectinload(ProjectModel.texts))
         .join(ProjectGrantModel)
         .where(ProjectGrantModel.user_id == current_user.user_id)
+        .where(ProjectGrantModel.is_active.is_(True))
     )
     projects_grants = query_grants.scalars().all()
 
