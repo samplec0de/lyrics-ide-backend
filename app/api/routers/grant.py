@@ -74,7 +74,10 @@ async def activate_project_share_code(
     db_session: DBSessionDep,
     current_user: CurrentUserAnnotation,
 ) -> ProjectGrant:
-    """Активировать код доступа к проекту. Проверяет наличие и активность кода, активирует в случае успеха проерок."""
+    """Активировать код доступа к проекту.
+    Проверяет наличие и активность кода, активирует в случае успеха проверок.
+    В случае, когда пользователь активирует новый код доступа по проекту, предыдущий доступ перезаписывается.
+    """
     if not grant_code.is_active:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Код доступа к проекту не найден или деактивирован"
@@ -92,7 +95,6 @@ async def activate_project_share_code(
             detail="Владелец проекта не может активировать код доступа к проекту",
         )
 
-    # delete old grants from table
     old_grants_query = await db_session.execute(
         select(ProjectGrantModel)
         .where(ProjectGrantModel.project_id == grant_code.project_id)
