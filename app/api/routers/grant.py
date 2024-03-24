@@ -5,7 +5,7 @@ from fastapi import APIRouter, HTTPException, Query, status
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
-from app.api.annotations import ProjectAnnotation, ProjectGrantCodeAnnotation, UserAnnotation
+from app.api.annotations import CurrentUserAnnotation, ProjectAnnotation, ProjectGrantCodeAnnotation
 from app.api.dependencies.core import DBSessionDep
 from app.api.schemas import ProjectGrant, ProjectGrantCode
 from app.models.grant import GrantLevel, ProjectGrantCodeModel, ProjectGrantModel
@@ -25,7 +25,7 @@ async def get_project_share_code(
     grant_level: Annotated[GrantLevel, Query(description="уровень доступа")],
     max_activations: Annotated[int, Query(description="максимальное количество активаций", gt=0)],
     db_session: DBSessionDep,
-    current_user: UserAnnotation,
+    current_user: CurrentUserAnnotation,
 ) -> ProjectGrantCode:
     """Получить ссылку на получение доступа к проекту"""
     grant_code = ProjectGrantCodeModel(
@@ -61,7 +61,7 @@ async def get_project_share_code(
 async def activate_project_share_code(
     grant_code: ProjectGrantCodeAnnotation,
     db_session: DBSessionDep,
-    current_user: UserAnnotation,
+    current_user: CurrentUserAnnotation,
 ) -> ProjectGrant:
     """Активировать код доступа к проекту. Проверяет наличие и активность кода, активирует в случае успеха проерок."""
     if not grant_code.is_active:
@@ -141,14 +141,14 @@ async def get_project_users(
 )
 async def revoke_project_access(
     project: ProjectAnnotation,
-    user: UserAnnotation,
+    user_id: Annotated[str, Query(description="ID пользователя")],
     db_session: DBSessionDep,
 ) -> None:
     """Отозвать доступ к проекту"""
     result = await db_session.execute(
         select(ProjectGrantModel)
         .where(ProjectGrantModel.project_id == project.project_id)
-        .where(ProjectGrantModel.user_id == user.user_id)
+        .where(ProjectGrantModel.user_id == user_id)
     )
     project_grant = result.scalars().first()
     if project_grant is None:

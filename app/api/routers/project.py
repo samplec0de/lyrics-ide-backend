@@ -5,7 +5,7 @@ from fastapi import APIRouter
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
-from app.api.annotations import ProjectAnnotation, UserAnnotation
+from app.api.annotations import CurrentUserAnnotation, ProjectAnnotation
 from app.api.dependencies.core import DBSessionDep, MongoDBTextCollectionDep
 from app.api.schemas import MusicOut, ProjectBase, ProjectOut, TextVariantCompact
 from app.models import ProjectModel, TextModel
@@ -19,7 +19,7 @@ router = APIRouter()
 @router.post("/", summary="Создать проект", operation_id="create_project")
 async def create_project(
     project: ProjectBase,
-    current_user: UserAnnotation,
+    current_user: CurrentUserAnnotation,
     db_session: DBSessionDep,
     text_collection: MongoDBTextCollectionDep,
 ) -> ProjectOut:
@@ -108,7 +108,7 @@ async def update_project(project: ProjectAnnotation, project_data: ProjectBase, 
 
 
 @router.get("/", summary="Получить список проектов", operation_id="get_projects")
-async def get_projects(db_session: DBSessionDep, current_user: UserAnnotation) -> list[ProjectOut]:
+async def get_projects(db_session: DBSessionDep, current_user: CurrentUserAnnotation) -> list[ProjectOut]:
     """Получить список проектов, на которые у пользователя есть доступ"""
     query_grants = await db_session.execute(
         select(ProjectModel)
