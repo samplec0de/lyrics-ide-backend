@@ -3,18 +3,14 @@ from typing import Annotated
 
 from fastapi import APIRouter, HTTPException, Path, Query, status
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import selectinload
 
 from app.api.annotations import CurrentUserAnnotation, OwnProjectAnnotation, ProjectGrantCodeAnnotation
 from app.api.dependencies.core import DBSessionDep
 from app.api.schemas import ProjectGrant, ProjectGrantCode
 from app.models.grant import GrantLevel, ProjectGrantCodeModel, ProjectGrantModel
-from app.status_codes import (
-    GRANT_CODE_MAX_ACTIVATIONS_EXCEEDED,
-    GRANT_CODE_NOT_FOUND,
-    PROJECT_NOT_FOUND,
-    PROJECT_NOT_OWNER,
-)
+from app.status_codes import GRANT_CODE_NOT_FOUND, PROJECT_NOT_FOUND, PROJECT_NOT_OWNER
 
 router = APIRouter()
 
@@ -63,7 +59,13 @@ async def get_project_share_code(
 @router.get(
     "/activate/{grant_code_id}",
     summary="Активировать код доступа к проекту",
-    responses={**GRANT_CODE_NOT_FOUND, **GRANT_CODE_MAX_ACTIVATIONS_EXCEEDED},
+    responses={
+        **GRANT_CODE_NOT_FOUND,
+        status.HTTP_403_FORBIDDEN: {
+            "description": "Повторная активация кода одним пользователем или превышено "
+            "максимальное количество активаций кода доступа к проекту"
+        },
+    },
     operation_id="activate_project_share_code",
 )
 async def activate_project_share_code(
@@ -92,7 +94,14 @@ async def activate_project_share_code(
 
     db_session.add(grant)
     grant_code.current_activations += 1
-    await db_session.commit()
+    try:
+        await db_session.commit()
+    except IntegrityError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Повторная активация доступа возможна только по новой ссылке (коду)",
+        ) from exc
+
     await db_session.refresh(grant)
 
     user_email = current_user.email
