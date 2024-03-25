@@ -61,28 +61,27 @@ async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm,
         correct_code = correct_code_obj.auth_code
         code_valid_to = correct_code_obj.valid_to
         code_activated = correct_code_obj.activated_at
+        if code_valid_to >= datetime.now() and code_activated is None and correct_code == form_data.password:
+            user = await create_user_if_not_exists(email=form_data.username, db_session=db_session)
+            correct_code_obj.activated_at = datetime.now()
+            await db_session.commit()
+            access_token = create_access_token(data={"sub": form_data.username, "user_id": user.user_id})
+            return {"access_token": access_token, "token_type": "bearer"}
+
         if code_valid_to < datetime.now():
             error_msg = "Срок действия кода истёк"
         if code_activated is not None:
             error_msg = "Код уже был использован"
         elif correct_code != form_data.password:
             error_msg = "Неверный код"
-        else:
-            await create_user_if_not_exists(email=form_data.username, db_session=db_session)
-            correct_code_obj.activated_at = datetime.now()
-            await db_session.commit()
     else:
         error_msg = "Код не был отправлен"
 
-    if error_msg:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=error_msg,
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-
-    access_token = create_access_token(data={"sub": form_data.username})
-    return {"access_token": access_token, "token_type": "bearer"}
+    raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail=error_msg,
+        headers={"WWW-Authenticate": "Bearer"},
+    )
 
 
 def validate_yandex_token(yandex_oauth: str):

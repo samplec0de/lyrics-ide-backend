@@ -55,15 +55,20 @@ def get_user(email: str):
     return User(email=email)
 
 
-async def create_user_if_not_exists(email: str, db_session: AsyncSession):
+async def create_user_if_not_exists(email: str, db_session: AsyncSession) -> UserModel:
     """Добавляет пользователя в базу данных если его там нет"""
-    user_query = select(UserModel).where(
-        cast(ColumnElement[bool], UserModel.email == email)
+    user_query = await db_session.execute(
+        select(UserModel)
+        .where(cast(ColumnElement[bool], UserModel.email == email))
     )
-    last_code_result = await db_session.execute(user_query)
-    if last_code_result.one_or_none() is None:
+    if user_query.one_or_none() is None:
         user = UserModel(email=email)
         db_session.add(user)
+        await db_session.commit()
+    else:
+        user = cast(UserModel, user_query.one_or_none())
+
+    return user
 
 
 async def check_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
