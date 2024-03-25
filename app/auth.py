@@ -1,4 +1,5 @@
 import random
+import uuid
 from typing import Annotated, cast
 
 from fastapi import Depends, HTTPException, status
@@ -75,7 +76,7 @@ async def check_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
         username = payload.get("sub")
         if username is None or not isinstance(username, str):
             raise credentials_exception
-        token_data = TokenData(username=username, user_id=payload.get("user_id"))  # type: ignore
+        token_data = TokenData(username=username, user_id=uuid.UUID(payload.get("user_id")))
     except JWTError:
         raise credentials_exception
     user = UserOut(email=token_data.username, user_id=token_data.user_id)
@@ -93,7 +94,7 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db_ses
         username = payload.get("sub")
         if username is None or not isinstance(username, str):
             raise credentials_exception
-        token_data = TokenData(username=username, user_id=payload.get("user_id"))  # type: ignore
+        token_data = TokenData(username=username, user_id=uuid.UUID(payload.get("user_id")))
     except JWTError:
         raise credentials_exception
 
