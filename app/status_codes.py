@@ -11,3 +11,5 @@ TEXT_NO_PERMISSIONS: dict[int | str, dict[str, Any]] = {status.HTTP_403_FORBIDDE
 CANNOT_REMOVE_SINGLE_TEXT: dict[int | str, dict[str, Any]] = {status.HTTP_403_FORBIDDEN: {"description": "Нельзя удалить единственный текст из проекта"}}
 MEANING_NOT_FOUND: dict[int | str, dict[str, Any]] = {status.HTTP_404_NOT_FOUND: {"description": "Не найдено значение слова"}}
 GRANT_CODE_NOT_FOUND: dict[int | str, dict[str, Any]] = {status.HTTP_404_NOT_FOUND: {"description": "Код доступа к проекту не найден или деактивирован"}}
+USER_NOT_FOUND: dict[int | str, dict[str, Any]] = {status.HTTP_404_NOT_FOUND: {"description": "Пользователь с заданным id не найден"}}
+NO_ACCESS_TO_USER_INFO: dict[int | str, dict[str, Any]] = {status.HTTP_403_FORBIDDEN: {"description": "У вас нет доступа к информации о пользователе"}}

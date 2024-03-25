@@ -3,14 +3,15 @@ from typing import Annotated, cast
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, UUID4
 import datetime
 from jose import JWTError, jwt
 from sqlalchemy import select, ColumnElement
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload, joinedload
+from sqlalchemy.orm import selectinload
 
 from app.api.dependencies.core import DBSessionDep
+from app.api.schemas import UserOut
 from app.config import settings
 from app.models import UserModel
 
@@ -22,10 +23,7 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     username: str
-
-
-class User(BaseModel):
-    email: EmailStr
+    user_id: UUID4
 
 
 ALGORITHM = "HS256"
@@ -51,24 +49,19 @@ def verify_token(token: str, credentials_exception):
         raise credentials_exception
 
 
-def get_user(email: str):
-    return User(email=email)
-
-
 async def create_user_if_not_exists(email: str, db_session: AsyncSession) -> UserModel:
     """Добавляет пользователя в базу данных если его там нет"""
     user_query = await db_session.execute(
         select(UserModel)
         .where(cast(ColumnElement[bool], UserModel.email == email))
     )
-    if user_query.one_or_none() is None:
+    user = user_query.scalars().first()
+    if user is None:
         user = UserModel(email=email)
         db_session.add(user)
-        await db_session.commit()
+        return user
     else:
-        user = cast(UserModel, user_query.one_or_none())
-
-    return user
+        return user
 
 
 async def check_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
@@ -82,12 +75,10 @@ async def check_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
         username = payload.get("sub")
         if username is None or not isinstance(username, str):
             raise credentials_exception
-        token_data = TokenData(username=username)
+        token_data = TokenData(username=username, user_id=payload.get("user_id"))  # type: ignore
     except JWTError:
         raise credentials_exception
-    user = get_user(email=token_data.username)
-    if user is None:
-        raise credentials_exception
+    user = UserOut(email=token_data.username, user_id=token_data.user_id)
     return user
 
 
@@ -102,7 +93,7 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db_ses
         username = payload.get("sub")
         if username is None or not isinstance(username, str):
             raise credentials_exception
-        token_data = TokenData(username=username)
+        token_data = TokenData(username=username, user_id=payload.get("user_id"))  # type: ignore
     except JWTError:
         raise credentials_exception
 

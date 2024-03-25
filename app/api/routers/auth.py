@@ -9,7 +9,8 @@ from jose import ExpiredSignatureError, JWTError, jwt
 from sqlalchemy import ColumnElement, select
 
 from app.api.dependencies.core import DBSessionDep
-from app.auth import Token, User, create_access_token, create_user_if_not_exists, get_new_email_auth_code
+from app.api.schemas import UserIn
+from app.auth import Token, create_access_token, create_user_if_not_exists, get_new_email_auth_code
 from app.config import settings
 from app.mail import lyrics_send_email
 from app.models.email_auth_code import EmailAuthCodeModel
@@ -18,7 +19,7 @@ router = APIRouter()
 
 
 @router.post("/email", operation_id="send_email_auth_code")
-async def send_email_auth_code(user: User, db_session: DBSessionDep):
+async def send_email_auth_code(user: UserIn, db_session: DBSessionDep):
     """Отправка письма с кодом для входа"""
     if user.email != "user@example.com":
         new_code = await get_new_email_auth_code()
@@ -65,7 +66,7 @@ async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm,
             user = await create_user_if_not_exists(email=form_data.username, db_session=db_session)
             correct_code_obj.activated_at = datetime.now()
             await db_session.commit()
-            access_token = create_access_token(data={"sub": form_data.username, "user_id": user.user_id})
+            access_token = create_access_token(data={"sub": form_data.username, "user_id": str(user.user_id)})
             return {"access_token": access_token, "token_type": "bearer"}
 
         if code_valid_to < datetime.now():

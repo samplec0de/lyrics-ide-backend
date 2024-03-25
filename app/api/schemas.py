@@ -3,7 +3,7 @@ import datetime
 from typing import Annotated
 
 from fastapi import UploadFile
-from pydantic import UUID4, BaseModel, Field
+from pydantic import UUID4, BaseModel, EmailStr, Field
 
 from app.models.grant import GrantLevel
 
@@ -126,3 +126,19 @@ class ProjectGrant(BaseModel):
     user_email: Annotated[str, Field(description="Email пользователя")]
     level: Annotated[GrantLevel, Field(description="Уровень доступа к проекту")]
     created_at: Annotated[datetime.datetime, Field(description="Дата создания гранта")]
+
+
+class UserBase(BaseModel):
+    """Базовая схема для пользователя"""
+
+    email: Annotated[EmailStr, Field(description="Email пользователя")]
+
+
+class UserIn(UserBase):
+    """Схема для пользователя при создании"""
+
+
+class UserOut(UserBase):
+    """Полная схема для пользователя для отображения"""
+
+    user_id: Annotated[UUID4, Field(description="Идентификатор пользователя")]
