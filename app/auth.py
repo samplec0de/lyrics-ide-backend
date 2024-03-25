@@ -24,7 +24,7 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     username: str
-    user_id: str
+    user_id: UUID4
 
 
 ALGORITHM = "HS256"
@@ -74,9 +74,10 @@ async def check_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
     try:
         payload = jwt.decode(token, settings.secret_key, algorithms=[ALGORITHM])
         username = payload.get("sub")
-        if username is None or not isinstance(username, str):
+        user_id = payload.get("user_id")
+        if username is None or not isinstance(username, str) or user_id is None or not isinstance(user_id, str):
             raise credentials_exception
-        token_data = TokenData(username=username, user_id=payload.get("user_id"))
+        token_data = TokenData(username=username, user_id=uuid.UUID(user_id, version=4))
     except JWTError:
         raise credentials_exception
     user = UserOut(email=token_data.username, user_id=token_data.user_id)
@@ -92,9 +93,10 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db_ses
     try:
         payload = jwt.decode(token, settings.secret_key, algorithms=[ALGORITHM])
         username = payload.get("sub")
-        if username is None or not isinstance(username, str):
+        user_id = payload.get("user_id")
+        if username is None or not isinstance(username, str) or user_id is None or not isinstance(user_id, str):
             raise credentials_exception
-        token_data = TokenData(username=username, user_id=payload.get("user_id"))
+        token_data = TokenData(username=username, user_id=uuid.UUID(user_id, version=4))
     except JWTError:
         raise credentials_exception
 

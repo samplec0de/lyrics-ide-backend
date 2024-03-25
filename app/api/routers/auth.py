@@ -120,8 +120,8 @@ async def login_via_yandex(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    await create_user_if_not_exists(email=user_info["email"], db_session=db_session)
+    user = await create_user_if_not_exists(email=user_info["email"], db_session=db_session)
     await db_session.commit()
 
-    new_access_token = create_access_token(data={"sub": user_info["email"]})
+    new_access_token = create_access_token(data={"sub": user_info["email"], "user_id": str(user.user_id)})
     return {"access_token": new_access_token, "token_type": "bearer"}
