@@ -58,6 +58,7 @@ async def create_project(
         name=new_project.name,
         description=new_project.description,
         owner_user_id=new_project.owner_user_id,
+        is_owner=True,
         created_at=new_project.created_at,
         updated_at=new_project.updated_at,
         project_id=new_project.project_id,
@@ -96,6 +97,7 @@ async def update_project(
         name=project.name,
         description=project.description,
         owner_user_id=project.owner_user_id,
+        is_owner=True,
         created_at=project.created_at,
         updated_at=project.updated_at,
         project_id=project.project_id,
@@ -143,6 +145,7 @@ async def get_projects(db_session: DBSessionDep, current_user: CurrentUserAnnota
             name=project.name,
             description=project.description,
             owner_user_id=project.owner_user_id,
+            is_owner=project.owner_user_id == current_user.user_id,
             created_at=project.created_at,
             updated_at=project.updated_at,
             project_id=project.project_id,
@@ -177,7 +180,7 @@ async def get_projects(db_session: DBSessionDep, current_user: CurrentUserAnnota
     },
     operation_id="get_project",
 )
-async def get_project(project: OwnOrGrantProjectAnnotation) -> ProjectOut:
+async def get_project(project: OwnOrGrantProjectAnnotation, current_user: CurrentUserAnnotation) -> ProjectOut:
     """Получить содержимое проекта"""
     music = project.music
 
@@ -185,6 +188,7 @@ async def get_project(project: OwnOrGrantProjectAnnotation) -> ProjectOut:
         name=project.name,
         description=project.description,
         owner_user_id=project.owner_user_id,
+        is_owner=project.owner_user_id == current_user.user_id,
         created_at=project.created_at,
         updated_at=project.updated_at,
         project_id=project.project_id,

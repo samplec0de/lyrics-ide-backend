@@ -4,7 +4,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, File, HTTPException, Query, UploadFile, status
 
-from app.api.annotations import ProjectAnnotation
+from app.api.annotations import CurrentUserAnnotation, ProjectAnnotation
 from app.api.dependencies.core import DBSessionDep
 from app.api.schemas import MusicOut, ProjectOut, TextVariantCompact
 from app.models import MusicModel
@@ -128,7 +128,9 @@ async def set_music_bpm(
     responses={**PROJECT_NOT_FOUND, **MUSIC_NOT_FOUND},
     operation_id="delete_music",
 )
-async def delete_music(project: ProjectAnnotation, db_session: DBSessionDep) -> ProjectOut:
+async def delete_music(
+    project: ProjectAnnotation, current_user: CurrentUserAnnotation, db_session: DBSessionDep
+) -> ProjectOut:
     """Удаление музыки из проекта"""
     if project.music is None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Музыка не найдена")
@@ -142,6 +144,7 @@ async def delete_music(project: ProjectAnnotation, db_session: DBSessionDep) -> 
         description=project.description,
         project_id=project.project_id,
         owner_user_id=project.owner_user_id,
+        is_owner=project.owner_user_id == current_user.user_id,
         texts=[
             TextVariantCompact(
                 text_id=text.text_id,
