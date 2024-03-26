@@ -282,7 +282,6 @@ async def update_project_access(
         .options(selectinload(ProjectGrantModel.user))
         .where(ProjectGrantModel.project_id == project.project_id)
         .where(ProjectGrantModel.user_id == user_id)
-        .where(ProjectGrantModel.is_active.is_(True))
     )
     project_grant = result.scalars().first()
     if project_grant is None:
