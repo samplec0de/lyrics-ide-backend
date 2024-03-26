@@ -192,6 +192,7 @@ async def revoke_project_access(
     """Отозвать доступ к проекту"""
     result = await db_session.execute(
         select(ProjectGrantModel)
+        .options(selectinload(ProjectGrantModel.user))
         .where(ProjectGrantModel.project_id == project.project_id)
         .where(ProjectGrantModel.user_id == user_id)
     )
