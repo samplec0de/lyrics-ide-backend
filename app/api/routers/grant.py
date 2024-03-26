@@ -132,6 +132,7 @@ async def activate_project_share_code(
         user_id=grant.user_id,
         user_email=user_email,
         level=grant.level,
+        is_active=grant.is_active,
         created_at=grant.created_at,
     )
 
@@ -164,6 +165,7 @@ async def get_project_users(
             user_id=project_grant.user_id,
             user_email=project_grant.user.email,
             level=project_grant.level,
+            is_active=project_grant.is_active,
             created_at=project_grant.created_at,
         )
         for project_grant in project_grant_models
@@ -290,5 +292,6 @@ async def update_project_access(
         user_id=project_grant.user_id,
         user_email=project_grant.user.email,
         level=project_grant.level,
+        is_active=project_grant.is_active,
         created_at=project_grant.created_at,
     )
