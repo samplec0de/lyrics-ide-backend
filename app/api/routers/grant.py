@@ -288,6 +288,7 @@ async def update_project_access(
     if project_grant is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Пользователь не имеет доступа к проекту")
     project_grant.level = new_level
+    project_grant.is_active = True
     await db_session.commit()
     return ProjectGrant(
         grant_code_id=project_grant.grant_code_id,
