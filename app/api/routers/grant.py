@@ -188,7 +188,7 @@ async def revoke_project_access(
     project: OwnProjectAnnotation,
     user_id: Annotated[str, Path(description="ID пользователя")],
     db_session: DBSessionDep,
-) -> None:
+) -> ProjectGrant:
     """Отозвать доступ к проекту"""
     result = await db_session.execute(
         select(ProjectGrantModel)
@@ -200,7 +200,15 @@ async def revoke_project_access(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Пользователь не имеет доступа к проекту")
     project_grant.is_active = False
     await db_session.commit()
-    return None
+    return ProjectGrant(
+        grant_code_id=project_grant.grant_code_id,
+        project_id=project_grant.project_id,
+        user_id=project_grant.user_id,
+        user_email=project_grant.user.email,
+        level=project_grant.level,
+        is_active=project_grant.is_active,
+        created_at=project_grant.created_at,
+    )
 
 
 @router.get(
