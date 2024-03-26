@@ -128,6 +128,7 @@ async def activate_project_share_code(
     user_email = current_user.email
 
     return ProjectGrant(
+        grant_code_id=grant_code.grant_code_id,
         project_id=grant.project_id,
         user_id=grant.user_id,
         user_email=user_email,
@@ -161,6 +162,7 @@ async def get_project_users(
     project_grant_models = result.scalars().all()
     return [
         ProjectGrant(
+            grant_code_id=project_grant.grant_code_id,
             project_id=project_grant.project_id,
             user_id=project_grant.user_id,
             user_email=project_grant.user.email,
@@ -288,6 +290,7 @@ async def update_project_access(
     project_grant.level = new_level
     await db_session.commit()
     return ProjectGrant(
+        grant_code_id=project_grant.grant_code_id,
         project_id=project_grant.project_id,
         user_id=project_grant.user_id,
         user_email=project_grant.user.email,

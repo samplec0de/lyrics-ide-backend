@@ -121,6 +121,7 @@ class ProjectGrantCode(BaseModel):
 class ProjectGrant(BaseModel):
     """Схема для гранта доступа к проекту"""
 
+    grant_code_id: Annotated[UUID4, Field(description="Идентификатор гранта доступа к проекту")]
     project_id: Annotated[UUID4, Field(description="Идентификатор проекта")]
     user_id: Annotated[UUID4, Field(description="Идентификатор пользователя")]
     user_email: Annotated[str, Field(description="Email пользователя")]
