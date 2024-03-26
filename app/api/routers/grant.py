@@ -277,11 +277,13 @@ async def update_project_access(
     db_session: DBSessionDep,
 ) -> ProjectGrant:
     """Изменить уровень доступа к проекту"""
+    # order by created_at DESC
     result = await db_session.execute(
         select(ProjectGrantModel)
         .options(selectinload(ProjectGrantModel.user))
         .where(ProjectGrantModel.project_id == project.project_id)
         .where(ProjectGrantModel.user_id == user_id)
+        .order_by(ProjectGrantModel.created_at.desc())
     )
     project_grant = result.scalars().first()
     if project_grant is None:
