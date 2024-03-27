@@ -309,3 +309,43 @@ async def update_project_access(
         is_active=project_grant.is_active,
         created_at=project_grant.created_at,
     )
+
+
+@router.delete(
+    "/{project_id}/leave",
+    summary="Покинуть проект",
+    responses={
+        status.HTTP_404_NOT_FOUND: {"description": "Проект не найден или вы не имеете доступа к проекту"},
+    },
+    operation_id="leave_project",
+)
+async def leave_project(
+    project: OwnProjectAnnotation,
+    current_user: CurrentUserAnnotation,
+    db_session: DBSessionDep,
+) -> ProjectGrant:
+    """Покинуть проект"""
+    result = await db_session.execute(
+        select(ProjectGrantModel)
+        .options(selectinload(ProjectGrantModel.user))
+        .where(ProjectGrantModel.project_id == project.project_id)
+        .where(ProjectGrantModel.user_id == current_user.user_id)
+        .order_by(ProjectGrantModel.created_at.desc())
+    )
+    project_grant = result.scalars().first()
+
+    if project_grant is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Вы не имеете доступа к проекту")
+
+    project_grant.is_active = False
+    await db_session.commit()
+
+    return ProjectGrant(
+        grant_code_id=project_grant.grant_code_id,
+        project_id=project_grant.project_id,
+        user_id=project_grant.user_id,
+        user_email=project_grant.user.email,
+        level=project_grant.level,
+        is_active=project_grant.is_active,
+        created_at=project_grant.created_at,
+    )
