@@ -5,12 +5,7 @@ from fastapi import APIRouter
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
-from app.api.annotations import (
-    CurrentUserAnnotation,
-    OwnOrGrantProjectAnnotation,
-    OwnProjectAnnotation,
-    ProjectAnnotation,
-)
+from app.api.annotations import CurrentUserAnnotation, OwnOrGrantProjectAnnotation, OwnProjectAnnotation
 from app.api.dependencies.core import DBSessionDep, MongoDBTextCollectionDep
 from app.api.schemas import MusicOut, ProjectBase, ProjectOut, TextVariantCompact
 from app.models import ProjectModel, TextModel
@@ -218,7 +213,7 @@ async def get_project(project: OwnOrGrantProjectAnnotation, current_user: Curren
     responses=PROJECT_NOT_FOUND,
     operation_id="delete_project",
 )
-async def delete_project(project: ProjectAnnotation, db_session: DBSessionDep):
+async def delete_project(project: OwnProjectAnnotation, db_session: DBSessionDep):
     """Удалить проект. Приводит к удалению всех текстов проекта, музыки, кодов доступа и прав."""
     texts_query = await db_session.execute(select(TextModel).where(TextModel.project_id == project.project_id))
     texts = texts_query.scalars().all()
