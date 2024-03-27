@@ -286,7 +286,6 @@ async def update_project_access(
     db_session: DBSessionDep,
 ) -> ProjectGrant:
     """Изменить уровень доступа к проекту"""
-    # order by created_at DESC
     result = await db_session.execute(
         select(ProjectGrantModel)
         .options(selectinload(ProjectGrantModel.user))
