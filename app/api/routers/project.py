@@ -8,6 +8,7 @@ from sqlalchemy.orm import selectinload
 from app.api.annotations import CurrentUserAnnotation, OwnOrGrantProjectAnnotation, OwnProjectAnnotation
 from app.api.dependencies.core import DBSessionDep, MongoDBTextCollectionDep
 from app.api.schemas import MusicOut, ProjectBase, ProjectOut, TextVariantCompact
+from app.grant_utils import get_grant_level_by_user_and_project
 from app.models import ProjectModel, TextModel
 from app.models.grant import ProjectGrantCodeModel, ProjectGrantModel
 from app.s3 import generate_presigned_url
@@ -54,6 +55,7 @@ async def create_project(
         description=new_project.description,
         owner_user_id=new_project.owner_user_id,
         is_owner=True,
+        grant_level=None,
         created_at=new_project.created_at,
         updated_at=new_project.updated_at,
         project_id=new_project.project_id,
@@ -93,6 +95,7 @@ async def update_project(
         description=project.description,
         owner_user_id=project.owner_user_id,
         is_owner=True,
+        grant_level=None,
         created_at=project.created_at,
         updated_at=project.updated_at,
         project_id=project.project_id,
@@ -141,6 +144,9 @@ async def get_projects(db_session: DBSessionDep, current_user: CurrentUserAnnota
             description=project.description,
             owner_user_id=project.owner_user_id,
             is_owner=project.owner_user_id == current_user.user_id,
+            grant_level=await get_grant_level_by_user_and_project(
+                user_id=current_user.user_id, project_id=project.project_id, db_session=db_session
+            ),
             created_at=project.created_at,
             updated_at=project.updated_at,
             project_id=project.project_id,
@@ -175,15 +181,22 @@ async def get_projects(db_session: DBSessionDep, current_user: CurrentUserAnnota
     },
     operation_id="get_project",
 )
-async def get_project(project: OwnOrGrantProjectAnnotation, current_user: CurrentUserAnnotation) -> ProjectOut:
+async def get_project(
+    project: OwnOrGrantProjectAnnotation, current_user: CurrentUserAnnotation, db_session: DBSessionDep
+) -> ProjectOut:
     """Получить содержимое проекта"""
     music = project.music
+
+    user_grant_level = await get_grant_level_by_user_and_project(
+        user_id=current_user.user_id, project_id=project.project_id, db_session=db_session
+    )
 
     return ProjectOut(
         name=project.name,
         description=project.description,
         owner_user_id=project.owner_user_id,
         is_owner=project.owner_user_id == current_user.user_id,
+        grant_level=user_grant_level,
         created_at=project.created_at,
         updated_at=project.updated_at,
         project_id=project.project_id,

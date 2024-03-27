@@ -79,6 +79,7 @@ class ProjectOut(ProjectBase):
     project_id: Annotated[UUID4, Field(description="Идентификатор проекта")]
     owner_user_id: Annotated[UUID4, Field(description="Идентификатор пользователя-владельца проекта")]
     is_owner: Annotated[bool, Field(description="Является ли текущий пользователь владельцем проекта")]
+    grant_level: Annotated[GrantLevel | None, Field(description="Уровень доступа к проекту. null - владелец проекта")]
     created_at: Annotated[datetime.datetime, Field(description="Дата создания проекта")]
     updated_at: Annotated[datetime.datetime, Field(description="Дата последнего обновления проекта")]
     texts: Annotated[list[TextVariantCompact], Field(description="Варианты текста")] = []

@@ -7,6 +7,7 @@ from fastapi import APIRouter, File, HTTPException, Query, UploadFile, status
 from app.api.annotations import CurrentUserAnnotation, ProjectAnnotation
 from app.api.dependencies.core import DBSessionDep
 from app.api.schemas import MusicOut, ProjectOut, TextVariantCompact
+from app.grant_utils import get_grant_level_by_user_and_project
 from app.models import MusicModel
 from app.music_utils import get_file_bpm, get_song_duration
 from app.s3 import delete, generate_presigned_url, upload
@@ -139,12 +140,17 @@ async def delete_music(
 
     await db_session.delete(project.music)
 
+    user_grant_level = await get_grant_level_by_user_and_project(
+        user_id=current_user.user_id, project_id=project.project_id, db_session=db_session
+    )
+
     project_state = ProjectOut(
         name=project.name,
         description=project.description,
         project_id=project.project_id,
         owner_user_id=project.owner_user_id,
         is_owner=project.owner_user_id == current_user.user_id,
+        grant_level=user_grant_level,
         texts=[
             TextVariantCompact(
                 text_id=text.text_id,
