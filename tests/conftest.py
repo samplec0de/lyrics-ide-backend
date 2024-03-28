@@ -3,7 +3,9 @@ import fastapi
 import httpx
 import pytest
 
+from app.database import get_db_session
 from app.main import app
+from tests.functional_tests.test_utils.jwt_generator import get_jwt_token
 
 
 @pytest.fixture(name="backend_test_app")
@@ -29,3 +31,13 @@ async def async_client(initialize_backend_test_application: fastapi.FastAPI) -> 
         headers={"Content-Type": "application/json"},
     ) as client:
         yield client
+
+
+@pytest.fixture(name="db_session")
+def db_session():
+    return get_db_session()
+
+
+@pytest.fixture(name="jwt_token")
+async def jwt_token(db_session):
+    return await get_jwt_token("test@sslane.ru", db_session)
