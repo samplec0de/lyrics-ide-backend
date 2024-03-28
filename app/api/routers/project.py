@@ -11,7 +11,7 @@ from app.api.schemas import MusicOut, ProjectBase, ProjectOut, TextVariantCompac
 from app.grant_utils import get_grant_level_by_user_and_project
 from app.models import ProjectModel, TextModel
 from app.models.grant import ProjectGrantCodeModel, ProjectGrantModel
-from app.s3 import generate_presigned_url
+from app.s3_helpers import generate_presigned_url
 from app.status_codes import PROJECT_NO_PERMISSIONS, PROJECT_NOT_FOUND, PROJECT_NOT_OWNER
 
 router = APIRouter()

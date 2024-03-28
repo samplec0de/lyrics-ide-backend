@@ -10,7 +10,7 @@ from app.api.schemas import MusicOut, ProjectOut, TextVariantCompact
 from app.grant_utils import get_grant_level_by_user_and_project
 from app.models import MusicModel
 from app.music_utils import get_file_bpm, get_song_duration
-from app.s3 import delete, generate_presigned_url, upload
+from app.s3_helpers import delete, generate_presigned_url, upload
 from app.status_codes import MUSIC_NOT_FOUND, PROJECT_NOT_FOUND
 
 router = APIRouter()
