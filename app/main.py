@@ -36,31 +36,31 @@ app = FastAPI(
 app.include_router(
     auth.router,
     prefix="/auth",
-    tags=["Аутентификация"],
+    tags=["auth"],
 )
 app.include_router(
     project.router,
     prefix="/projects",
     dependencies=[Depends(check_current_user)],
-    tags=["Проекты"],
+    tags=["projects"],
 )
 app.include_router(
     music.router,
     prefix="/music",
     dependencies=[Depends(check_current_user)],
-    tags=["Музыка"],
+    tags=["music"],
 )
 app.include_router(
     text.router,
     prefix="/texts",
     dependencies=[Depends(check_current_user)],
-    tags=["Тексты"],
+    tags=["texts"],
 )
 app.include_router(
     word.router,
     prefix="/words",
     dependencies=[Depends(check_current_user)],
-    tags=["Слова"],
+    tags=["words"],
 )
 app.include_router(
     tiptap.router,
@@ -72,19 +72,19 @@ app.include_router(
     completions.router,
     prefix="/completions",
     dependencies=[Depends(check_current_user)],
-    tags=["Автодополнение"],
+    tags=["completions"],
 )
 app.include_router(
     grant.router,
     prefix="/grant",
     dependencies=[Depends(check_current_user)],
-    tags=["Доступ"],
+    tags=["grant"],
 )
 app.include_router(
     user.router,
     prefix="/users",
     dependencies=[Depends(check_current_user)],
-    tags=["Пользователи"],
+    tags=["users"],
 )
 app.include_router(
     health.router,
@@ -98,6 +98,8 @@ origins = [
     "http://localhost:5173",
     "https://lyrics-ide.sslane.ru",
     "https://lyrics-editor.vercel.app",
+    "https://lirix.xyz",
+    "https://www.lirix.xyz",
 ]
 
 app.add_middleware(
