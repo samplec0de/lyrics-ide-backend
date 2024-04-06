@@ -3,6 +3,7 @@ from typing import AsyncIterator
 import pytest
 
 from fastapi.testclient import TestClient
+from httpx import AsyncClient
 from sqlalchemy import StaticPool
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 
@@ -21,7 +22,6 @@ engine = create_async_engine(
 )
 TestingSessionLocal = async_sessionmaker(autocommit=False, bind=engine, expire_on_commit=False)
 DBSession = AsyncSession
-client = TestClient(main_app, backend="asyncio")
 
 
 @pytest.fixture(scope="function", autouse=True)
@@ -40,3 +40,9 @@ async def db_session() -> AsyncIterator[AsyncSession]:
 
         async with engine.begin() as connection:
             await connection.run_sync(Base.metadata.drop_all)
+
+
+@pytest.fixture(scope="function")
+async def client() -> AsyncClient:
+    async with AsyncClient(app=main_app, base_url="http://test") as async_client:
+        yield async_client

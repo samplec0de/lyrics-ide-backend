@@ -1,4 +1,5 @@
 import pytest
+from httpx import AsyncClient
 
 from app.auth import get_new_email_auth_code
 from app.models import EmailAuthCodeModel
@@ -8,14 +9,14 @@ MAIN_EMAIL = "test@lyrix.xyz"
 
 
 @pytest.mark.asyncio
-async def test_login_for_access_token(db_session: DBSession):
+async def test_login_for_access_token(db_session: DBSession, client: AsyncClient):
     """Проверка работы аутентификации"""
     new_code = await get_new_email_auth_code()
     new_code_model = EmailAuthCodeModel(email=MAIN_EMAIL, auth_code=new_code)
     db_session.add(new_code_model)
     await db_session.commit()
 
-    response = client.post(
+    response = await client.post(
         "/auth/token",
         data={"username": MAIN_EMAIL, "password": new_code},
     )
