@@ -2,15 +2,14 @@ from typing import AsyncIterator
 
 import pytest
 
-from fastapi.testclient import TestClient
 from httpx import AsyncClient
 from sqlalchemy import StaticPool
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 
+from app.auth import get_new_email_auth_code
 from app.main import app as main_app
 from app.database import get_db_session
-from app.models import Base
-
+from app.models import Base, EmailAuthCodeModel
 
 DATABASE_URL = "sqlite+aiosqlite:///:memory:"
 engine = create_async_engine(
@@ -22,10 +21,11 @@ engine = create_async_engine(
 )
 TestingSessionLocal = async_sessionmaker(autocommit=False, bind=engine, expire_on_commit=False)
 DBSession = AsyncSession
+MAIN_EMAIL = "test@lyrix.xyz"
 
 
-@pytest.fixture(scope="function", autouse=True)
-async def db_session() -> AsyncIterator[AsyncSession]:
+@pytest.fixture(name="db_session", scope="function", autouse=True)
+async def db_session_fixture() -> AsyncIterator[AsyncSession]:
     async with TestingSessionLocal() as session:
 
         async with engine.begin() as connection:
@@ -42,7 +42,24 @@ async def db_session() -> AsyncIterator[AsyncSession]:
             await connection.run_sync(Base.metadata.drop_all)
 
 
-@pytest.fixture(scope="function")
-async def client() -> AsyncClient:
+@pytest.fixture(name="unauthorized_client", scope="function")
+async def client_fixture() -> AsyncClient:
     async with AsyncClient(app=main_app, base_url="http://test") as async_client:
+        yield async_client
+
+
+@pytest.fixture(name="authorized_client", scope="function")
+async def authorized_client_fixture(db_session: DBSession):
+    new_code = await get_new_email_auth_code()
+    new_code_model = EmailAuthCodeModel(email=MAIN_EMAIL, auth_code=new_code)
+    db_session.add(new_code_model)
+    await db_session.commit()
+
+    async with AsyncClient(app=main_app, base_url="http://test") as async_client:
+        response = await async_client.post(
+            "/auth/token",
+            data={"username": MAIN_EMAIL, "password": new_code},
+        )
+        access_token = response.json()["access_token"]
+        async_client.headers["Authorization"] = f"Bearer {access_token}"
         yield async_client
