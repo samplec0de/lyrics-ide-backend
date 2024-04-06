@@ -1,12 +1,12 @@
-# pylint: disable=cyclic-import
+# pylint: disable=cyclic-import, unsubscriptable-object
 """ORM модель музыки"""
 import uuid
 
 from sqlalchemy import ForeignKey
-from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models import Base, ProjectModel
+from app.models.uuid_type import UUID
 
 
 class MusicModel(Base):  # type: ignore

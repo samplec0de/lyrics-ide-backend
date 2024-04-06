@@ -92,8 +92,6 @@ app.include_router(
     tags=["health"],
 )
 
-app.mount("/static", StaticFiles(directory="app/static"), name="static")
-
 origins = [
     "http://localhost:5173",
     "https://lyrics-ide.sslane.ru",

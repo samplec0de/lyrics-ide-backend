@@ -1,43 +1,42 @@
-import asgi_lifespan
-import fastapi
-import httpx
+from typing import AsyncIterator
+
 import pytest
 
+from fastapi.testclient import TestClient
+from sqlalchemy import StaticPool
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
+
+from app.main import app as main_app
 from app.database import get_db_session
-from app.main import app
-from tests.functional_tests.test_utils.jwt_generator import get_jwt_token
+from app.models import Base
 
 
-@pytest.fixture(name="backend_test_app")
-def backend_test_app() -> fastapi.FastAPI:
-    """
-    A fixture that re-initializes the FastAPI instance for test application.
-    """
-
-    return app
-
-
-@pytest.fixture(name="initialize_backend_test_application")
-async def initialize_backend_test_application(backend_test_app: fastapi.FastAPI) -> fastapi.FastAPI:  # type: ignore
-    async with asgi_lifespan.LifespanManager(backend_test_app):
-        yield backend_test_app
+DATABASE_URL = "sqlite+aiosqlite:///:memory:"
+engine = create_async_engine(
+    DATABASE_URL,
+    connect_args={
+        "check_same_thread": False,
+    },
+    poolclass=StaticPool,
+)
+TestingSessionLocal = async_sessionmaker(autocommit=False, bind=engine, expire_on_commit=False)
+DBSession = AsyncSession
+client = TestClient(main_app, backend="asyncio")
 
 
-@pytest.fixture(name="async_client")
-async def async_client(initialize_backend_test_application: fastapi.FastAPI) -> httpx.AsyncClient:  # type: ignore
-    async with httpx.AsyncClient(
-        app=initialize_backend_test_application,
-        base_url="http://testserver",
-        headers={"Content-Type": "application/json"},
-    ) as client:
-        yield client
+@pytest.fixture(scope="function", autouse=True)
+async def db_session() -> AsyncIterator[AsyncSession]:
+    async with TestingSessionLocal() as session:
 
+        async with engine.begin() as connection:
+            await connection.run_sync(Base.metadata.create_all)
+            await connection.commit()
 
-@pytest.fixture(name="db_session")
-def db_session():
-    return get_db_session()
+        async def override_get_db_session():
+            yield session
 
+        main_app.dependency_overrides[get_db_session] = override_get_db_session
+        yield session
 
-@pytest.fixture(name="jwt_token")
-async def jwt_token(db_session):
-    return await get_jwt_token("test@sslane.ru", db_session)
+        async with engine.begin() as connection:
+            await connection.run_sync(Base.metadata.drop_all)

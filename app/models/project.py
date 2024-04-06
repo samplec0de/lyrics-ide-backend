@@ -1,13 +1,13 @@
-# pylint: disable=cyclic-import
+# pylint: disable=cyclic-import, unsubscriptable-object
 """ORM модель проекта"""
 import datetime
 import uuid
 
 from sqlalchemy import ForeignKey, func
-from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models import Base
+from app.models.uuid_type import UUID
 
 
 class ProjectModel(Base):  # type: ignore

@@ -1,14 +1,14 @@
-# pylint: disable=cyclic-import
+# pylint: disable=cyclic-import, unsubscriptable-object
 """ORM модель гранта (доступа) пользователя к проекту"""
 import datetime
 import enum
 import uuid
 
 from sqlalchemy import Enum, ForeignKey, func
-from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models import Base
+from app.models.uuid_type import UUID
 
 
 class GrantLevel(enum.Enum):

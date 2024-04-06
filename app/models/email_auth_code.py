@@ -1,12 +1,12 @@
-# pylint: disable=cyclic-import
+# pylint: disable=cyclic-import, unsubscriptable-object
 """ORM модель кода аутентификации по электронной почте"""
 import uuid
 from datetime import datetime, timedelta
 
-from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models import Base
+from app.models.uuid_type import UUID
 
 
 class EmailAuthCodeModel(Base):  # type: ignore

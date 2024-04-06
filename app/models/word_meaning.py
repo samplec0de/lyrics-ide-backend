@@ -1,4 +1,4 @@
-# pylint: disable=cyclic-import
+# pylint: disable=cyclic-import, unsubscriptable-object
 """ORM модель варианта значения слова"""
 from sqlalchemy.orm import Mapped, mapped_column
 

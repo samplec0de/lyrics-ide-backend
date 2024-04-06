@@ -1,11 +1,11 @@
-# pylint: disable=cyclic-import
+# pylint: disable=cyclic-import, unsubscriptable-object
 """ORM модель пользователя"""
 import uuid
 
-from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models import Base
+from app.models.uuid_type import UUID
 
 
 class UserModel(Base):  # type: ignore
