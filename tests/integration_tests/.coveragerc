@@ -3,3 +3,8 @@ branch = True
 concurrency =
     greenlet
     thread
+omit=
+    tests/*
+    */test_*.py
+    app/alembic/*
+    app/models/*

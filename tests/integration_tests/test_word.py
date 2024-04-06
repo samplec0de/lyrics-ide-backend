@@ -14,7 +14,7 @@ from tests.conftest import DBSession
     ],
 )
 @pytest.mark.asyncid
-async def test_word_meaning(word: str, expected: list[str], db_session: DBSession, authorized_client: AsyncClient):
+async def test_word_meanings(word: str, expected: list[str], db_session: DBSession, authorized_client: AsyncClient):
     words = [
         WordMeaningModel(word_meaning_id=1, word="Кот", meaning="Самец кошки", first_character="к"),
         WordMeaningModel(
@@ -41,3 +41,39 @@ async def test_word_meaning(word: str, expected: list[str], db_session: DBSessio
     assert response.status_code == 200
     expected_response = [{"meaning": meaning, "source": "Ojegov"} for meaning in expected]
     assert response.json() == expected_response
+
+
+@pytest.mark.parametrize(
+    "word, expected",
+    [
+        pytest.param("кот", ["кошка"], id="cat"),
+        pytest.param("слово", ["слова", "выражение", "мнение", "обещание", "лексема", "клятва"], id="word"),
+        pytest.param("абвгджц", [], id="no synonyms"),
+    ],
+)
+@pytest.mark.asyncid
+async def test_word_synonyms(word: str, expected: list[str], authorized_client: AsyncClient):
+    response = await authorized_client.get(
+        "/words/synonyms",
+        params={"word": word},
+    )
+    assert response.status_code == 200
+    assert response.json() == expected
+
+
+@pytest.mark.parametrize(
+    "text, expected", [
+        pytest.param("логика", ["ритмика"], id="smoke"),
+        pytest.param("палка", ["балка", "капалка"], id="smoke-2"),
+        pytest.param("абвгджц", [], id="no rhymes"),
+    ]
+)
+@pytest.mark.asyncio
+async def test_word_rhyming(authorized_client: AsyncClient, mocker, text: str, expected: list[str]):
+    mocker.patch("app.api.routers.word.get_llm_rhymes", return_value=expected)
+    response = await authorized_client.get(
+        "/words/rhyming",
+        params={"word": text},
+    )
+    assert response.status_code == 200
+    assert response.json() == expected
