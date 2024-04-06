@@ -2,16 +2,19 @@
 from datetime import datetime
 from typing import Annotated, cast
 
-import requests
 from fastapi import APIRouter, Depends, Form, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
-from jose import ExpiredSignatureError, JWTError, jwt
 from sqlalchemy import ColumnElement, select
 
 from app.api.dependencies.core import DBSessionDep
 from app.api.schemas import UserIn
-from app.auth import Token, create_access_token, create_user_if_not_exists, get_new_email_auth_code
-from app.config import settings
+from app.auth import (
+    Token,
+    create_access_token,
+    create_user_if_not_exists,
+    get_new_email_auth_code,
+    validate_yandex_token,
+)
 from app.mail import lyrics_send_email
 from app.models.email_auth_code import EmailAuthCodeModel
 
@@ -85,24 +88,6 @@ async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm,
     )
 
 
-def validate_yandex_token(yandex_oauth: str):
-    """Проверка токена Яндекса"""
-    yandex_id_secret_key = settings.yandex_id_secret_key
-    try:
-        headers = {"Authorization": f"OAuth {yandex_oauth}"}
-        yandex_jwt = requests.get(
-            "https://login.yandex.ru/info?format=jwt",
-            headers=headers,
-            timeout=5,
-        ).text
-        payload = jwt.decode(yandex_jwt, yandex_id_secret_key, algorithms=["HS256"])
-        return payload
-    except ExpiredSignatureError:
-        return None
-    except JWTError:
-        return None
-
-
 @router.post("/yandex_token", response_model=Token, operation_id="auth_with_yandex_token")
 async def login_via_yandex(
     access_token: Annotated[str, Form()],
@@ -112,7 +97,7 @@ async def login_via_yandex(
 ):
     """Получение токена для входа через Яндекс"""
 
-    user_info = validate_yandex_token(access_token)
+    user_info = await validate_yandex_token(access_token)
     if not user_info:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

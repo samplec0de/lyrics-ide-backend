@@ -2,11 +2,12 @@ import random
 import uuid
 from typing import Annotated, cast
 
+import aiohttp
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from pydantic import BaseModel, UUID4
 import datetime
-from jose import JWTError, jwt
+from jose import ExpiredSignatureError, JWTError, jwt
 from sqlalchemy import select, ColumnElement
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -48,6 +49,22 @@ def verify_token(token: str, credentials_exception):
         return email
     except JWTError:
         raise credentials_exception
+
+
+async def validate_yandex_token(yandex_oauth: str):
+    """Проверка токена Яндекса"""
+    yandex_id_secret_key = settings.yandex_id_secret_key
+    try:
+        headers = {"Authorization": f"OAuth {yandex_oauth}"}
+        async with aiohttp.ClientSession() as session:
+            async with session.get('https://login.yandex.ru/info?format=jwt', headers=headers) as resp:
+                yandex_jwt = await resp.text()
+                payload = jwt.decode(yandex_jwt, yandex_id_secret_key, algorithms=["HS256"])
+                return payload
+    except ExpiredSignatureError:
+        return None
+    except JWTError:
+        return None
 
 
 async def create_user_if_not_exists(email: str, db_session: AsyncSession) -> UserModel:
