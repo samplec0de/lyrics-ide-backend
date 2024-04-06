@@ -6,7 +6,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
 from app.api.annotations import CurrentUserAnnotation, OwnOrGrantProjectAnnotation, OwnProjectAnnotation
-from app.api.dependencies.core import DBSessionDep, MongoDBTextCollectionDep
+from app.api.dependencies.core import DBSessionDep
 from app.api.schemas import MusicOut, ProjectBase, ProjectOut, TextVariantCompact
 from app.grant_utils import get_grant_level_by_user_and_project
 from app.models import ProjectModel, TextModel
@@ -22,7 +22,6 @@ async def create_project(
     project: ProjectBase,
     current_user: CurrentUserAnnotation,
     db_session: DBSessionDep,
-    text_collection: MongoDBTextCollectionDep,
 ) -> ProjectOut:
     """Создать проект"""
     new_project = ProjectModel(owner_user_id=current_user.user_id, name=project.name, description=project.description)
@@ -41,10 +40,8 @@ async def create_project(
     await db_session.refresh(text_model)
     await db_session.refresh(new_project)
 
-    result = await text_collection.insert_one({"_id": str(text_model.text_id), "payload": {}})
-
     first_text = TextVariantCompact(
-        text_id=result.inserted_id,
+        text_id=text_model.text_id,
         name=text_model.name,
         created_at=text_model.created_at,
         updated_at=text_model.updated_at,
