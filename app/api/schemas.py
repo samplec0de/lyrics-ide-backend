@@ -66,13 +66,6 @@ class ProjectBase(BaseModel):
     description: Annotated[str | None, Field(description="Описание проекта")] = None
 
 
-class ProjectIn(ProjectBase):
-    """Схема для проекта при создании"""
-
-    texts: Annotated[list[TextVariant] | None, Field(description="Варианты текста")] = []
-    music: Annotated[MusicIn | None, Field(description="Музыкальный трек")] = None
-
-
 class ProjectOut(ProjectBase):
     """Полная схема для проекта для отображения"""
 

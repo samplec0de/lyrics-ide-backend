@@ -11,6 +11,8 @@ from app.main import app as main_app
 from app.database import get_db_session
 from app.models import Base, EmailAuthCodeModel
 
+from integration_tests.test_client.lyrics import LyricsClient
+
 DATABASE_URL = "sqlite+aiosqlite:///:memory:"
 engine = create_async_engine(
     DATABASE_URL,
@@ -63,3 +65,8 @@ async def authorized_client_fixture(db_session: DBSession):
         access_token = response.json()["access_token"]
         async_client.headers["Authorization"] = f"Bearer {access_token}"
         yield async_client
+
+
+@pytest.fixture(name="lyrics_client", scope="function")
+async def lyrics_client_fixture(authorized_client: AsyncClient):
+    return LyricsClient(client=authorized_client)
