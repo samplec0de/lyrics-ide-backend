@@ -1,8 +1,10 @@
+import uuid
 from typing import AsyncIterator
 
 import pytest
 
 from httpx import AsyncClient
+from jose import jwt
 from sqlalchemy import StaticPool
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 
@@ -69,4 +71,9 @@ async def authorized_client_fixture(db_session: DBSession):
 
 @pytest.fixture(name="lyrics_client", scope="function")
 async def lyrics_client_fixture(authorized_client: AsyncClient):
-    return LyricsClient(client=authorized_client)
+    jwt_token = authorized_client.headers["Authorization"].split(" ")[1]
+    # decode JWT, get user_id value
+    jwt_payload = jwt.decode(jwt_token, "", options={"verify_signature": False})
+    user_id = uuid.UUID(jwt_payload["user_id"], version=4)
+    email = jwt_payload["sub"]
+    return LyricsClient(user_id=user_id, email=email, client=authorized_client)
