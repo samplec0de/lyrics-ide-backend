@@ -88,6 +88,20 @@ async def get_text_by_id(
     return text
 
 
+async def get_text_by_id_and_owner(
+    text_id: Annotated[UUID4, Path(description="Идентификатор текста")],
+    current_user: Annotated[UserModel, Depends(get_current_user)],
+    db_session: DBSessionDep,
+) -> TextModel:
+    """Получить текст по его идентификатору и проверить, что пользователь является владельцем"""
+    text = await get_text_by_id(text_id, db_session)
+    project = text.project
+    if project.owner_user_id != current_user.user_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Вы не владелец проекта")
+
+    return text
+
+
 async def get_text_access_level(
     text: Annotated[TextModel, Depends(get_text_by_id)],
     current_user: Annotated[UserModel, Depends(get_current_user)],
@@ -112,6 +126,20 @@ async def get_text_access_level(
         return None
 
     return grant.level
+
+
+async def get_text_by_id_and_grant(
+    text_id: Annotated[UUID4, Path(description="Идентификатор текста")],
+    grant_level: Annotated[GrantLevel, Depends(get_text_access_level)],
+    current_user: Annotated[UserModel, Depends(get_current_user)],
+    db_session: DBSessionDep,
+) -> TextModel:
+    """Получить текст по его идентификатору и проверить, что пользователь имеет доступ к проекту"""
+    text = await get_text_by_id(text_id, db_session)
+    if grant_level is None:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Вы не имеете доступа к проекту")
+
+    return text
 
 
 async def get_grant_code_by_id(

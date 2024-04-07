@@ -16,10 +16,10 @@ class Project:
     """Проект"""
     def __init__(
             self,
-            project_id: uuid.UUID,
+            project_id: str,
             name: str,
             description: str,
-            owner_user_id: uuid.UUID,
+            owner_user_id: str,
             is_owner: bool,
             grant_level: GrantLevel | None,
             created_at: datetime.datetime,
@@ -27,10 +27,10 @@ class Project:
             texts: list[dict],
             music: dict | None,
     ):
-        self.project_id = project_id
+        self.project_id = uuid.UUID(project_id, version=4)
         self.name = name
         self.description = description
-        self.owner_user_id = owner_user_id
+        self.owner_user_id = uuid.UUID(owner_user_id, version=4)
         self.is_owner = is_owner
         self.grant_level = grant_level
         self.created_at = created_at
@@ -39,6 +39,7 @@ class Project:
             Text(
                 text_id=text["text_id"],
                 project_id=project_id,
+                name=text["name"],
                 created_at=text["created_at"],
                 updated_at=text["updated_at"],
             )
