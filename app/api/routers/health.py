@@ -18,6 +18,7 @@ async def readiness(db_session: DBSessionDep):
     """Проверка готовности сервиса принимать запросы"""
     try:
         await db_session.execute(text("SELECT 1"))
+        await db_session.commit()
     except Exception as exc:
         raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=str(exc)) from exc
     return {"status": "ready"}
