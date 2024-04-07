@@ -96,8 +96,14 @@ class ProjectsMixin:
 
     async def update_project(self, project_id: uuid.UUID, name: str, description: str) -> Project:
         """Обновить проект"""
+        payload = {}
+        if name is not None:
+            payload["name"] = name
+        if description is not None:
+            payload["description"] = description
+
         response = await self.client.patch(
             f"/projects/{project_id}",
-            json={"name": name, "description": description},
+            json=payload,
         )
         return Project(**response.json())

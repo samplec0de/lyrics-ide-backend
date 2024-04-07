@@ -18,12 +18,17 @@ async def test_create_project(lyrics_client: LyricsClient):
     assert project.updated_at is not None
 
 
+@pytest.mark.parametrize("name, description", [
+    ("Updated project", "Updated description"),
+    (None, "Updated description"),
+    ("Updated project", None),
+])
 @pytest.mark.asyncio
-async def test_update_project(lyrics_client: LyricsClient):
+async def test_update_project(name: str | None, description: str | None, lyrics_client: LyricsClient):
     project = await lyrics_client.create_project("Test project", "Test description")
-    updated_project = await lyrics_client.update_project(project.project_id, "Updated project", "Updated description")
-    assert updated_project.name == "Updated project"
-    assert updated_project.description == "Updated description"
+    updated_project = await lyrics_client.update_project(project.project_id, name, description)
+    assert updated_project.name == name or "Test project"
+    assert updated_project.description == description or "Test description"
     assert updated_project.owner_user_id is not None
     assert updated_project.is_owner is True
     assert updated_project.grant_level is None
