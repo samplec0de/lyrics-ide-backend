@@ -102,7 +102,8 @@ async def activate_project_share_code(
     )
     old_grants = old_grants_query.scalars().all()
     for old_grant in old_grants:
-        await db_session.delete(old_grant)
+        if old_grant.grant_code_id != grant_code.grant_code_id:
+            await db_session.delete(old_grant)
 
     await db_session.commit()
 
