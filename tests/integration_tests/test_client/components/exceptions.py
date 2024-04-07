@@ -2,8 +2,16 @@ class PermissionDeniedError(Exception):
     """Ошибка доступа"""
 
 
-class TextNotFoundError(Exception):
+class NotFoundError(Exception):
+    """Объект не найден"""
+
+
+class TextNotFoundError(NotFoundError):
     """Текст не найден"""
+
+
+class ProjectNotFoundError(NotFoundError):
+    """Проект не найден"""
 
 
 class UnAuthorizedError(Exception):

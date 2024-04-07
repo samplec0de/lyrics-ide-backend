@@ -344,8 +344,5 @@ async def leave_project(
     if current_user.user_id == project.owner_user_id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Владелец проекта не может покинуть проект")
 
-    if project_grant is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Вы не имеете доступа к проекту")
-
     await db_session.delete(project_grant)
     await db_session.commit()

@@ -3,14 +3,11 @@ import uuid
 
 from httpx import AsyncClient
 
-from integration_tests.test_client.components.exceptions import PermissionDeniedError, UnAuthorizedError
-from integration_tests.test_client.components.grants import GrantLevel
+from integration_tests.test_client.components.exceptions import PermissionDeniedError, UnAuthorizedError, \
+    ProjectNotFoundError
+from integration_tests.test_client.components.grant_level import GrantLevel
 from integration_tests.test_client.components.music import Music
 from integration_tests.test_client.components.text import Text
-
-
-class ProjectNotFoundError(Exception):
-    """Проект не найден"""
 
 
 class Project:
