@@ -2,11 +2,17 @@
 from typing import Annotated
 
 from fastapi import APIRouter, HTTPException, Path, Query, status
+from pydantic import UUID4
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import selectinload
 
-from app.api.annotations import CurrentUserAnnotation, OwnProjectAnnotation, ProjectGrantCodeAnnotation
+from app.api.annotations import (
+    CurrentUserAnnotation,
+    OwnOrGrantProjectAnnotation,
+    OwnProjectAnnotation,
+    ProjectGrantCodeAnnotation,
+)
 from app.api.dependencies.core import DBSessionDep
 from app.api.schemas import ProjectGrant, ProjectGrantCode
 from app.models.grant import GrantLevel, ProjectGrantCodeModel, ProjectGrantModel
@@ -102,7 +108,8 @@ async def activate_project_share_code(
     )
     old_grants = old_grants_query.scalars().all()
     for old_grant in old_grants:
-        await db_session.delete(old_grant)
+        if old_grant.grant_code_id != grant_code.grant_code_id:
+            await db_session.delete(old_grant)
 
     await db_session.commit()
 
@@ -186,7 +193,7 @@ async def get_project_users(
 )
 async def revoke_project_access(
     project: OwnProjectAnnotation,
-    user_id: Annotated[str, Path(description="ID пользователя")],
+    user_id: Annotated[UUID4, Path(description="ID пользователя")],
     db_session: DBSessionDep,
 ) -> ProjectGrant:
     """Отозвать доступ к проекту"""
@@ -258,11 +265,12 @@ async def get_project_codes(
 async def deactivate_project_grant_code(
     grant_code: ProjectGrantCodeAnnotation,
     db_session: DBSessionDep,
+    current_user: CurrentUserAnnotation,
 ) -> None:
     """Деактивировать код доступа к проекту
     (пользователи не блокируются, только запрещается подключение новых по этой ссылке)"""
     project = grant_code.project
-    if project.owner_user_id != grant_code.issuer_user_id:
+    if project.owner_user_id != current_user.user_id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Вы не владелец проекта")
     grant_code.is_active = False
     await db_session.commit()
@@ -281,7 +289,7 @@ async def deactivate_project_grant_code(
 )
 async def update_project_access(
     project: OwnProjectAnnotation,
-    user_id: Annotated[str, Path(description="ID пользователя")],
+    user_id: Annotated[UUID4, Path(description="ID пользователя")],
     new_level: Annotated[GrantLevel, Query(description="новый уровень доступа")],
     db_session: DBSessionDep,
 ) -> ProjectGrant:
@@ -319,10 +327,10 @@ async def update_project_access(
     operation_id="leave_project",
 )
 async def leave_project(
-    project: OwnProjectAnnotation,
+    project: OwnOrGrantProjectAnnotation,
     current_user: CurrentUserAnnotation,
     db_session: DBSessionDep,
-) -> ProjectGrant:
+) -> None:
     """Покинуть проект"""
     result = await db_session.execute(
         select(ProjectGrantModel)
@@ -333,18 +341,8 @@ async def leave_project(
     )
     project_grant = result.scalars().first()
 
-    if project_grant is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Вы не имеете доступа к проекту")
+    if current_user.user_id == project.owner_user_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Владелец проекта не может покинуть проект")
 
-    project_grant.is_active = False
+    await db_session.delete(project_grant)
     await db_session.commit()
-
-    return ProjectGrant(
-        grant_code_id=project_grant.grant_code_id,
-        project_id=project_grant.project_id,
-        user_id=project_grant.user_id,
-        user_email=project_grant.user.email,
-        level=project_grant.level,
-        is_active=project_grant.is_active,
-        created_at=project_grant.created_at,
-    )

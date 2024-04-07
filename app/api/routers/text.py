@@ -2,7 +2,7 @@
 from fastapi import APIRouter, HTTPException, status
 from sqlalchemy import func, select
 
-from app.api.annotations import TextAnnotation
+from app.api.annotations import OwnOrGrantTextAnnotation, OwnTextAnnotation
 from app.api.dependencies.core import DBSessionDep
 from app.api.schemas import TextVariant, TextVariantIn, TextVariantWithoutID
 from app.models import TextModel
@@ -45,7 +45,7 @@ async def create_text(text_in: TextVariantIn, db_session: DBSessionDep) -> TextV
     responses=TEXT_NOT_FOUND,
     operation_id="get_text",
 )
-async def get_text(text: TextAnnotation) -> TextVariant:
+async def get_text(text: OwnOrGrantTextAnnotation) -> TextVariant:
     """Получение варианта текста"""
     return TextVariant(
         text_id=text.text_id,
@@ -63,7 +63,7 @@ async def get_text(text: TextAnnotation) -> TextVariant:
     operation_id="update_text",
 )
 async def update_text(
-    old_text: TextAnnotation,
+    old_text: OwnTextAnnotation,
     new_text: TextVariantWithoutID,
     db_session: DBSessionDep,
 ) -> TextVariant:
@@ -93,7 +93,7 @@ async def update_text(
     responses={**TEXT_NOT_FOUND, **CANNOT_REMOVE_SINGLE_TEXT},
     operation_id="delete_text",
 )
-async def delete_text(text: TextAnnotation, db_session: DBSessionDep) -> None:
+async def delete_text(text: OwnTextAnnotation, db_session: DBSessionDep) -> None:
     """Удаление варианта текста"""
     # pylint: disable=not-callable
     count_query = await db_session.execute(select(func.count()).where(TextModel.project_id == text.project_id))
