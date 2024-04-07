@@ -3,6 +3,7 @@ import uuid
 
 from httpx import AsyncClient
 
+from integration_tests.test_client.components.exceptions import PermissionDeniedError, UnAuthorizedError
 from integration_tests.test_client.components.grants import GrantLevel
 from integration_tests.test_client.components.music import Music
 from integration_tests.test_client.components.text import Text
@@ -88,7 +89,13 @@ class ProjectsMixin:
 
     async def delete_project(self, project_id: uuid.UUID) -> None:
         """Удалить проект по идентификатору"""
-        await self.client.delete(f"/projects/{project_id}")
+        response = await self.client.delete(f"/projects/{project_id}")
+        if response.status_code == 404:
+            raise ProjectNotFoundError("Проект не найден")
+        if response.status_code == 401:
+            raise UnAuthorizedError("Unauthorized")
+        if response.status_code == 403:
+            raise PermissionDeniedError("Permission denied")
 
     async def get_projects(self) -> list[Project]:
         """Получить список проектов"""

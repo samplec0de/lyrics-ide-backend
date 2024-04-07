@@ -1,6 +1,9 @@
+import uuid
+
 import pytest
 
 from integration_tests.test_client import LyricsClient
+from integration_tests.test_client.components.exceptions import PermissionDeniedError
 from integration_tests.test_client.components.projects import ProjectNotFoundError
 
 
@@ -47,6 +50,19 @@ async def test_delete_project(lyrics_client: LyricsClient):
 
 
 @pytest.mark.asyncio
+async def test_delete_project_not_found(lyrics_client: LyricsClient):
+    with pytest.raises(ProjectNotFoundError):
+        await lyrics_client.delete_project(uuid.uuid4())
+
+
+@pytest.mark.asyncio
+async def test_delete_project_not_owner(lyrics_client: LyricsClient, lyrics_client_b: LyricsClient):
+    project = await lyrics_client.create_project("Test project", "Test description")
+    with pytest.raises(PermissionDeniedError):
+        await lyrics_client_b.delete_project(project.project_id)
+
+
+@pytest.mark.asyncio
 async def test_get_project(lyrics_client: LyricsClient):
     project = await lyrics_client.create_project("Test project", "Test description")
     got_project = await lyrics_client.get_project(project.project_id)
@@ -59,6 +75,12 @@ async def test_get_project(lyrics_client: LyricsClient):
     assert got_project.music is None
     assert got_project.created_at is not None
     assert got_project.updated_at is not None
+
+
+@pytest.mark.asyncio
+async def test_get_project_not_found(lyrics_client: LyricsClient):
+    with pytest.raises(ProjectNotFoundError):
+        await lyrics_client.get_project(uuid.uuid4())
 
 
 @pytest.mark.asyncio
