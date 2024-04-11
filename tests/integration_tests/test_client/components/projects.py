@@ -4,7 +4,7 @@ import uuid
 from httpx import AsyncClient
 
 from integration_tests.test_client.components.exceptions import PermissionDeniedError, UnAuthorizedError, \
-    ProjectNotFoundError
+    ProjectNotFoundError, MusicNotFoundError
 from integration_tests.test_client.components.grant_level import GrantLevel
 from integration_tests.test_client.components.music import Music
 from integration_tests.test_client.components.text import Text
@@ -111,4 +111,15 @@ class ProjectsMixin:
             f"/projects/{project_id}",
             json=payload,
         )
+        return Project(**response.json())
+
+    async def delete_music(self, project_id: uuid.UUID) -> Project:
+        """Удалить музыку"""
+        response = await self.client.delete(f"/music/{project_id}")
+        if response.status_code == 400:
+            raise MusicNotFoundError("Музыка не найдена")
+        if response.status_code == 404:
+            raise ProjectNotFoundError("Проект не найден")
+        if response.status_code == 403:
+            raise PermissionDeniedError("Недостаточно прав")
         return Project(**response.json())

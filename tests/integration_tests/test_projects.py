@@ -65,6 +65,14 @@ async def test_delete_project_with_grant(
 
 
 @pytest.mark.asyncio
+async def test_delete_project_with_music(lyrics_client: LyricsClient, new_project: Project):
+    await lyrics_client.upload_music("test_data/metronome.mp3", new_project.project_id)
+    await lyrics_client.delete_project(new_project.project_id)
+    with pytest.raises(ProjectNotFoundError):
+        await lyrics_client.get_project(new_project.project_id)
+
+
+@pytest.mark.asyncio
 async def test_delete_project_not_found(lyrics_client: LyricsClient):
     with pytest.raises(ProjectNotFoundError):
         await lyrics_client.delete_project(uuid.uuid4())
