@@ -229,7 +229,6 @@ async def delete_project(project: OwnProjectAnnotation, db_session: DBSessionDep
     texts = texts_query.scalars().all()
     for text in texts:
         await db_session.delete(text)
-        # туду: удаление в MongoDB
 
     if project.music:
         await db_session.delete(project.music)
