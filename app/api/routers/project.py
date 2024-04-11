@@ -11,7 +11,7 @@ from app.api.schemas import MusicOut, ProjectBase, ProjectOut, TextVariantCompac
 from app.grant_utils import get_grant_level_by_user_and_project
 from app.models import ProjectModel, TextModel
 from app.models.grant import ProjectGrantCodeModel, ProjectGrantModel
-from app.s3_helpers import generate_presigned_url
+from app.s3_helpers import delete, generate_presigned_url
 from app.status_codes import PROJECT_NO_PERMISSIONS, PROJECT_NOT_FOUND, PROJECT_NOT_OWNER
 
 router = APIRouter()
@@ -229,11 +229,12 @@ async def delete_project(project: OwnProjectAnnotation, db_session: DBSessionDep
     texts = texts_query.scalars().all()
     for text in texts:
         await db_session.delete(text)
-        # туду: удаление в MongoDB
 
     if project.music:
+        await delete(project.music.url)
         await db_session.delete(project.music)
-        # туду: удаление в S3
+        await db_session.commit()
+        await db_session.refresh(project)
 
     project_grants_query = await db_session.execute(
         select(ProjectGrantModel).where(ProjectGrantModel.project_id == project.project_id)

@@ -4,7 +4,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, File, HTTPException, Query, UploadFile, status
 
-from app.api.annotations import CurrentUserAnnotation, ProjectAnnotation
+from app.api.annotations import CurrentUserAnnotation, OwnOrGrantProjectAnnotation, OwnProjectAnnotation
 from app.api.dependencies.core import DBSessionDep
 from app.api.schemas import MusicOut, ProjectOut, TextVariantCompact
 from app.grant_utils import get_grant_level_by_user_and_project
@@ -23,7 +23,7 @@ router = APIRouter()
     operation_id="upload_music",
 )
 async def upload_music(
-    project: ProjectAnnotation,
+    project: OwnProjectAnnotation,
     music: Annotated[UploadFile, File(description="Файл музыки")],
     db_session: DBSessionDep,
 ) -> MusicOut:
@@ -44,7 +44,10 @@ async def upload_music(
     project_id = project.project_id
 
     if project.music is not None:
+        await delete(project.music.url)
         await db_session.delete(project.music)
+        await db_session.commit()
+        await db_session.refresh(project)
 
     key = f"{project_id}/music/{music.filename}"
     await upload(
@@ -74,7 +77,7 @@ async def upload_music(
     responses={**PROJECT_NOT_FOUND, **MUSIC_NOT_FOUND},
     operation_id="get_music",
 )
-async def get_music(project: ProjectAnnotation) -> MusicOut:
+async def get_music(project: OwnOrGrantProjectAnnotation) -> MusicOut:
     """Получение музыки проекта"""
     if project.music is None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Музыка не найдена")
@@ -96,7 +99,7 @@ async def get_music(project: ProjectAnnotation) -> MusicOut:
     operation_id="set_music_bpm",
 )
 async def set_music_bpm(
-    project: ProjectAnnotation,
+    project: OwnProjectAnnotation,
     custom_bpm: Annotated[int, Query(description="Пользовательское значение BPM", gt=0)],
     db_session: DBSessionDep,
 ) -> MusicOut:
@@ -130,7 +133,7 @@ async def set_music_bpm(
     operation_id="delete_music",
 )
 async def delete_music(
-    project: ProjectAnnotation, current_user: CurrentUserAnnotation, db_session: DBSessionDep
+    project: OwnProjectAnnotation, current_user: CurrentUserAnnotation, db_session: DBSessionDep
 ) -> ProjectOut:
     """Удаление музыки из проекта"""
     if project.music is None:
@@ -139,6 +142,8 @@ async def delete_music(
     await delete(project.music.url)
 
     await db_session.delete(project.music)
+    await db_session.commit()
+    await db_session.refresh(project)
 
     user_grant_level = await get_grant_level_by_user_and_project(
         user_id=current_user.user_id, project_id=project.project_id, db_session=db_session
@@ -164,7 +169,5 @@ async def delete_music(
         created_at=project.created_at,
         updated_at=project.updated_at,
     )
-
-    await db_session.commit()
 
     return project_state

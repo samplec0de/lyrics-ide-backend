@@ -1,7 +1,10 @@
+import uuid
+
 import pytest
 
 from integration_tests.test_client import LyricsClient
-from integration_tests.test_client.components.exceptions import PermissionDeniedError, NotFoundError
+from integration_tests.test_client.components.exceptions import PermissionDeniedError, NotFoundError, \
+    ProjectNotFoundError
 from integration_tests.test_client.components.grant_level import GrantLevel
 from integration_tests.test_client.components.projects import Project
 
@@ -235,3 +238,22 @@ async def test_leave_project_no_access(
 ):
     with pytest.raises(PermissionDeniedError):
         await lyrics_client_b.leave_project(new_project.project_id)
+
+
+@pytest.mark.asyncio
+async def test_deactivate_project_grant_code(lyrics_client: LyricsClient, new_project: Project):
+    grant_code = await lyrics_client.get_project_share_code(new_project.project_id, "READ_WRITE", 1)
+    await lyrics_client.deactivate_project_grant_code(grant_code.grant_code_id)
+
+
+@pytest.mark.asyncio
+async def test_deactivate_project_grant_code_not_found(lyrics_client: LyricsClient):
+    with pytest.raises(ProjectNotFoundError):
+        await lyrics_client.deactivate_project_grant_code(uuid.uuid4())
+
+
+@pytest.mark.asyncio
+async def test_deactivate_project_grant_code_not_owner(lyrics_client: LyricsClient, lyrics_client_b: LyricsClient, new_project: Project):
+    grant_code = await lyrics_client.get_project_share_code(new_project.project_id, "READ_WRITE", 1)
+    with pytest.raises(PermissionDeniedError):
+        await lyrics_client_b.deactivate_project_grant_code(grant_code.grant_code_id)

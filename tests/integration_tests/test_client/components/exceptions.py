@@ -16,3 +16,7 @@ class ProjectNotFoundError(NotFoundError):
 
 class UnAuthorizedError(Exception):
     """Ошибка авторизации"""
+
+
+class MusicNotFoundError(NotFoundError):
+    """Музыка не найдена"""
