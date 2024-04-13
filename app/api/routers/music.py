@@ -100,7 +100,7 @@ async def get_music(project: OwnOrGrantProjectAnnotation) -> MusicOut:
 )
 async def set_music_bpm(
     project: OwnProjectAnnotation,
-    custom_bpm: Annotated[int, Query(description="Пользовательское значение BPM", gt=0)],
+    custom_bpm: Annotated[int, Query(description="Пользовательское значение BPM", gt=0, le=999)],
     db_session: DBSessionDep,
 ) -> MusicOut:
     """Изменение пользовательского BPM у музыки"""
