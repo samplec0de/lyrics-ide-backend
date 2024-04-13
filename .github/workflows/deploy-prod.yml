@@ -121,12 +121,22 @@ jobs:
         run: |
           pip install coverage
 
-      - name: Download all artifacts
+      - name: Download coverage reports
         uses: actions/download-artifact@v4
+        with:
+          name: unit-test-coverage
+          path: .
+
+      - name: Download coverage reports
+        uses: actions/download-artifact@v4
+        with:
+          name: integration-test-coverage
+          path: .
+
 
       - name: Merge coverage reports
         run: |
-          coverage combine tests/unit_tests/coverage-unit.xml tests/integration_tests/coverage-integration.xml
+          coverage combine coverage-unit.xml coverage-integration.xml
           coverage report
           coverage xml -o coverage-combined.xml
 
