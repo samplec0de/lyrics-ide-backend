@@ -47,6 +47,13 @@ jobs:
           DATABASE_URL=sqlite+aiosqlite:///:memory:
           pytest . --cov=app --cov-report=xml:coverage-unit.xml
 
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v3
+        with:
+          name: unit-test-coverage
+          path: coverage-unit.xml
+
+
   integration-tests:
     runs-on: ubuntu-latest
     steps:
@@ -90,6 +97,13 @@ jobs:
           PYTHONPATH="../:$PYTHONPATH"
           DATABASE_URL=sqlite+aiosqlite:///:memory:
           pytest . --cov=app --cov-report=xml:coverage-integration.xml
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v3
+        with:
+          name: integration-test-coverage
+          path: coverage-integration.xml
+
 
   merge-coverage:
     runs-on: ubuntu-latest
