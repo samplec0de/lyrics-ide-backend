@@ -1,12 +1,14 @@
+"""Модуль для работы с аутентификацией и авторизацией"""
 import random
 import uuid
 from typing import Annotated, cast
+
+import datetime
 
 import aiohttp
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from pydantic import BaseModel, UUID4
-import datetime
 from jose import ExpiredSignatureError, JWTError, jwt
 from sqlalchemy import select, ColumnElement
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -19,11 +21,15 @@ from app.models import UserModel
 
 
 class Token(BaseModel):
+    """Токен"""
+
     access_token: str
     token_type: str
 
 
 class TokenData(BaseModel):
+    """Данные токена"""
+
     username: str
     user_id: UUID4
 
@@ -33,6 +39,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
 
 
 def create_access_token(data: dict, secret_key: str = settings.secret_key):
+    """Создание токена"""
     to_encode = data.copy()
     expire = datetime.datetime.now(datetime.UTC) + datetime.timedelta(days=settings.token_expire_days)
     to_encode.update({"exp": expire})
@@ -41,14 +48,15 @@ def create_access_token(data: dict, secret_key: str = settings.secret_key):
 
 
 def verify_token(token: str, credentials_exception):
+    """Проверка токена"""
     try:
         payload = jwt.decode(token, settings.secret_key, algorithms=[ALGORITHM])
         email: str | None = payload.get("sub")
         if email is None:
             raise credentials_exception
         return email
-    except JWTError:
-        raise credentials_exception
+    except JWTError as exc:
+        raise credentials_exception from exc
 
 
 async def validate_yandex_token(yandex_oauth: str):
@@ -57,7 +65,7 @@ async def validate_yandex_token(yandex_oauth: str):
     try:
         headers = {"Authorization": f"OAuth {yandex_oauth}"}
         async with aiohttp.ClientSession() as session:
-            async with session.get('https://login.yandex.ru/info?format=jwt', headers=headers) as resp:
+            async with session.get("https://login.yandex.ru/info?format=jwt", headers=headers) as resp:
                 yandex_jwt = await resp.text()
                 payload = jwt.decode(yandex_jwt, yandex_id_secret_key, algorithms=["HS256"])
                 return payload
@@ -69,20 +77,17 @@ async def validate_yandex_token(yandex_oauth: str):
 
 async def create_user_if_not_exists(email: str, db_session: AsyncSession) -> UserModel:
     """Добавляет пользователя в базу данных если его там нет"""
-    user_query = await db_session.execute(
-        select(UserModel)
-        .where(cast(ColumnElement[bool], UserModel.email == email))
-    )
+    user_query = await db_session.execute(select(UserModel).where(cast(ColumnElement[bool], UserModel.email == email)))
     user = user_query.scalars().first()
     if user is None:
         user = UserModel(email=email)
         db_session.add(user)
         return user
-    else:
-        return user
+    return user
 
 
 async def check_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
+    """Проверяет текущего пользователя и возвращает его данные"""
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Ошибка проверки ключа доступа",
@@ -95,13 +100,14 @@ async def check_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
         if username is None or not isinstance(username, str) or user_id is None or not isinstance(user_id, str):
             raise credentials_exception
         token_data = TokenData(username=username, user_id=uuid.UUID(user_id, version=4))
-    except JWTError:
-        raise credentials_exception
+    except JWTError as exc:
+        raise credentials_exception from exc
     user = UserOut(email=token_data.username, user_id=token_data.user_id)
     return user
 
 
 async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db_session: DBSessionDep) -> UserModel | None:
+    """Получает текущего пользователя из базы данных"""
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Ошибка проверки ключа доступа",
@@ -114,13 +120,11 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db_ses
         if username is None or not isinstance(username, str) or user_id is None or not isinstance(user_id, str):
             raise credentials_exception
         token_data = TokenData(username=username, user_id=uuid.UUID(user_id, version=4))
-    except JWTError:
-        raise credentials_exception
+    except JWTError as exc:
+        raise credentials_exception from exc
 
     result = await db_session.execute(
-        select(UserModel)
-        .options(selectinload(UserModel.grants))
-        .where(UserModel.email == token_data.username)
+        select(UserModel).options(selectinload(UserModel.grants)).where(UserModel.email == token_data.username)
     )
     user = result.scalars().first()
 

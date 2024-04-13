@@ -1,3 +1,4 @@
+"""Компонент для отправки электронной почты"""
 import os
 import smtplib
 from email.mime.multipart import MIMEMultipart
@@ -5,24 +6,24 @@ from email.mime.text import MIMEText
 
 
 def send_email(
-        subject: str,
-        message: str,
-        from_name: str,
-        from_email: str,
-        to_email: str,
-        smtp_server: str,
-        smtp_port: int,
-        smtp_user: str,
-        smtp_password: str
+    subject: str,
+    message: str,
+    from_name: str,
+    from_email: str,
+    to_email: str,
+    smtp_server: str,
+    smtp_port: int,
+    smtp_user: str,
+    smtp_password: str,
 ):
     """Отправка электронной почты"""
 
     msg = MIMEMultipart()
-    msg['From'] = f"{from_name} <{from_email}>"
-    msg['To'] = to_email
-    msg['Subject'] = subject
+    msg["From"] = f"{from_name} <{from_email}>"
+    msg["To"] = to_email
+    msg["Subject"] = subject
 
-    msg.attach(MIMEText(message, 'plain'))
+    msg.attach(MIMEText(message, "plain"))
 
     server = smtplib.SMTP_SSL(smtp_server, smtp_port)
     server.login(smtp_user, smtp_password)
@@ -37,10 +38,10 @@ def lyrics_send_email(subject: str, message: str, to_email: str):
         subject=subject,
         message=message,
         to_email=to_email,
-        from_name=os.environ['SMTP_NAME'],
-        from_email=os.environ['SMTP_EMAIL'],
-        smtp_server=os.environ['SMTP_SERVER'],
-        smtp_port=int(os.environ['SMTP_PORT']),
-        smtp_user=os.environ['SMTP_USER'],
-        smtp_password=os.environ['SMTP_PASSWORD']
+        from_name=os.environ["SMTP_NAME"],
+        from_email=os.environ["SMTP_EMAIL"],
+        smtp_server=os.environ["SMTP_SERVER"],
+        smtp_port=int(os.environ["SMTP_PORT"]),
+        smtp_user=os.environ["SMTP_USER"],
+        smtp_password=os.environ["SMTP_PASSWORD"],
     )

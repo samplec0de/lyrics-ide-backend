@@ -1,11 +1,15 @@
+"""Интеграционные тесты CRUD музыки"""
 import uuid
 
 import pytest
 
-from integration_tests.test_client import LyricsClient
-from integration_tests.test_client.components.exceptions import MusicNotFoundError, ProjectNotFoundError, \
-    PermissionDeniedError
-from integration_tests.test_client.components.projects import Project
+from tests.integration_tests.test_client import LyricsClient
+from tests.integration_tests.test_client.components.exceptions import (
+    MusicNotFoundError,
+    ProjectNotFoundError,
+    PermissionDeniedError,
+)
+from tests.integration_tests.test_client.components.projects import Project
 
 
 @pytest.mark.asyncio
@@ -57,7 +61,7 @@ async def test_upload_music_no_grants(new_project: Project, lyrics_client: Lyric
 @pytest.mark.parametrize("grant_level", ["READ_ONLY", "READ_WRITE"])
 @pytest.mark.asyncio
 async def test_upload_music_not_owner(
-        new_project: Project, lyrics_client: LyricsClient, lyrics_client_b: LyricsClient, grant_level: str
+    new_project: Project, lyrics_client: LyricsClient, lyrics_client_b: LyricsClient, grant_level: str
 ):
     """Тест загрузки музыки не владельцем"""
     project = new_project
@@ -103,7 +107,7 @@ async def test_delete_music_no_grants(new_project: Project, lyrics_client: Lyric
 @pytest.mark.parametrize("grant_level", ["READ_ONLY", "READ_WRITE"])
 @pytest.mark.asyncio
 async def test_delete_music_not_owner(
-        new_project: Project, lyrics_client: LyricsClient, lyrics_client_b: LyricsClient, grant_level: str
+    new_project: Project, lyrics_client: LyricsClient, lyrics_client_b: LyricsClient, grant_level: str
 ):
     """Тест удаления музыки не владельцем"""
     try:
@@ -149,7 +153,7 @@ async def test_get_music_no_grants(new_project: Project, lyrics_client: LyricsCl
 
 @pytest.mark.parametrize("grant_level", ["READ_ONLY", "READ_WRITE"])
 async def test_get_music_not_owner(
-        new_project: Project, lyrics_client: LyricsClient, lyrics_client_b: LyricsClient, grant_level: str
+    new_project: Project, lyrics_client: LyricsClient, lyrics_client_b: LyricsClient, grant_level: str
 ):
     """Тест получения музыки не владельцем"""
     try:

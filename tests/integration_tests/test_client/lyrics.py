@@ -1,13 +1,14 @@
+"""Тестовый клиент для Lyrics API"""
 import uuid
 
 from httpx import AsyncClient
 
-from integration_tests.test_client.components.grants import GrantMixin
-from integration_tests.test_client.components.music import MusicMixin
-from integration_tests.test_client.components.projects import ProjectsMixin
-from integration_tests.test_client.components.text import TextMixin
-from integration_tests.test_client.components.tiptap import TipTapMixin
-from integration_tests.test_client.components.user import UserMixin
+from tests.integration_tests.test_client.components.grants import GrantMixin
+from tests.integration_tests.test_client.components.music import MusicMixin
+from tests.integration_tests.test_client.components.projects import ProjectsMixin
+from tests.integration_tests.test_client.components.text import TextMixin
+from tests.integration_tests.test_client.components.tiptap import TipTapMixin
+from tests.integration_tests.test_client.components.user import UserMixin
 
 
 class LyricsClient(ProjectsMixin, TextMixin, UserMixin, GrantMixin, MusicMixin, TipTapMixin):

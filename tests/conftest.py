@@ -1,5 +1,6 @@
+"""Фикстуры для тестов"""
 import uuid
-from typing import AsyncIterator
+from typing import AsyncIterator, AsyncGenerator
 
 import pytest
 
@@ -13,7 +14,7 @@ from app.main import app as main_app
 from app.database import get_db_session
 from app.models import Base, EmailAuthCodeModel
 
-from integration_tests.test_client.lyrics import LyricsClient
+from tests.integration_tests.test_client.lyrics import LyricsClient
 
 DATABASE_URL = "sqlite+aiosqlite:///:memory:"
 engine = create_async_engine(
@@ -31,8 +32,8 @@ EMAIL_B = "test_b@lirix.xyz"
 
 @pytest.fixture(name="db_session", scope="function", autouse=True)
 async def db_session_fixture() -> AsyncIterator[AsyncSession]:
+    """Сессия базы данных для тестов"""
     async with TestingSessionLocal() as session:
-
         async with engine.begin() as connection:
             await connection.run_sync(Base.metadata.create_all)
             await connection.commit()
@@ -48,13 +49,15 @@ async def db_session_fixture() -> AsyncIterator[AsyncSession]:
 
 
 @pytest.fixture(name="unauthorized_client", scope="function")
-async def client_fixture() -> AsyncClient:
+async def client_fixture() -> AsyncGenerator[AsyncClient, None]:
+    """Клиент для тестов"""
     async with AsyncClient(app=main_app, base_url="http://test") as async_client:
         yield async_client
 
 
 @pytest.fixture(name="authorized_client", scope="function")
 async def authorized_client_fixture(db_session: DBSession):
+    """Авторизованный клиент"""
     new_code = await get_new_email_auth_code()
     new_code_model = EmailAuthCodeModel(email=EMAIL, auth_code=new_code)
     db_session.add(new_code_model)
@@ -72,6 +75,7 @@ async def authorized_client_fixture(db_session: DBSession):
 
 @pytest.fixture(name="authorized_client_b", scope="function")
 async def authorized_client_b_fixture(db_session: DBSession):
+    """Авторизованный клиент с другим пользователем"""
     new_code = await get_new_email_auth_code()
     new_code_model = EmailAuthCodeModel(email=EMAIL_B, auth_code=new_code)
     db_session.add(new_code_model)
@@ -89,6 +93,7 @@ async def authorized_client_b_fixture(db_session: DBSession):
 
 @pytest.fixture(name="lyrics_client", scope="function")
 async def lyrics_client_fixture(authorized_client: AsyncClient):
+    """Клиент для тестов"""
     jwt_token = authorized_client.headers["Authorization"].split(" ")[1]
     jwt_payload = jwt.decode(jwt_token, "", options={"verify_signature": False})
     user_id = uuid.UUID(jwt_payload["user_id"], version=4)
@@ -98,6 +103,7 @@ async def lyrics_client_fixture(authorized_client: AsyncClient):
 
 @pytest.fixture(name="lyrics_client_b", scope="function")
 async def lyrics_client_b_fixture(authorized_client_b: AsyncClient):
+    """Клиент для тестов с другим пользователем"""
     jwt_token = authorized_client_b.headers["Authorization"].split(" ")[1]
     jwt_payload = jwt.decode(jwt_token, "", options={"verify_signature": False})
     user_id = uuid.UUID(jwt_payload["user_id"], version=4)
@@ -107,5 +113,6 @@ async def lyrics_client_b_fixture(authorized_client_b: AsyncClient):
 
 @pytest.fixture(name="new_project", scope="function")
 async def new_project_fixture(lyrics_client: LyricsClient):
+    """Создает новый проект для тестов"""
     project = await lyrics_client.create_project(name="Test project", description="Test description")
     return project

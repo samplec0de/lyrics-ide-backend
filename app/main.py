@@ -1,9 +1,9 @@
+"""Основной файл приложения"""
 import logging
 import sys
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Depends
-from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.auth import check_current_user
@@ -15,20 +15,16 @@ logging.basicConfig(stream=sys.stdout, level=logging.DEBUG if settings.debug_log
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
-    """
-    Function that handles startup and shutdown events.
-    To understand more, read https://fastapi.tiangolo.com/advanced/events/
-    """
+async def lifespan(_):
+    """Жизненный цикл приложения"""
     yield
-    if sessionmanager._engine is not None:
-        await sessionmanager.close()
+    sessionmanager.close()
 
 
 app = FastAPI(
     title="Lyrics IDE Backend",
     summary="Серверная часть веб-приложения для создания текстов песен",
-    version="1.28.0",
+    version="1.29.0",
 )
 
 app.include_router(
@@ -107,7 +103,7 @@ app.add_middleware(
 )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import uvicorn
 
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

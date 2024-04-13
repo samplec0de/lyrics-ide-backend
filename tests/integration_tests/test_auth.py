@@ -1,3 +1,4 @@
+"""Интеграционные тесты аутентификации"""
 import pytest
 from httpx import AsyncClient
 

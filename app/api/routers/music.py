@@ -39,7 +39,7 @@ async def upload_music(
         temp_file.flush()
 
         duration_seconds = await get_song_duration(temp_file_path)
-        bpm = int(await get_file_bpm(temp_file_path))
+        bpm = int(await get_file_bpm(temp_file_path) or -1)
 
     project_id = project.project_id
 
@@ -57,7 +57,7 @@ async def upload_music(
 
     project.music = MusicModel(
         url=key,
-        duration_seconds=duration_seconds,
+        duration_seconds=duration_seconds or -1,
         bpm=bpm,
     )
     await db_session.commit()
@@ -66,7 +66,7 @@ async def upload_music(
 
     return MusicOut(
         url=url,
-        duration_seconds=duration_seconds,
+        duration_seconds=duration_seconds or -1,
         bpm=bpm,
     )
 

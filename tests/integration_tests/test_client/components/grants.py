@@ -1,11 +1,15 @@
-import enum
+"""Компонент для работы с текстом"""
 import uuid
 
 from httpx import AsyncClient
 
-from integration_tests.test_client.components.exceptions import PermissionDeniedError, UnAuthorizedError, NotFoundError, \
-    ProjectNotFoundError
-from integration_tests.test_client.components.grant_level import GrantLevel
+from tests.integration_tests.test_client.components.exceptions import (
+    PermissionDeniedError,
+    UnAuthorizedError,
+    NotFoundError,
+    ProjectNotFoundError,
+)
+from tests.integration_tests.test_client.components.grant_level import GrantLevel
 
 
 class ProjectGrantCode:
@@ -87,20 +91,19 @@ class GrantMixin:
         self.client = client
 
     async def get_project_share_code(
-            self, project_id: uuid.UUID, grant_level: str, max_activations: int
+        self, project_id: uuid.UUID, grant_level: str, max_activations: int
     ) -> ProjectGrantCode:
         """Получение кода доступа к проекту"""
-        payload = {
-            "project_id": project_id,
+        payload: dict[str, str | int] = {
             "grant_level": grant_level,
             "max_activations": max_activations,
         }
         response = await self.client.get(f"/grant/project/{project_id}", params=payload)
         if response.status_code == 404:
             raise ProjectNotFoundError("Project not found")
-        elif response.status_code == 403:
+        if response.status_code == 403:
             raise PermissionDeniedError("Permission denied")
-        elif response.status_code == 401:
+        if response.status_code == 401:
             raise UnAuthorizedError("Unauthorized")
 
         return ProjectGrantCode(**response.json())
@@ -110,9 +113,9 @@ class GrantMixin:
         response = await self.client.get(f"/grant/codes/activate/{grant_code_id}")
         if response.status_code == 404:
             raise ProjectNotFoundError("Project not found")
-        elif response.status_code == 403:
+        if response.status_code == 403:
             raise PermissionDeniedError("Permission denied")
-        elif response.status_code == 401:
+        if response.status_code == 401:
             raise UnAuthorizedError("Unauthorized")
 
         return ProjectGrant(**response.json())
@@ -122,9 +125,9 @@ class GrantMixin:
         response = await self.client.get(f"/grant/project/{project_id}/users")
         if response.status_code == 404:
             raise ProjectNotFoundError("Project not found")
-        elif response.status_code == 403:
+        if response.status_code == 403:
             raise PermissionDeniedError("Permission denied")
-        elif response.status_code == 401:
+        if response.status_code == 401:
             raise UnAuthorizedError("Unauthorized")
 
         return [ProjectGrant(**grant) for grant in response.json()]
@@ -134,9 +137,9 @@ class GrantMixin:
         response = await self.client.delete(f"/grant/{project_id}/users/{user_id}")
         if response.status_code == 404:
             raise NotFoundError("Project or grant not found")
-        elif response.status_code == 403:
+        if response.status_code == 403:
             raise PermissionDeniedError("Permission denied")
-        elif response.status_code == 401:
+        if response.status_code == 401:
             raise UnAuthorizedError("Unauthorized")
 
         return ProjectGrant(**response.json())
@@ -146,9 +149,9 @@ class GrantMixin:
         response = await self.client.get(f"/grant/projects/{project_id}/codes")
         if response.status_code == 404:
             raise ProjectNotFoundError("Project not found")
-        elif response.status_code == 403:
+        if response.status_code == 403:
             raise PermissionDeniedError("Permission denied")
-        elif response.status_code == 401:
+        if response.status_code == 401:
             raise UnAuthorizedError("Unauthorized")
 
         return [ProjectGrantCode(**grant) for grant in response.json()]
@@ -158,9 +161,9 @@ class GrantMixin:
         response = await self.client.delete(f"/grant/codes/{grant_code_id}")
         if response.status_code == 404:
             raise ProjectNotFoundError("Project not found")
-        elif response.status_code == 403:
+        if response.status_code == 403:
             raise PermissionDeniedError("Permission denied")
-        elif response.status_code == 401:
+        if response.status_code == 401:
             raise UnAuthorizedError("Unauthorized")
 
     async def update_project_access(self, project_id: uuid.UUID, user_id: uuid.UUID, new_level: str) -> ProjectGrant:
@@ -171,9 +174,9 @@ class GrantMixin:
         response = await self.client.patch(f"/grant/{project_id}/users/{user_id}", params=payload)
         if response.status_code == 404:
             raise NotFoundError("Project or grant not found")
-        elif response.status_code == 403:
+        if response.status_code == 403:
             raise PermissionDeniedError("Permission denied")
-        elif response.status_code == 401:
+        if response.status_code == 401:
             raise UnAuthorizedError("Unauthorized")
 
         return ProjectGrant(**response.json())
@@ -183,7 +186,7 @@ class GrantMixin:
         response = await self.client.delete(f"/grant/{project_id}/leave")
         if response.status_code == 404:
             raise NotFoundError("Project not found")
-        elif response.status_code == 403:
+        if response.status_code == 403:
             raise PermissionDeniedError("Permission denied")
-        elif response.status_code == 401:
+        if response.status_code == 401:
             raise UnAuthorizedError("Unauthorized")

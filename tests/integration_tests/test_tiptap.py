@@ -1,11 +1,12 @@
+"""Интеграционные тесты для работы с токенами TipTap"""
 import os
 from datetime import datetime, timedelta
 
 import pytest
 
-from integration_tests.test_client import LyricsClient
-from integration_tests.test_client.components.exceptions import PermissionDeniedError
-from integration_tests.test_client.components.projects import Project
+from tests.integration_tests.test_client import LyricsClient
+from tests.integration_tests.test_client.components.exceptions import PermissionDeniedError
+from tests.integration_tests.test_client.components.projects import Project
 
 
 @pytest.mark.asyncio
@@ -26,7 +27,7 @@ async def test_get_tiptap_token_owner(lyrics_client: LyricsClient, new_project: 
 
 @pytest.mark.asyncio
 async def test_get_tiptap_token_read_only(
-        lyrics_client: LyricsClient, lyrics_client_b: LyricsClient, new_project: Project
+    lyrics_client: LyricsClient, lyrics_client_b: LyricsClient, new_project: Project
 ):
     """Тест получения токена для TipTap с правами на чтение"""
     grant_code = await lyrics_client.get_project_share_code(new_project.project_id, "READ_ONLY", 1)
@@ -46,7 +47,7 @@ async def test_get_tiptap_token_read_only(
 
 @pytest.mark.asyncio
 async def test_get_tiptap_token_read_write(
-        lyrics_client: LyricsClient, lyrics_client_b: LyricsClient, new_project: Project
+    lyrics_client: LyricsClient, lyrics_client_b: LyricsClient, new_project: Project
 ):
     """Тест получения токена для TipTap с правами на чтение"""
     grant_code = await lyrics_client.get_project_share_code(new_project.project_id, "READ_WRITE", 1)
@@ -66,7 +67,7 @@ async def test_get_tiptap_token_read_write(
 
 @pytest.mark.asyncio
 async def test_get_tiptap_token_no_permissions(
-        lyrics_client: LyricsClient, lyrics_client_b: LyricsClient, new_project: Project
+    lyrics_client: LyricsClient, lyrics_client_b: LyricsClient, new_project: Project
 ):
     """Тест получения токена для TipTap без прав"""
     text = new_project.texts[0]

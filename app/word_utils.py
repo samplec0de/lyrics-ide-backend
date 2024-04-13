@@ -1,3 +1,4 @@
+"""Утилиты для работы со словами"""
 import enum
 
 import aiohttp
@@ -9,6 +10,8 @@ from app.models import WordMeaningModel
 
 
 class WordMeaningSource(str, enum.Enum):
+    """Источники значений слова"""
+
     OJEGOV = "Ojegov"
 
 

@@ -26,7 +26,8 @@ repos:
         language: python
         types: [ python ]
         require_serial: true
-        files: ^(app/api|app/models)
+        files: ^(app|tests)
+        exclude: ^(app/alembic)
         args:
           - "--in-place"
           - "--expand-star-imports"
@@ -39,7 +40,8 @@ repos:
         entry: black
         language: system
         types: [ python ]
-        files: ^(app/api|app/models)
+        files: ^(app|tests)
+        exclude: ^(app/alembic)
         args:
           [
             "-l", "120",
@@ -57,13 +59,15 @@ repos:
             "--rcfile=.pylintrc",
             "--ignore-imports=true"
           ]
-        files: ^(app/api|app/models)
+        files: ^(app|tests)
+        exclude: ^(app/alembic)
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.8.0
     hooks:
       - id: mypy
         args: [--config-file=mypy.ini]
-        files: ^(app/api|app/models)
+        files: ^(app|tests)
+        exclude: ^(app/alembic)
         language_version: "3.12"
         additional_dependencies:
           - types-requests==2.31.0.20240106

@@ -1,3 +1,6 @@
+"""Модуль с исключениями"""
+
+
 class PermissionDeniedError(Exception):
     """Ошибка доступа"""
 

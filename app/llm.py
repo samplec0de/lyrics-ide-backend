@@ -1,3 +1,4 @@
+"""Функции для интеграции с LLM"""
 import json
 from typing import cast
 
@@ -18,17 +19,14 @@ def get_llm_lyrics_completions(text_input: str):
         model=settings.openai_model,
         messages=[
             {"role": "system", "content": settings.openai_lyrics_prompt},
-            {"role": "user", "content": text_input}
+            {"role": "user", "content": text_input},
         ],
         temperature=settings.openai_temperature,
         max_tokens=150,
         n=settings.openai_lyrics_completions_count,
     )
 
-    return [
-        choice.message.content
-        for choice in response.choices
-    ]
+    return [choice.message.content for choice in response.choices]
 
 
 def get_llm_rhymes(word: str) -> list[str]:
@@ -40,10 +38,7 @@ def get_llm_rhymes(word: str) -> list[str]:
     """
     response = client.chat.completions.create(
         model=settings.openai_model,
-        messages=[
-            {"role": "system", "content": settings.openai_rhyme_prompt},
-            {"role": "user", "content": word}
-        ],
+        messages=[{"role": "system", "content": settings.openai_rhyme_prompt}, {"role": "user", "content": word}],
         response_format={"type": "json_object"},
         temperature=settings.openai_temperature,
         max_tokens=40,

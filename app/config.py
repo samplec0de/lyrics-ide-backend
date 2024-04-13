@@ -1,7 +1,10 @@
+"""Настройки приложения"""
 from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
+    """Класс настроек, данные которого загружаются из переменных окружения"""
+
     database_url: str
     echo_sql: bool = True
     project_name: str = "Lyrics IDE API"
@@ -27,14 +30,18 @@ class Settings(BaseSettings):
     tiptap_app_id: str
     tiptap_secret_key: str
 
-    openai_lyrics_prompt: str = ("Продолжи текст песни. "
-                                 "Добавь перенос строки, если не продолжаешь текущую строку, а начинаешь новую."
-                                 "В ответ пришли текст, который нужно добавить. учитывай регистр, старайся рифмовать")
+    openai_lyrics_prompt: str = (
+        "Продолжи текст песни. "
+        "Добавь перенос строки, если не продолжаешь текущую строку, а начинаешь новую."
+        "В ответ пришли текст, который нужно добавить. учитывай регистр, старайся рифмовать"
+    )
     openai_lyrics_completions_count: int = 2
-    openai_rhyme_prompt: str = ("Подбери рифму к слову для текста песни. "
-                                "В ответ пришли в формате JSON. "
-                                "По ключу rhymes массив рифмующихся слов или словосочетаний. "
-                                "Пример: {\"rhymes\": [...]}")
+    openai_rhyme_prompt: str = (
+        "Подбери рифму к слову для текста песни. "
+        "В ответ пришли в формате JSON. "
+        "По ключу rhymes массив рифмующихся слов или словосочетаний. "
+        'Пример: {"rhymes": [...]}'
+    )
     openai_model: str = "gpt-3.5-turbo-0125"
     openai_temperature: float = 0.7
     openai_api_key: str

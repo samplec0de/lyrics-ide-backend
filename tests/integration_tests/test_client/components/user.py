@@ -1,12 +1,14 @@
+"""Модуль для работы с пользователями"""
 import uuid
 
 from httpx import AsyncClient
 
-from integration_tests.test_client.components.exceptions import PermissionDeniedError
+from tests.integration_tests.test_client.components.exceptions import PermissionDeniedError
 
 
 class User:
     """Пользователь"""
+
     def __init__(self, user_id: str, email: str):
         self.user_id = uuid.UUID(user_id, version=4)
         self.email = email

@@ -1,21 +1,26 @@
+"""Компонент для работы с текстами"""
 import datetime
 import uuid
 
 from httpx import AsyncClient
 
-from integration_tests.test_client.components.exceptions import TextNotFoundError, UnAuthorizedError, \
-    PermissionDeniedError
+from tests.integration_tests.test_client.components.exceptions import (
+    TextNotFoundError,
+    UnAuthorizedError,
+    PermissionDeniedError,
+)
 
 
 class Text:
     """Текст"""
+
     def __init__(
-            self,
-            text_id: str,
-            name: str | None,
-            created_at: datetime.datetime,
-            updated_at: datetime.datetime,
-            **_,
+        self,
+        text_id: str,
+        name: str | None,
+        created_at: datetime.datetime,
+        updated_at: datetime.datetime,
+        **_,
     ):
         self.text_id = uuid.UUID(text_id, version=4)
         self.name = name
@@ -32,6 +37,7 @@ class Text:
 
 class TextMixin:
     """Миксин для текста"""
+
     def __init__(self, client: AsyncClient):
         self.client = client
 
@@ -54,9 +60,9 @@ class TextMixin:
 
         if response.status_code == 404:
             raise TextNotFoundError("Text not found")
-        elif response.status_code == 401:
+        if response.status_code == 401:
             raise UnAuthorizedError("Unauthorized")
-        elif response.status_code == 403:
+        if response.status_code == 403:
             raise PermissionDeniedError("Permission denied")
 
         return Text(**response.json())
@@ -74,9 +80,9 @@ class TextMixin:
 
         if response.status_code == 404:
             raise TextNotFoundError("Text not found")
-        elif response.status_code == 401:
+        if response.status_code == 401:
             raise UnAuthorizedError("Unauthorized")
-        elif response.status_code == 403:
+        if response.status_code == 403:
             raise PermissionDeniedError("Permission denied")
 
         return Text(**response.json())
@@ -87,8 +93,8 @@ class TextMixin:
 
         if response.status_code == 404:
             raise TextNotFoundError("Text not found")
-        elif response.status_code == 401:
+        if response.status_code == 401:
             raise UnAuthorizedError("Unauthorized")
-        elif response.status_code == 403:
+        if response.status_code == 403:
             raise PermissionDeniedError("Permission denied")
         response.raise_for_status()

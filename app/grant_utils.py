@@ -1,3 +1,4 @@
+"""Утилиты для работы с уровнями доступа к проектам"""
 import uuid
 
 from sqlalchemy import select

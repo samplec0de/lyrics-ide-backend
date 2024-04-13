@@ -1,19 +1,24 @@
+"""Модуль для работы с музыкой"""
 import uuid
 
 from httpx import AsyncClient
 
-from integration_tests.test_client.components.exceptions import MusicNotFoundError, ProjectNotFoundError, \
-    PermissionDeniedError
+from tests.integration_tests.test_client.components.exceptions import (
+    MusicNotFoundError,
+    ProjectNotFoundError,
+    PermissionDeniedError,
+)
 
 
 class Music:
     """Музыка"""
+
     def __init__(
-            self,
-            url: str,
-            duration_seconds: float,
-            bpm: int | None,
-            custom_bpm: int | None,
+        self,
+        url: str,
+        duration_seconds: float,
+        bpm: int | None,
+        custom_bpm: int | None,
     ):
         self.url = url
         self.duration_seconds = duration_seconds
@@ -23,18 +28,20 @@ class Music:
 
 class MusicMixin:
     """Миксин для работы с музыкой"""
+
     def __init__(self, client: AsyncClient):
         self.client = client
 
     async def upload_music(self, file_path: str, project_id: uuid.UUID) -> Music:
         """Загрузить музыку"""
-        response = await self.client.post(
-            f"/music/{project_id}",
-            files={"music": open(file_path, "rb")},
-        )
+        with open(file_path, "rb") as file:
+            response = await self.client.post(
+                f"/music/{project_id}",
+                files={"music": file},
+            )
         if response.status_code == 404:
             raise ProjectNotFoundError("Проект не найден")
-        elif response.status_code == 403:
+        if response.status_code == 403:
             raise PermissionDeniedError("Недостаточно прав")
         return Music(**response.json())
 

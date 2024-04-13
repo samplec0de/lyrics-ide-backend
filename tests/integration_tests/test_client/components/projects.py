@@ -1,29 +1,36 @@
+"""Компоненты для работы с проектами"""
 import datetime
 import uuid
 
 from httpx import AsyncClient
 
-from integration_tests.test_client.components.exceptions import PermissionDeniedError, UnAuthorizedError, \
-    ProjectNotFoundError, MusicNotFoundError
-from integration_tests.test_client.components.grant_level import GrantLevel
-from integration_tests.test_client.components.music import Music
-from integration_tests.test_client.components.text import Text
+from tests.integration_tests.test_client.components.exceptions import (
+    PermissionDeniedError,
+    UnAuthorizedError,
+    ProjectNotFoundError,
+    MusicNotFoundError,
+)
+from tests.integration_tests.test_client.components.grant_level import GrantLevel
+from tests.integration_tests.test_client.components.music import Music
+from tests.integration_tests.test_client.components.text import Text
 
 
+# pylint: disable=too-many-arguments
 class Project:
     """Проект"""
+
     def __init__(
-            self,
-            project_id: str,
-            name: str,
-            description: str,
-            owner_user_id: str,
-            is_owner: bool,
-            grant_level: GrantLevel | None,
-            created_at: datetime.datetime,
-            updated_at: datetime.datetime,
-            texts: list[dict],
-            music: dict | None,
+        self,
+        project_id: str,
+        name: str,
+        description: str,
+        owner_user_id: str,
+        is_owner: bool,
+        grant_level: GrantLevel | None,
+        created_at: datetime.datetime,
+        updated_at: datetime.datetime,
+        texts: list[dict],
+        music: dict | None,
     ):
         self.project_id = uuid.UUID(project_id, version=4)
         self.name = name
@@ -43,12 +50,16 @@ class Project:
             )
             for text in texts
         ]
-        self.music = Music(
-            url=music["url"],
-            duration_seconds=music["duration_seconds"],
-            bpm=music["bpm"],
-            custom_bpm=music["custom_bpm"],
-        ) if music else None
+        self.music = (
+            Music(
+                url=music["url"],
+                duration_seconds=music["duration_seconds"],
+                bpm=music["bpm"],
+                custom_bpm=music["custom_bpm"],
+            )
+            if music
+            else None
+        )
 
     def __eq__(self, other):
         return (
@@ -66,6 +77,8 @@ class Project:
 
 
 class ProjectsMixin:
+    """Миксин для проектов"""
+
     def __init__(self, client: AsyncClient):
         self.client = client
 
@@ -99,7 +112,7 @@ class ProjectsMixin:
         response = await self.client.get("/projects/")
         return [Project(**project) for project in response.json()]
 
-    async def update_project(self, project_id: uuid.UUID, name: str, description: str) -> Project:
+    async def update_project(self, project_id: uuid.UUID, name: str | None, description: str | None) -> Project:
         """Обновить проект"""
         payload = {}
         if name is not None:

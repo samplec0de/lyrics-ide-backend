@@ -1,3 +1,4 @@
+"""Тесты на получение значений, синонимов и рифм к слову"""
 import pytest
 from httpx import AsyncClient
 
@@ -15,19 +16,17 @@ from tests.conftest import DBSession
 )
 @pytest.mark.asyncio
 async def test_word_meanings(word: str, expected: list[str], db_session: DBSession, authorized_client: AsyncClient):
+    """Тест на получение значений слова"""
     words = [
         WordMeaningModel(word_meaning_id=1, word="Кот", meaning="Самец кошки", first_character="к"),
         WordMeaningModel(
-            word_meaning_id=2,
-            word="Кот",
-            meaning="О похотливом, сластолюбивом мужчине",
-            first_character="к"
+            word_meaning_id=2, word="Кот", meaning="О похотливом, сластолюбивом мужчине", first_character="к"
         ),
         WordMeaningModel(
             word_meaning_id=3,
             word="Телевизор",
             meaning="Аппарат для приема телевизионных передач, телевизионный приемник",
-            first_character="т"
+            first_character="т",
         ),
     ]
     for dict_word in words:
@@ -53,6 +52,7 @@ async def test_word_meanings(word: str, expected: list[str], db_session: DBSessi
 )
 @pytest.mark.asyncio
 async def test_word_synonyms(word: str, expected: list[str], authorized_client: AsyncClient):
+    """Тест на получение синонимов к слову"""
     response = await authorized_client.get(
         "/words/synonyms",
         params={"word": word},
@@ -62,14 +62,16 @@ async def test_word_synonyms(word: str, expected: list[str], authorized_client: 
 
 
 @pytest.mark.parametrize(
-    "text, expected", [
+    "text, expected",
+    [
         pytest.param("логика", ["ритмика"], id="smoke"),
         pytest.param("палка", ["балка", "капалка"], id="smoke-2"),
         pytest.param("абвгджц", [], id="no rhymes"),
-    ]
+    ],
 )
 @pytest.mark.asyncio
 async def test_word_rhyming(authorized_client: AsyncClient, mocker, text: str, expected: list[str]):
+    """Тест на получение рифм к слову"""
     mocker.patch("app.api.routers.word.get_llm_rhymes", return_value=expected)
     response = await authorized_client.get(
         "/words/rhyming",
