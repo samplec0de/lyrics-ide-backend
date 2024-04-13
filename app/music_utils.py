@@ -21,7 +21,7 @@ async def get_file_bpm(path) -> int | None:
         ffmpeg_process = FFmpeg().option("y").input(path).output(temporary_file_path)
         await ffmpeg_process.execute()
 
-        audio_source = source(temporary_file_path, samplerate, hop_s)
+        audio_source = source(temporary_file_path, hop_size=hop_s)
         samplerate = audio_source.samplerate
         tempo_detector = tempo("specdiff", win_s, hop_s, samplerate)
 
