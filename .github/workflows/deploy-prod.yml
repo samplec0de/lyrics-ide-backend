@@ -51,7 +51,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: unit-test-coverage
-          path: coverage-unit.xml
+          path: tests/unit_tests/coverage-unit.xml
 
 
   integration-tests:
@@ -102,7 +102,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: integration-test-coverage
-          path: coverage-integration.xml
+          path: tests/integration_tests/coverage-integration.xml
 
 
   merge-coverage:
