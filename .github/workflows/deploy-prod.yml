@@ -122,16 +122,16 @@ jobs:
           pip install coverage
 
       - name: Download all artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
 
       - name: Merge coverage reports
         run: |
-          coverage combine coverage-unit.xml coverage-integration.xml
+          coverage combine tests/unit_tests/coverage-unit.xml tests/integration_tests/coverage-integration.xml
           coverage report
           coverage xml -o coverage-combined.xml
 
       - name: Upload combined coverage to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           file: ./coverage-combined.xml
           fail_ci_if_error: true
