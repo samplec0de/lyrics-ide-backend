@@ -22,6 +22,24 @@ jobs:
           pip install -Ur requirements.txt -Ur requirements.tests.txt
 
       - name: Run unit tests with coverage
+        env:
+          PYTHONUNBUFFERED: "1"
+          DATABASE_URL: "sqlite+aiosqlite:///:memory:"
+          OPENAI_API_KEY: "dummy"
+          S3_ACCESS_KEY: ${{ secrets.S3_ACCESS_KEY }}
+          S3_SECRET_KEY: ${{ secrets.S3_SECRET_KEY }}
+          S3_BUCKET: ${{ vars.S3_BUCKET }}
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          SMTP_EMAIL: ${{ secrets.SMTP_EMAIL }}
+          SMTP_NAME: ${{ secrets.SMTP_NAME }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          SMTP_PORT: ${{ vars.SMTP_PORT }}
+          SMTP_SERVER: ${{ secrets.SMTP_SERVER }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          TIPTAP_APP_ID: ${{ vars.TIPTAP_APP_ID }}
+          TIPTAP_SECRET_KEY: ${{ secrets.TIPTAP_SECRET_KEY }}
+          YANDEX_DICT_KEY: ${{ secrets.YANDEX_DICT_KEY }}
+          YANDEX_ID_SECRET_KEY: ${{ secrets.YANDEX_ID_SECRET_KEY }}
         run: |
           cd tests/unit_tests
           PYTHONPATH="../:$PYTHONPATH"
@@ -45,6 +63,24 @@ jobs:
           pip install pytest pytest-cov
 
       - name: Run integration tests with coverage
+        env:
+          PYTHONUNBUFFERED: "1"
+          DATABASE_URL: "sqlite+aiosqlite:///:memory:"
+          OPENAI_API_KEY: "dummy"
+          S3_ACCESS_KEY: ${{ secrets.S3_ACCESS_KEY }}
+          S3_SECRET_KEY: ${{ secrets.S3_SECRET_KEY }}
+          S3_BUCKET: ${{ vars.S3_BUCKET }}
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          SMTP_EMAIL: ${{ secrets.SMTP_EMAIL }}
+          SMTP_NAME: ${{ secrets.SMTP_NAME }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          SMTP_PORT: ${{ vars.SMTP_PORT }}
+          SMTP_SERVER: ${{ secrets.SMTP_SERVER }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          TIPTAP_APP_ID: ${{ vars.TIPTAP_APP_ID }}
+          TIPTAP_SECRET_KEY: ${{ secrets.TIPTAP_SECRET_KEY }}
+          YANDEX_DICT_KEY: ${{ secrets.YANDEX_DICT_KEY }}
+          YANDEX_ID_SECRET_KEY: ${{ secrets.YANDEX_ID_SECRET_KEY }}
         run: |
           cd tests/integration_tests
           PYTHONPATH="../:$PYTHONPATH"
