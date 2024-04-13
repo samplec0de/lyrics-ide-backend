@@ -6,6 +6,48 @@ on:
       - main
 
 jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          pip install -Ur requirements.txt -Ur requirements.tests.txt
+
+      - name: Run unit tests with coverage
+        run: |
+          cd tests/unit_tests
+          PYTHONPATH="../:$PYTHONPATH" pytest . --cov=app --cov-report=xml:coverage-unit.xml
+
+  integration-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install pytest pytest-cov
+
+      - name: Run integration tests with coverage
+        run: |
+          cd tests/integration_tests
+          PYTHONPATH="../:$PYTHONPATH" 
+          pytest . --cov=app --cov-report=xml:coverage-integration.xml
+
   build:
     runs-on: ubuntu-latest
     steps:

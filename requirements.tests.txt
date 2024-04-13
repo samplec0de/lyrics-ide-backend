@@ -3,3 +3,4 @@ asgi-lifespan==2.1.0
 pytest-asyncio==0.23.6
 pytest-mock==3.14.0
 aiosqlite==0.20.0
+pytest-cov==5.0.0
