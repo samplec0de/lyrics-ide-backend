@@ -13,7 +13,7 @@ from tests.conftest import DBSession
         pytest.param("абвгджц", [], id="no meanings"),
     ],
 )
-@pytest.mark.asyncid
+@pytest.mark.asyncio
 async def test_word_meanings(word: str, expected: list[str], db_session: DBSession, authorized_client: AsyncClient):
     words = [
         WordMeaningModel(word_meaning_id=1, word="Кот", meaning="Самец кошки", first_character="к"),
@@ -51,7 +51,7 @@ async def test_word_meanings(word: str, expected: list[str], db_session: DBSessi
         pytest.param("абвгджц", [], id="no synonyms"),
     ],
 )
-@pytest.mark.asyncid
+@pytest.mark.asyncio
 async def test_word_synonyms(word: str, expected: list[str], authorized_client: AsyncClient):
     response = await authorized_client.get(
         "/words/synonyms",

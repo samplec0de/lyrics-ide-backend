@@ -75,3 +75,20 @@ repos:
           - aiohttp==3.9.1
           - motor==3.3.2
           - openai==1.14.0
+          - pytest==8.1.1
+          - asgi-lifespan==2.1.0
+          - pytest-asyncio==0.23.6
+          - pytest-mock==3.14.0
+          - aiosqlite==0.20.0
+  - repo: local
+    hooks:
+      - id: unit-tests
+        name: Unit Tests
+        entry: bash -c 'set -a && source ./.env.precommit && cd tests/unit_tests && PYTHONPATH="../:$PYTHONPATH" pytest .'
+        language: system
+        pass_filenames: false
+      - id: integration-tests
+        name: Integration Tests
+        entry: bash -c 'set -a && source ./.env.precommit && cd tests/integration_tests && PYTHONPATH="../:$PYTHONPATH" pytest .'
+        language: system
+        pass_filenames: false

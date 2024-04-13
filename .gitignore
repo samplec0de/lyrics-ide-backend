@@ -122,6 +122,7 @@ celerybeat.pid
 
 # Environments
 .env
+.env.precommit
 .venv
 env/
 venv/
@@ -167,7 +168,8 @@ cython_debug/
 .LSOverride
 
 # Icon must end with two \r
-Icon
+Icon
+
 
 # Thumbnails
 ._*
