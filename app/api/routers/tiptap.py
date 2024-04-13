@@ -19,7 +19,7 @@ router = APIRouter()
     },
     operation_id="get_tiptap_token",
 )
-async def get_tiptap_access_token_v2(
+async def get_tiptap_access_token(
     grant_level: TextGrantLevelAnnotation,
     text_model: TextAnnotation,
 ) -> Token:
