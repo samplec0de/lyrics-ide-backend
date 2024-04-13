@@ -91,8 +91,12 @@ repos:
         entry: bash -c 'set -a && source ./.env.precommit && cd tests/unit_tests && PYTHONPATH="../:$PYTHONPATH" pytest .'
         language: system
         pass_filenames: false
+        files: ^(app|tests)
+        exclude: ^(app/alembic)
       - id: integration-tests
         name: Integration Tests
         entry: bash -c 'set -a && source ./.env.precommit && cd tests/integration_tests && PYTHONPATH="../:$PYTHONPATH" pytest .'
         language: system
         pass_filenames: false
+        files: ^(app|tests)
+        exclude: ^(app/alembic)
