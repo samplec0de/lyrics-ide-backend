@@ -61,6 +61,8 @@ jobs:
         run: |
           pip install -Ur requirements.txt -Ur requirements.tests.txt
           pip install pytest pytest-cov
+          apt-get update
+          apt-get install -y ffmpeg
 
       - name: Run integration tests with coverage
         env:
