@@ -25,8 +25,6 @@ class Settings(BaseSettings):
 
     yandex_dict_key: str
 
-    mongo_url: str
-
     tiptap_app_id: str
     tiptap_secret_key: str
 

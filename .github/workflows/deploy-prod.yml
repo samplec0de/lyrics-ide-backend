@@ -24,7 +24,9 @@ jobs:
       - name: Run unit tests with coverage
         run: |
           cd tests/unit_tests
-          PYTHONPATH="../:$PYTHONPATH" pytest . --cov=app --cov-report=xml:coverage-unit.xml
+          PYTHONPATH="../:$PYTHONPATH"
+          DATABASE_URL=sqlite+aiosqlite:///:memory:
+          pytest . --cov=app --cov-report=xml:coverage-unit.xml
 
   integration-tests:
     runs-on: ubuntu-latest
@@ -45,7 +47,8 @@ jobs:
       - name: Run integration tests with coverage
         run: |
           cd tests/integration_tests
-          PYTHONPATH="../:$PYTHONPATH" 
+          PYTHONPATH="../:$PYTHONPATH"
+          DATABASE_URL=sqlite+aiosqlite:///:memory:
           pytest . --cov=app --cov-report=xml:coverage-integration.xml
 
   build:
