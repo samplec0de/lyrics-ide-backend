@@ -4,6 +4,7 @@ import uuid
 from typing import Annotated
 
 from fastapi import APIRouter, Body, Depends, HTTPException, status
+from sqlalchemy.orm import selectinload
 
 from app.api.annotations import TextAnnotation, TextGrantLevelAnnotation
 from app.api.dependencies.core import DBSessionDep
@@ -65,11 +66,25 @@ async def get_tiptap_access_token(
 async def update_document(json_body: Annotated[dict, Body], db_session: DBSessionDep) -> dict:
     """Webhook, который вызывается TipTap после обновления текста"""
     text_id = uuid.UUID(json_body.get("name"), version=4)
-    text_model = await db_session.get(TextModel, text_id)
+    # select text_model and project attribute
+    text_model = await db_session.get(
+        TextModel,
+        text_id,
+        options=[
+            selectinload(TextModel.project),
+        ],
+    )
     if text_model is None:
         return {"message": f"document {text_id} not found"}
 
-    text_model.updated_at = datetime.datetime.now(datetime.timezone.utc)
+    new_updated_at = datetime.datetime.now(datetime.timezone.utc)
+    text_model.updated_at = new_updated_at
+    project_model = text_model.project
+    project_model.updated_at = new_updated_at
+
+    db_session.add(text_model)
+    await db_session.commit()
+
     print(f"Обновлен текст {text_model.text_id} из TipTap:\n", json_body)
 
     return {"message": "ok"}

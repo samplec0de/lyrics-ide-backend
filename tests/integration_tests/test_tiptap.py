@@ -93,3 +93,6 @@ async def test_update_document_webhook(
 
     updated_text = await lyrics_client.get_text(text.text_id)
     assert updated_text.updated_at > text.updated_at
+
+    updated_project = await lyrics_client.get_project(new_project.project_id)
+    assert updated_project.updated_at > new_project.updated_at
