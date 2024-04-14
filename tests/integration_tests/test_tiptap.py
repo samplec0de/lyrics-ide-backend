@@ -3,6 +3,7 @@ import os
 from datetime import datetime, timedelta
 
 import pytest
+from httpx import AsyncClient
 
 from tests.integration_tests.test_client import LyricsClient
 from tests.integration_tests.test_client.components.exceptions import PermissionDeniedError
@@ -73,3 +74,22 @@ async def test_get_tiptap_token_no_permissions(
     text = new_project.texts[0]
     with pytest.raises(PermissionDeniedError):
         await lyrics_client_b.get_tiptap_token(text.text_id)
+
+
+@pytest.mark.asyncio
+async def test_update_document_webhook(
+    unauthorized_client: AsyncClient, lyrics_client: LyricsClient, new_project: Project
+):
+    """Тест обновления документа через webhook"""
+    text = new_project.texts[0]
+    tiptap_payload = {
+        "name": str(text.text_id),
+    }
+
+    response = await unauthorized_client.post("/tiptap/webhook", json=tiptap_payload)
+
+    assert response.status_code == 200
+    assert response.json() == {"message": "ok"}
+
+    updated_text = await lyrics_client.get_text(text.text_id)
+    assert updated_text.updated_at > text.updated_at

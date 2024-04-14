@@ -24,7 +24,7 @@ async def lifespan(_):
 app = FastAPI(
     title="Lyrics IDE Backend",
     summary="Серверная часть веб-приложения для создания текстов песен",
-    version="1.31.1",
+    version="1.32.0",
 )
 
 app.include_router(
@@ -59,7 +59,6 @@ app.include_router(
 app.include_router(
     tiptap.router,
     prefix="/tiptap",
-    dependencies=[Depends(check_current_user)],
     tags=["TipTap"],
 )
 app.include_router(
