@@ -42,11 +42,13 @@ async def get_tiptap_access_token(
     if grant_level is None:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Вы не имеете доступа к тексту")
 
+    now = datetime.datetime.now(datetime.timezone.utc)
+
     access_token = create_access_token(
         data={
-            "iat": datetime.datetime.now(datetime.timezone.utc),
+            "iat": now,
             "iss": "https://lyrics-backend.k8s-1.sslane.ru",
-            "nbf": datetime.datetime.now(datetime.timezone.utc),
+            "nbf": now,
             "aud": settings.tiptap_app_id,
             "allowedDocumentNames": [str(text_model.text_id)],
             "readonlyDocumentNames": [str(text_model.text_id)] if grant_level == GrantLevel.READ_ONLY else [],
@@ -77,7 +79,7 @@ async def update_document(json_body: Annotated[dict, Body], db_session: DBSessio
     if text_model is None:
         return {"message": f"document {text_id} not found"}
 
-    new_updated_at = datetime.datetime.now(datetime.timezone.utc)
+    new_updated_at = datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None)
     text_model.updated_at = new_updated_at
     project_model = text_model.project
     project_model.updated_at = new_updated_at
