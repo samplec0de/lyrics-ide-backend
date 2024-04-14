@@ -12,7 +12,7 @@ class TipTapClient:
 
     async def delete_document(self, document_id: str) -> bool:
         """Удаление документа"""
-        url = f"{self.base_url}/documents/{document_id}"
-        async with httpx.AsyncClient(headers={"Authorization": f"{self.api_secret}"}) as client:
+        url = f"{self.base_url}/api/documents/{document_id}"
+        async with httpx.AsyncClient(headers={"Authorization": self.api_secret}) as client:
             response = await client.delete(url)
             return response.status_code == 204

@@ -104,7 +104,9 @@ async def delete_text(text: OwnTextAnnotation, db_session: DBSessionDep, tiptap_
             status_code=status.HTTP_403_FORBIDDEN, detail="Нельзя удалить единственный текст из проекта"
         )
 
+    deleted_from_tiptap = await tiptap_client.delete_document(str(text.text_id))
+    if not deleted_from_tiptap:
+        print(f"Ошибка удаления текста {text.text_id} из TipTap")
+
     await db_session.delete(text)
     await db_session.commit()
-
-    await tiptap_client.delete_document(str(text.text_id))
