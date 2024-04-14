@@ -8,8 +8,10 @@ from sqlalchemy.orm import selectinload
 
 from app.api.dependencies.core import DBSessionDep
 from app.auth import get_current_user
+from app.config import settings
 from app.models import ProjectGrantCodeModel, ProjectGrantModel, ProjectModel, TextModel, UserModel
 from app.models.grant import GrantLevel
+from app.tiptap_utils import TipTapClient
 
 
 async def get_project_by_id(
@@ -158,3 +160,8 @@ async def get_grant_code_by_id(
         )
 
     return grant_code
+
+
+async def get_tiptap_client() -> TipTapClient:
+    """Получить клиент TipTap"""
+    return TipTapClient(app_id=settings.tiptap_app_id, api_secret=settings.tiptap_api_secret)

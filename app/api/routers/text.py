@@ -2,7 +2,7 @@
 from fastapi import APIRouter, HTTPException, status
 from sqlalchemy import func, select
 
-from app.api.annotations import OwnOrGrantTextAnnotation, OwnTextAnnotation
+from app.api.annotations import OwnOrGrantTextAnnotation, OwnTextAnnotation, TipTapClientAnnotation
 from app.api.dependencies.core import DBSessionDep
 from app.api.schemas import TextVariant, TextVariantIn, TextVariantWithoutID
 from app.models import TextModel
@@ -93,7 +93,7 @@ async def update_text(
     responses={**TEXT_NOT_FOUND, **CANNOT_REMOVE_SINGLE_TEXT},
     operation_id="delete_text",
 )
-async def delete_text(text: OwnTextAnnotation, db_session: DBSessionDep) -> None:
+async def delete_text(text: OwnTextAnnotation, db_session: DBSessionDep, tiptap_client: TipTapClientAnnotation) -> None:
     """Удаление варианта текста"""
     # pylint: disable=not-callable
     count_query = await db_session.execute(select(func.count()).where(TextModel.project_id == text.project_id))
@@ -106,3 +106,5 @@ async def delete_text(text: OwnTextAnnotation, db_session: DBSessionDep) -> None
 
     await db_session.delete(text)
     await db_session.commit()
+
+    await tiptap_client.delete_document(str(text.text_id))

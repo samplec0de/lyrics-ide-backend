@@ -27,6 +27,7 @@ class Settings(BaseSettings):
 
     tiptap_app_id: str
     tiptap_secret_key: str
+    tiptap_api_secret: str
 
     openai_lyrics_prompt: str = (
         "Продолжи текст песни. "

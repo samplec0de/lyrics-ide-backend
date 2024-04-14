@@ -39,6 +39,7 @@ jobs:
           SMTP_USER: ${{ secrets.SMTP_USER }}
           TIPTAP_APP_ID: ${{ vars.TIPTAP_APP_ID }}
           TIPTAP_SECRET_KEY: ${{ secrets.TIPTAP_SECRET_KEY }}
+          TIPTAP_API_SECRET: ${{ secrets.TIPTAP_API_SECRET }}
           YANDEX_DICT_KEY: ${{ secrets.YANDEX_DICT_KEY }}
           YANDEX_ID_SECRET_KEY: ${{ secrets.YANDEX_ID_SECRET_KEY }}
         run: |
@@ -94,6 +95,7 @@ jobs:
           SMTP_USER: ${{ secrets.SMTP_USER }}
           TIPTAP_APP_ID: ${{ vars.TIPTAP_APP_ID }}
           TIPTAP_SECRET_KEY: ${{ secrets.TIPTAP_SECRET_KEY }}
+          TIPTAP_API_SECRET: ${{ secrets.TIPTAP_API_SECRET }}
           YANDEX_DICT_KEY: ${{ secrets.YANDEX_DICT_KEY }}
           YANDEX_ID_SECRET_KEY: ${{ secrets.YANDEX_ID_SECRET_KEY }}
         run: |
