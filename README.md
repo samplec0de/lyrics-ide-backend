@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="lyrics-ide-backend.png" width="60%" alt="project-logo">
+  <img src="docs/lyrics-ide-backend.png" width="60%" alt="project-logo">
 </p>
 <p align="center">
     <h1 align="center">LYRICS-IDE-BACKEND</h1>
