@@ -2,11 +2,15 @@
 import enum
 
 import aiohttp
+import pymorphy3
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
 from app.models import WordMeaningModel
+
+
+morph = pymorphy3.MorphAnalyzer()
 
 
 class WordMeaningSource(str, enum.Enum):
@@ -15,11 +19,27 @@ class WordMeaningSource(str, enum.Enum):
     OJEGOV = "Ojegov"
 
 
+def get_word_normal_forms(word: str) -> set[str]:
+    """Приведение слова к нормальной форме.
+    Так как вариантов может быть несколько в зависимости от значения, возвращается множество."""
+    parsing_result = morph.parse(word)
+    if parsing_result:
+        normal_forms = {word_variant.normal_form for word_variant in parsing_result}
+    else:
+        normal_forms = {word}
+    return normal_forms
+
+
 async def get_word_meanings(word: str, db_session: AsyncSession) -> list[str]:
-    """Получить значения слова"""
-    word_meaning_query = select(WordMeaningModel).where(WordMeaningModel.word == word.lower().capitalize())
+    """Получить значения всех нормальных форм слова"""
+    normal_forms = get_word_normal_forms(word)
+
+    word_meaning_query = select(WordMeaningModel).where(
+        WordMeaningModel.word.in_([form.lower().capitalize() for form in normal_forms])
+    )
     word_meaning_results = await db_session.execute(word_meaning_query)
     word_meanings = [word_meaning.meaning for word_meaning in word_meaning_results.scalars()]
+
     return word_meanings
 
 

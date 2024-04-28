@@ -13,3 +13,5 @@ aubio==0.4.9
 python-ffmpeg==2.0.10
 aiohttp==3.9.3
 openai==1.14.0
+pymorphy3==2.0.1
+pymorphy3-dicts-ru
