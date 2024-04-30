@@ -4,7 +4,7 @@ types-sqlalchemy==1.4.53.38
 types-python-jose==3.3.4.20240106
 pylint==3.0.3
 pycodestyle==2.11.1
-black==23.12.1
+black==24.3.0
 autoflake==2.2.1
 isort==5.13.2
 no_implicit_optional==1.4
